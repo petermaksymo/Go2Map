@@ -36,7 +36,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11 -O3 -fopenmp"/>
+        <element flagsID="0" commonFlags="-std=c++14 -O3 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -47,6 +47,17 @@
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>mapper</executablePath>
           <ccTool flags="-O3 -std=c++11 -fopenmp">
+            <incDir>
+              <pElem>/cad2/ece297s/public/include/milestones</pElem>
+              <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng16</pElem>
+              <pElem>.</pElem>
+            </incDir>
           </ccTool>
         </makeTool>
         <preBuild>
@@ -54,30 +65,11 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <folder path="0/libstreetmap">
-        <ccTool>
-          <incDir>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/main">
-        <ccTool>
-          <incDir>
-            <pElem>/cad2/ece207s/public/include/streetsdatabase</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
+      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>

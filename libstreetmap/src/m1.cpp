@@ -41,3 +41,7 @@ void close_map() {
     //Clean-up your map related data structures here
     
 }
+
+unsigned find_closest_intersection(LatLon my_position) {
+    
+}
