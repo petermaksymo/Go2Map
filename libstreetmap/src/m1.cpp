@@ -63,7 +63,15 @@ std::vector<std::string> find_intersection_street_names(unsigned intersection_id
 }
 
 bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
-    return true;
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id1); i++ ) {
+        StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id1); 
+        if(getInfoStreetSegment(street_segment_index).to == intersection_id2) return true;
+    }
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id2); i++ ) {
+        StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id2); 
+        if(getInfoStreetSegment(street_segment_index).to == intersection_id1) return true;
+    }
+    return false;
 }
 
 std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
