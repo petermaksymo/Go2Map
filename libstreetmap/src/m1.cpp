@@ -42,6 +42,73 @@ void close_map() {
     
 }
 
-unsigned find_closest_intersection(LatLon my_position) {
+std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {
+    std::vector<unsigned> street_segments = {0, 1};
     
+    return street_segments;
+}
+
+std::vector<std::string> find_intersection_street_names(unsigned intersection_id) {
+    std::vector<std::string> street_names = {"test0", "test1"};
+    
+    return street_names;
+}
+
+bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
+    return true;
+}
+
+std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
+    std::vector<unsigned> adjacent_intersections = {0, 1};
+    
+    return adjacent_intersections;
+}
+
+std::vector<unsigned> find_street_street_segments(unsigned street_id) {
+    std::vector<unsigned> street_segments = {0, 1};
+    
+    return street_segments;
+}
+
+std::vector<unsigned> find_all_street_intersections(unsigned street_id) {
+    std::vector<unsigned> street_intersections = {0, 1};
+    
+    return street_intersections;
+}
+
+std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1, 
+                                                              unsigned street_id2) {
+    std::vector<unsigned> intersection_ids = {0, 1};
+    
+    return intersection_ids;
+}
+
+double find_distance_between_two_points(LatLon point1, LatLon point2) {
+    return 0.0;
+}
+
+double find_street_segment_length(unsigned street_segment_id) {
+    return 0.0;
+}
+
+double find_street_length(unsigned street_id) {
+    return 0.0;
+}
+
+double find_street_segment_travel_time(unsigned street_segment_id) {
+    return 0.0;
+}
+
+unsigned find_closest_point_of_interest(LatLon my_position) {
+    return 0;
+}
+
+unsigned find_closest_intersection(LatLon my_position) {
+    return 0;
+}
+
+std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
+    std::vector<unsigned> street_ids = {0, 1};
+    
+    return street_ids;
 }

@@ -7,6 +7,7 @@
           <in>m1.cpp</in>
         </df>
         <df name="tests">
+          <in>example_test.cpp</in>
           <in>tester_main.cpp</in>
         </df>
       </df>
@@ -82,6 +83,7 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-std=c++11 -fopenmp"/>
+        <element flagsID="1" commonFlags="-std=c++14 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -95,8 +97,6 @@
             <incDir>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-              <pElem>/usr/include/freetype2</pElem>
-              <pElem>.</pElem>
             </incDir>
           </ccTool>
         </makeTool>
@@ -107,17 +107,34 @@
       </makefileType>
       <folder path="0/libstreetmap">
         <ccTool>
+          <incDir>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
           <preprocessorList>
             <Elem>_GLIBCXX_DEBUG</Elem>
           </preprocessorList>
+        </ccTool>
+      </folder>
+      <folder path="0/main">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>.</pElem>
+          </incDir>
         </ccTool>
       </folder>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
+      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
         </ccTool>
       </item>
     </conf>
@@ -129,6 +146,7 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-std=c++11 -fsanitize=address -fopenmp"/>
+        <element flagsID="1" commonFlags="-std=c++14 -fsanitize=address -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -142,8 +160,6 @@
             <incDir>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-              <pElem>/usr/include/freetype2</pElem>
-              <pElem>.</pElem>
             </incDir>
             <preprocessorList>
               <Elem>_GLIBCXX_DEBUG</Elem>
@@ -155,12 +171,33 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <folder path="0/libstreetmap">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/main">
+        <ccTool>
+          <incDir>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
+      <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
         </ccTool>
       </item>
     </conf>
@@ -173,6 +210,7 @@
       <flagsDictionary>
         <element flagsID="0" commonFlags="-O3 -std=c++11 -fopenmp"/>
         <element flagsID="1" commonFlags="-std=c++11 -O3 -fopenmp"/>
+        <element flagsID="2" commonFlags="-std=c++14 -O3 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -188,11 +226,17 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <folder path="0/libstreetmap/src">
+      <folder path="0/libstreetmap">
         <ccTool>
           <incDir>
             <pElem>/cad2/ece297s/public/include/milestones</pElem>
             <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="0/libstreetmap/src">
+        <ccTool>
+          <incDir>
             <pElem>/usr/include/freetype2</pElem>
             <pElem>.</pElem>
           </incDir>
@@ -201,9 +245,12 @@
       <folder path="0/libstreetmap/tests">
         <ccTool>
           <incDir>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
             <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
             <pElem>.</pElem>
           </incDir>
         </ccTool>
@@ -225,8 +272,18 @@
         <ccTool flags="1">
         </ccTool>
       </item>
-      <item path="libstreetmap/tests/tester_main.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="1">
+      <item path="libstreetmap/tests/example_test.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="2">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/tester_main.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="2">
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
@@ -241,7 +298,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11 -fopenmp"/>
+        <element flagsID="0" commonFlags="-std=c++14 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -251,42 +308,40 @@
           <buildCommand>${MAKE} -f Makefile test_libstreetmap CONF=debug</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>test_libstreetmap</executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>/cad2/ece297s/public/include/milestones</pElem>
+              <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng16</pElem>
+              <pElem>.</pElem>
+            </incDir>
+          </ccTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <folder path="0/libstreetmap/src">
-        <ccTool>
-          <incDir>
-            <pElem>libstreetmap/src</pElem>
-            <pElem>libstreetmap/src/m4_optimizers/annealer</pElem>
-            <pElem>libstreetmap/src/optimizer</pElem>
-            <pElem>libstreetmap/src/optimizer/util</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>main/src</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/libstreetmap/tests">
-        <ccTool>
-          <incDir>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/tests/tester_main.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/tests/example_test.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/tester_main.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
@@ -298,8 +353,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11 -fopenmp"/>
-        <element flagsID="1" commonFlags="-std=c++11 -fsanitize=address -fopenmp"/>
+        <element flagsID="0" commonFlags="-std=c++14 -fsanitize=address -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -310,6 +364,17 @@
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>test_libstreetmap</executablePath>
           <ccTool>
+            <incDir>
+              <pElem>/cad2/ece297s/public/include/milestones</pElem>
+              <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng16</pElem>
+              <pElem>.</pElem>
+            </incDir>
             <preprocessorList>
               <Elem>_GLIBCXX_DEBUG</Elem>
             </preprocessorList>
@@ -320,35 +385,22 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <folder path="0/libstreetmap/src">
-        <ccTool>
-          <incDir>
-            <pElem>libstreetmap/src</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>libstreetsdatabase/src</pElem>
-            <pElem>main/src</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/libstreetmap/tests">
-        <ccTool>
-          <incDir>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/tests/tester_main.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="1">
+      <item path="libstreetmap/tests/example_test.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/tester_main.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
         </ccTool>
       </item>
     </conf>
