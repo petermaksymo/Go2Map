@@ -21,9 +21,10 @@
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
 
-bool load_map(std::string /*map_path*/) {
-    bool load_successful = false; //Indicates whether the map has loaded 
-                                  //successfully
+bool load_map(std::string map_path) {
+    bool load_successful = loadStreetsDatabaseBIN(map_path);
+   
+    if(not load_successful) return false;
 
     //
     //Load your map related data structures here
@@ -31,25 +32,32 @@ bool load_map(std::string /*map_path*/) {
 
     
 
-    load_successful = true; //Make sure this is updated to reflect whether
-                            //loading the map succeeded or failed
 
     return load_successful;
 }
 
 void close_map() {
     //Clean-up your map related data structures here
+    closeStreetDatabase();
     
 }
 
 std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {
-    std::vector<unsigned> street_segments = {0, 1};
+    std::vector<unsigned> street_segments;
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++ ) {
+        street_segments.push_back(getIntersectionStreetSegment(i, intersection_id));
+    }
     
     return street_segments;
 }
 
 std::vector<std::string> find_intersection_street_names(unsigned intersection_id) {
-    std::vector<std::string> street_names = {"test0", "test1"};
+    std::vector<std::string> street_names;
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++ ) {
+        StreetIndex street_index = getInfoStreetSegment(getIntersectionStreetSegment(i, intersection_id)).streetID;
+               
+        street_names.push_back(getStreetName(street_index));
+    }
     
     return street_names;
 }
