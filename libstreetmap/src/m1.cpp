@@ -25,10 +25,10 @@ bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
    
     if(not load_successful) return false;
-
+    
     //
     //Load your map related data structures here
-    //
+    // The time constraint is 3000ms for load_map
 
     
 
@@ -75,7 +75,25 @@ bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2
 }
 
 std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
-    std::vector<unsigned> adjacent_intersections = {0, 1};
+    std::vector<unsigned> adjacent_intersections;
+    for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++ ) {
+        StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id); 
+        InfoStreetSegment s_segment = getInfoStreetSegment(street_segment_index);
+        IntersectionIndex to_add = getNumIntersections() + 1;
+         
+        if(s_segment.oneWay) {
+            if(s_segment.from == intersection_id)
+                to_add = s_segment.to;
+        } else
+            to_add = s_segment.to == intersection_id ? s_segment.from : s_segment.to;
+        
+        bool unique = true;
+        for(std::vector<unsigned>::iterator it = adjacent_intersections.begin(); it != adjacent_intersections.end(); it++) {
+            if(*it == to_add) unique = false;
+        }
+        if(unique && to_add < getNumIntersections() + 1) adjacent_intersections.push_back(to_add);
+       
+    }
     
     return adjacent_intersections;
 }
