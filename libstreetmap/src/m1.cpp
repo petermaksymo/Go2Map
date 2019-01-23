@@ -20,6 +20,7 @@
  */
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
+#include "math.h"
 
 bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
@@ -118,11 +119,29 @@ std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1,
 }
 
 double find_distance_between_two_points(LatLon point1, LatLon point2) {
-    return 0.0;
+    double avg_lat = (point1.lat() + point2.lat()) / 2;
+    double point1_y = point1.lat();
+    double point1_x = point1.lon() * cos(avg_lat);
+    double point2_y= point2.lat();
+    double point2_x= point2.lon() * cos(avg_lat);
+    double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) );
+    return distance;
 }
 
 double find_street_segment_length(unsigned street_segment_id) {
-    return 0.0;
+    struct InfoStreetSegment street_segment = getInfoStreetSegment(street_segment_id);
+    double distance = 0.0;
+    int numOfCurves = street_segment.curvePointCount;
+    IntersectionIndex point1 = street_segment.from;
+    IntersectionIndex point2 = street_segment.to;
+    if (numOfCurves == 0) {
+        distance = find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2));
+    } else {
+        for (int i = 0; i < numOfCurves; i++) {
+            distance += find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2)); 
+        }
+    }
+    return distance;
 }
 
 double find_street_length(unsigned street_id) {
