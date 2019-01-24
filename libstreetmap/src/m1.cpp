@@ -153,11 +153,35 @@ double find_street_segment_travel_time(unsigned street_segment_id) {
 }
 
 unsigned find_closest_point_of_interest(LatLon my_position) {
-    return 0;
+    int min_distance = -1;
+    POIIndex min_index = 0;
+    int distance_temp = 0;
+    // loop over every intersection, calculating distance between each intersection and my_position
+    for(int i = 0; i < getNumPointsOfInterest(); i++) {
+        distance_temp =  find_distance_between_two_points(my_position, getPointOfInterestPosition(i));
+        // keep track of minimum distance between points
+        if(distance_temp < min_distance || min_distance == -1) {
+            min_index = i;
+            min_distance = distance_temp;
+        }
+    }
+    return min_index;
 }
 
 unsigned find_closest_intersection(LatLon my_position) {
-    return 0;
+    int min_distance = -1;
+    IntersectionIndex min_index = 0;
+    int distance_temp = 0;
+    // loop over every intersection, calculating distance between each intersection and my_position
+    for(int i = 0; i < getNumIntersections(); i++) {
+        distance_temp =  find_distance_between_two_points(my_position, getIntersectionPosition(i));
+        // keep track of minimum distance between points
+        if(distance_temp < min_distance || min_distance == -1) {
+            min_index = i;
+            min_distance = distance_temp;
+        }
+    }
+    return min_index;
 }
 
 std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
