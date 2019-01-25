@@ -23,14 +23,31 @@
 #include "math.h"
 #include <algorithm>
 
+////////////////////////////////////////////////
+///// Structures for the MAP database  /////////
+////////////////////////////////////////////////
+
 struct InfoIntersections {
-    std::vector< std::vector<unsigned> > connected_street_segments;
+    std::vector<unsigned> connected_street_segments;
 };
 
-struct MapInfo {
-    InfoIntersections intersection_db;
-    std::vector< std::vector<unsigned> > street_db;
+struct InfoStreets {
+    std::vector<unsigned> segments;
+    std::vector<unsigned> intersections;
 };
+
+// The vectors contain are all streets/intersections
+struct MapInfo {
+    std::vector<InfoIntersections> intersection_db;
+    std::vector<InfoStreets> street_db;
+};
+
+////////////////////////////////////////////////
+/// END of Structures for the MAP database  ////
+////////////////////////////////////////////////
+
+template<typename Type>
+void removeDuplicates(std::vector<Type>& vec);
 
 MapInfo MAP;
 
@@ -41,20 +58,34 @@ bool load_map(std::string map_path) {
     
     //Load your map related data structures here
     // The time constraint is 3000ms for load_map
+    
     MAP.street_db.resize(getNumStreets());
+    
+    //Iterating through all street segments
+    //Loads up street_db with all segments of a street
     for(int i = 0; i < getNumStreetSegments(); i++) {
         InfoStreetSegment segment = getInfoStreetSegment(i);
-        (MAP.street_db[segment.streetID]).push_back(i);
+        MAP.street_db[segment.streetID].segments.push_back(i);
     }
     
-    MAP.intersection_db.connected_street_segments.resize(getNumIntersections());
+    MAP.intersection_db.resize(getNumIntersections());
+    
+    //Iterating through all intersections
+    //Loads up intersections_db with all connected street segments
     for(int i = 0; i < getNumIntersections(); i++) {
         for (int j = 0; j < getIntersectionStreetSegmentCount(i); j++ ) {
-            MAP.intersection_db.connected_street_segments[i].push_back(getIntersectionStreetSegment(j, i));
+            MAP.intersection_db[i].connected_street_segments.push_back(getIntersectionStreetSegment(j, i));
         } 
     }
     
-
+    for(unsigned i = 0; i < MAP.street_db.size(); i++) {
+        for(std::vector<unsigned>::iterator it = MAP.street_db[i].segments.begin(); it != MAP.street_db[i].segments.end(); it++) {
+            MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).from);
+            MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).to);
+        }
+        removeDuplicates(MAP.street_db[i].intersections);
+    }
+    
 
     return load_successful;
 }
@@ -81,7 +112,7 @@ void removeDuplicates(std::vector<Type>& vec) {
 ////////////////////////////////////////////////
 
 std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {    
-    return MAP.intersection_db.connected_street_segments[intersection_id];
+    return MAP.intersection_db[intersection_id].connected_street_segments;
 }
 
 std::vector<std::string> find_intersection_street_names(unsigned intersection_id) {
@@ -127,21 +158,11 @@ std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
 }
 
 std::vector<unsigned> find_street_street_segments(unsigned street_id) {
-    return MAP.street_db[street_id];
+    return MAP.street_db[street_id].segments;
 }
 
-std::vector<unsigned> find_all_street_intersections(unsigned street_id) {
-    std::vector<unsigned> street = MAP.street_db[street_id];
-    std::vector<unsigned> street_intersections;
-    
-    for(std::vector<unsigned>::iterator it = street.begin(); it != street.end(); it++) {
-        street_intersections.push_back(getInfoStreetSegment(*it).from);
-        street_intersections.push_back(getInfoStreetSegment(*it).to);
-    }
-    
-    removeDuplicates(street_intersections);
-        
-    return street_intersections;
+std::vector<unsigned> find_all_street_intersections(unsigned street_id) {        
+    return MAP.street_db[street_id].intersections;
 }
 
 std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1, 
