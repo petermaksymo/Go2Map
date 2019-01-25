@@ -152,12 +152,17 @@ std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1,
 }
 
 double find_distance_between_two_points(LatLon point1, LatLon point2) {
-    double avg_lat = (point1.lat() + point2.lat()) / 2;
-    double point1_y = point1.lat();
-    double point1_x = point1.lon() * cos(avg_lat);
-    double point2_y= point2.lat();
-    double point2_x= point2.lon() * cos(avg_lat);
+    double avg_lat = (point1.lat() + point2.lat()) / 2.0 * DEG_TO_RAD;
+    double point1_y = point1.lat() * DEG_TO_RAD;
+    double point1_x = point1.lon() * cos(avg_lat) * DEG_TO_RAD;
+    double point2_y= point2.lat() * DEG_TO_RAD;
+    double point2_x= point2.lon() * cos(avg_lat) * DEG_TO_RAD;
     double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) );
+//    std::cout.precision(10);
+//    std::cout << point1_x << " " << point1_y << std::endl;
+//    std::cout << point2_x << " " << point2_y << std::endl;
+//    //std::cout << cos(avg_lat) << std::endl;
+//    std::cout << distance << std::endl;
     return distance;
 }
 
