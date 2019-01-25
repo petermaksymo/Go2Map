@@ -21,6 +21,13 @@
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
 #include "math.h"
+#include <algorithm>
+
+struct MapInfo {
+    std::vector< std::vector<unsigned> > street_db;
+};
+
+MapInfo MAP;
 
 bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
@@ -30,7 +37,11 @@ bool load_map(std::string map_path) {
     //
     //Load your map related data structures here
     // The time constraint is 3000ms for load_map
-
+    MAP.street_db.resize(getNumStreets());
+    for(int i = 0; i < getNumStreetSegments(); i++) {
+        InfoStreetSegment segment = getInfoStreetSegment(i);
+        (MAP.street_db[segment.streetID]).push_back(i);
+    }
     
 
 
@@ -42,6 +53,21 @@ void close_map() {
     closeStreetDatabase();
     
 }
+
+////////////////////////////////////////////////
+//// Helper functions to be used for m1 ////////
+////////////////////////////////////////////////
+
+//sorts and removes all duplicates in a vector
+template<typename Type>
+void removeDuplicates(std::vector<Type>& vec) {
+    std::sort(vec.begin(), vec.end());
+    vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+}
+
+////////////////////////////////////////////////
+////// End of helper functions for m1  /////////
+////////////////////////////////////////////////
 
 std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {
     std::vector<unsigned> street_segments;
@@ -100,14 +126,20 @@ std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
 }
 
 std::vector<unsigned> find_street_street_segments(unsigned street_id) {
-    std::vector<unsigned> street_segments = {0, 1};
-    
-    return street_segments;
+    return MAP.street_db[street_id];
 }
 
 std::vector<unsigned> find_all_street_intersections(unsigned street_id) {
-    std::vector<unsigned> street_intersections = {0, 1};
+    std::vector<unsigned> street = MAP.street_db[street_id];
+    std::vector<unsigned> street_intersections;
     
+    for(std::vector<unsigned>::iterator it = street.begin(); it != street.end(); it++) {
+        street_intersections.push_back(getInfoStreetSegment(*it).from);
+        street_intersections.push_back(getInfoStreetSegment(*it).to);
+    }
+    
+    removeDuplicates(street_intersections);
+        
     return street_intersections;
 }
 
