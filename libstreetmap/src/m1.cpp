@@ -158,11 +158,6 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
     double point2_y= point2.lat() * DEG_TO_RAD;
     double point2_x= point2.lon() * cos(avg_lat) * DEG_TO_RAD;
     double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) );
-//    std::cout.precision(10);
-//    std::cout << point1_x << " " << point1_y << std::endl;
-//    std::cout << point2_x << " " << point2_y << std::endl;
-//    //std::cout << cos(avg_lat) << std::endl;
-//    std::cout << distance << std::endl;
     return distance;
 }
 
