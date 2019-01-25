@@ -190,11 +190,21 @@ double find_street_segment_length(unsigned street_segment_id) {
     IntersectionIndex point2 = street_segment.to;
     if (numOfCurves == 0) {
         distance = find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2));
-    } else {
-        for (int i = 0; i < numOfCurves; i++) {
-            distance += find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2)); 
+    } else if (numOfCurves == 1){
+        distance = find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
+        + find_distance_between_two_points(getStreetSegmentCurvePoint(0, street_segment_id), getIntersectionPosition(point2));          
+    } 
+    else if (numOfCurves > 1) {
+        for (int i = 0; i < numOfCurves - 1; i++) {
+            distance = distance + 
+            find_distance_between_two_points(getStreetSegmentCurvePoint(i, street_segment_id),
+            getStreetSegmentCurvePoint(i+1, street_segment_id));
         }
+        distance = distance + 
+        find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
+        + find_distance_between_two_points(getStreetSegmentCurvePoint(numOfCurves, street_segment_id), getIntersectionPosition(point2));
     }
+    //std::cout << distance << std::endl;
     return distance;
 }
 
@@ -203,7 +213,10 @@ double find_street_length(unsigned street_id) {
 }
 
 double find_street_segment_travel_time(unsigned street_segment_id) {
-    return 0.0;
+    double time = 0.0;
+    time = find_street_segment_length(street_segment_id) / getInfoStreetSegment(street_segment_id).speedLimit * 3.6;
+    std::cout << time << std::endl;
+    return time;
 }
 
 unsigned find_closest_point_of_interest(LatLon my_position) {
