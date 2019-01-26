@@ -209,13 +209,22 @@ double find_street_segment_length(unsigned street_segment_id) {
 }
 
 double find_street_length(unsigned street_id) {
-    return 0.0;
+    double distance = 0.0;
+//    for (int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
+//        distance = distance + find_street_segment_length(MAP.street_db[street_id].segments[i]);
+//    }
+//    for (int i = 0; i < getNumStreetSegments(); i++) {
+//        if (getInfoStreetSegment(i).streetID == street_id) {
+//            distance = distance + find_street_segment_length(i);
+//        }
+//         
+//    }
+    return distance;
 }
 
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
-    time = find_street_segment_length(street_segment_id) / getInfoStreetSegment(street_segment_id).speedLimit * 3.6;
-    //std::cout << time << std::endl;
+    //time = find_street_segment_length(street_segment_id) / getInfoStreetSegment(street_segment_id).speedLimit * 3.6;
     return time;
 }
 
