@@ -22,6 +22,7 @@
 #include "StreetsDatabaseAPI.h"
 #include "math.h"
 #include <algorithm>
+#include <map>
 
 ////////////////////////////////////////////////
 ///// Structures for the MAP database  /////////
@@ -40,6 +41,7 @@ struct InfoStreets {
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;
     std::vector<InfoStreets> street_db;
+    std::map<std::string, int> street_name_id_map;
 };
 
 ////////////////////////////////////////////////
@@ -86,11 +88,24 @@ bool load_map(std::string map_path) {
         removeDuplicates(MAP.street_db[i].intersections);
     }
     
-
+    //Iterate through all streets
+    //Load street_name_id_map with all street name and id pairs
+    std::string street_name = "";
+    for(unsigned street_index = 0; street_index < (unsigned int)getNumStreets(); street_index++) {
+        street_name = getStreetName(street_index);
+        // check if street name already in map, generate continually add a character until is unique
+        while(MAP.street_name_id_map.find(street_name) != MAP.street_name_id_map.end()) {
+            street_name = street_name + " *";
+        }
+        MAP.street_name_id_map[street_name] = street_index;
+    }
     return load_successful;
 }
 
 void close_map() {
+    MAP.street_name_id_map.clear();
+    MAP.intersection_db.clear();
+    MAP.street_db.clear();
     //Clean-up your map related data structures here
     closeStreetDatabase();
     
@@ -223,7 +238,7 @@ unsigned find_closest_point_of_interest(LatLon my_position) {
     int min_distance = -1;
     POIIndex min_index = 0;
     int distance_temp = 0;
-    // loop over every intersection, calculating distance between each intersection and my_position
+    // loop over every point of interest, calculating distance between each point of interest and my_position
     for(int i = 0; i < getNumPointsOfInterest(); i++) {
         distance_temp =  find_distance_between_two_points(my_position, getPointOfInterestPosition(i));
         // keep track of minimum distance between points
@@ -252,7 +267,23 @@ unsigned find_closest_intersection(LatLon my_position) {
 }
 
 std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
-    std::vector<unsigned> street_ids = {0, 1};
+    std::vector<unsigned> street_ids = {};
+    std::map<std::string, int>::iterator it;
     
+    // return if empty string
+    if(street_prefix.length() == 0) return street_ids;
+    
+    // find the first key in the map that the street_prefix should go before or be equal to
+    it = MAP.street_name_id_map.lower_bound(street_prefix); // < O(logN)
+    
+    
+    // if the it is not the end of the map AND
+    // if the street name has the prefix
+    while(it != MAP.street_name_id_map.end() && (it->first).rfind(street_prefix, 0) == 0) {
+        // add the id and check the next in the map
+        street_ids.push_back(it->second);
+        it++;
+    }
+
     return street_ids;
 }

@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         std::cerr << "Failed to load map '" << map_path << "'\n";
         return ERROR_EXIT_CODE;
     }
-
+    
     std::cout << "Successfully loaded map '" << map_path << "'\n";
 
     //You can now do something with the map data
