@@ -79,7 +79,7 @@ bool load_map(std::string map_path) {
             MAP.intersection_db[i].connected_street_segments.push_back(getIntersectionStreetSegment(j, i));
         } 
     }
-    
+
     //Iterating through all streets
     //Loads up street_db with all intersections of a street 
     for(unsigned i = 0; i < MAP.street_db.size(); i++) {
@@ -129,15 +129,18 @@ void removeDuplicates(std::vector<Type>& vec) {
 ////// End of helper functions for m1  /////////
 ////////////////////////////////////////////////
 
+//was pre-computed in load_map for speed
 std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {    
     return MAP.intersection_db[intersection_id].connected_street_segments;
 }
 
+
 std::vector<std::string> find_intersection_street_names(unsigned intersection_id) {
     std::vector<std::string> street_names;
+    
+    //goes through all street segments in intersection and adds name to street_names
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++ ) {
-        StreetIndex street_index = getInfoStreetSegment(getIntersectionStreetSegment(i, intersection_id)).streetID;
-               
+        StreetIndex street_index = getInfoStreetSegment(getIntersectionStreetSegment(i, intersection_id)).streetID;      
         street_names.push_back(getStreetName(street_index));
     }
     
@@ -145,9 +148,11 @@ std::vector<std::string> find_intersection_street_names(unsigned intersection_id
 }
 
 bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
+    //goes through all connected street segments to intersection 1
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id1); i++ ) {
         StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id1); 
         
+        //checks if the segment is connected to intersection 2
         if(unsigned(getInfoStreetSegment(street_segment_index).to) == intersection_id2 
             || unsigned(getInfoStreetSegment(street_segment_index).from) == intersection_id2 ) 
                 return true;
@@ -158,27 +163,33 @@ bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2
 
 std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
     std::vector<unsigned> adjacent_intersections;
+    
+    //goes through each connected street segment
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++ ) {
-        StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id); 
-        InfoStreetSegment s_segment = getInfoStreetSegment(street_segment_index);
+        InfoStreetSegment s_segment = getInfoStreetSegment(getIntersectionStreetSegment(i, intersection_id));
          
+        //checks for one way corner case
         if(s_segment.oneWay) {
             if(unsigned(s_segment.from) == intersection_id)
                 adjacent_intersections.push_back(s_segment.to);
-        } else
+        } else {
+            //adds the intersection that isn't the one called in this function
             adjacent_intersections.push_back(
                 unsigned(s_segment.to) == intersection_id ? s_segment.from : s_segment.to
             );
+        }
     }
     removeDuplicates(adjacent_intersections);
     
     return adjacent_intersections;
 }
 
+//pre-computed in load_map for performance
 std::vector<unsigned> find_street_street_segments(unsigned street_id) {
     return MAP.street_db[street_id].segments;
 }
 
+//pre-computed in load_map for performance
 std::vector<unsigned> find_all_street_intersections(unsigned street_id) {        
     return MAP.street_db[street_id].intersections;
 }
@@ -187,10 +198,15 @@ std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1,
                                                               unsigned street_id2) {
     std::vector<unsigned> intersections;
     
-    for (std::vector<unsigned>::iterator itx = MAP.street_db[street_id1].intersections.begin(); itx != MAP.street_db[street_id1].intersections.end(); itx++) {
-        for (std::vector<unsigned>::iterator ity = MAP.street_db[street_id2].intersections.begin(); ity != MAP.street_db[street_id2].intersections.end(); ity++) {
-           if(*itx == *ity)
-                intersections.push_back(*itx);
+    //goes through all intersections in a street
+    for (std::vector<unsigned>::iterator itx = MAP.street_db[street_id1].intersections.begin(); 
+            itx != MAP.street_db[street_id1].intersections.end(); itx++) {
+        
+        //goes through all intersections in the other street
+        for (std::vector<unsigned>::iterator ity = MAP.street_db[street_id2].intersections.begin(); 
+                ity != MAP.street_db[street_id2].intersections.end(); ity++) {
+            
+            if(*itx == *ity) intersections.push_back(*itx);
         }
     }
     
