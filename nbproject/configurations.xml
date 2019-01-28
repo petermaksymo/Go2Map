@@ -82,8 +82,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11 -fopenmp"/>
-        <element flagsID="1" commonFlags="-std=c++14 -fopenmp"/>
+        <element flagsID="0" commonFlags="-std=c++14 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -97,6 +96,13 @@
             <incDir>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng16</pElem>
+              <pElem>.</pElem>
             </incDir>
           </ccTool>
         </makeTool>
@@ -107,34 +113,17 @@
       </makefileType>
       <folder path="0/libstreetmap">
         <ccTool>
-          <incDir>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
           <preprocessorList>
             <Elem>_GLIBCXX_DEBUG</Elem>
           </preprocessorList>
         </ccTool>
       </folder>
-      <folder path="0/main">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/cairo</pElem>
-            <pElem>/usr/include/glib-2.0</pElem>
-            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
-            <pElem>/usr/include/pixman-1</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>/usr/include/libpng16</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
-        <ccTool flags="1">
+        <ccTool flags="0">
         </ccTool>
       </item>
     </conf>
@@ -145,8 +134,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c++11 -fsanitize=address -fopenmp"/>
-        <element flagsID="1" commonFlags="-std=c++14 -fsanitize=address -fopenmp"/>
+        <element flagsID="0" commonFlags="-std=c++14 -fsanitize=address -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -160,6 +148,13 @@
             <incDir>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/cairo</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pixman-1</pElem>
+              <pElem>/usr/include/freetype2</pElem>
+              <pElem>/usr/include/libpng16</pElem>
+              <pElem>.</pElem>
             </incDir>
             <preprocessorList>
               <Elem>_GLIBCXX_DEBUG</Elem>
@@ -171,33 +166,12 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <folder path="0/libstreetmap">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/main">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/cairo</pElem>
-            <pElem>/usr/include/glib-2.0</pElem>
-            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
-            <pElem>/usr/include/pixman-1</pElem>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>/usr/include/libpng16</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
-        <ccTool flags="1">
+        <ccTool flags="0">
         </ccTool>
       </item>
     </conf>

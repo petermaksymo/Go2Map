@@ -80,8 +80,11 @@ bool load_map(std::string map_path) {
         } 
     }
     
+    //Iterating through all streets
+    //Loads up street_db with all intersections of a street 
     for(unsigned i = 0; i < MAP.street_db.size(); i++) {
-        for(std::vector<unsigned>::iterator it = MAP.street_db[i].segments.begin(); it != MAP.street_db[i].segments.end(); it++) {
+        for(std::vector<unsigned>::iterator it = MAP.street_db[i].segments.begin(); 
+                it != MAP.street_db[i].segments.end(); it++) {
             MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).from);
             MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).to);
         }
@@ -182,9 +185,16 @@ std::vector<unsigned> find_all_street_intersections(unsigned street_id) {
 
 std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1, 
                                                               unsigned street_id2) {
-    std::vector<unsigned> intersection_ids = {0, 1};
+    std::vector<unsigned> intersections;
     
-    return intersection_ids;
+    for (std::vector<unsigned>::iterator itx = MAP.street_db[street_id1].intersections.begin(); itx != MAP.street_db[street_id1].intersections.end(); itx++) {
+        for (std::vector<unsigned>::iterator ity = MAP.street_db[street_id2].intersections.begin(); ity != MAP.street_db[street_id2].intersections.end(); ity++) {
+           if(*itx == *ity)
+                intersections.push_back(*itx);
+        }
+    }
+    
+    return intersections;
 }
 
 double find_distance_between_two_points(LatLon point1, LatLon point2) {
