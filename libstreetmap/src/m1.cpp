@@ -251,9 +251,9 @@ double find_street_segment_length(unsigned street_segment_id) {
 
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
-//    for (int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
-//        distance = distance + find_street_segment_length(MAP.street_db[street_id].segments[i]);
-//    }
+    for (int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
+        distance = distance + find_street_segment_length(MAP.street_db[street_id].segments[i]);
+    }
 //    for (int i = 0; i < getNumStreetSegments(); i++) {
 //        if (getInfoStreetSegment(i).streetID == street_id) {
 //            distance = distance + find_street_segment_length(i);
@@ -266,6 +266,8 @@ double find_street_length(unsigned street_id) {
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
     //time = find_street_segment_length(street_segment_id) / getInfoStreetSegment(street_segment_id).speedLimit * 3.6;
+    //getInfoStreetSegment(street_segment_id); // 8.19s
+    //find_street_segment_length(street_segment_id);
     return time;
 }
 
