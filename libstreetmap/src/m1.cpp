@@ -23,6 +23,7 @@
 #include "math.h"
 #include <algorithm>
 #include <map>
+#include <boost/algorithm/string.hpp>
 
 ////////////////////////////////////////////////
 ///// Structures for the MAP database  /////////
@@ -96,6 +97,7 @@ bool load_map(std::string map_path) {
     std::string street_name = "";
     for(unsigned street_index = 0; street_index < (unsigned int)getNumStreets(); street_index++) {
         street_name = getStreetName(street_index);
+        boost::algorithm::to_lower(street_name);
         // check if street name already in map, generate continually add a character until is unique
         while(MAP.street_name_id_map.find(street_name) != MAP.street_name_id_map.end()) {
             street_name = street_name + " *";
@@ -306,6 +308,8 @@ unsigned find_closest_intersection(LatLon my_position) {
 std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
     std::vector<unsigned> street_ids = {};
     std::map<std::string, int>::iterator it;
+    
+    boost::algorithm::to_lower(street_prefix);
     
     // return if empty string
     if(street_prefix.length() == 0) return street_ids;
