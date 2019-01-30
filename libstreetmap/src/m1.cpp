@@ -45,14 +45,20 @@ struct MapInfo {
     std::map<std::string, int> street_name_id_map;
 };
 
+struct InfoStreetSegmentsLocal {
+    std::vector<double> street_segment_length;
+    std::vector<double> street_segment_speed_limit; 
+};
 ////////////////////////////////////////////////
 /// END of Structures for the MAP database  ////
 ////////////////////////////////////////////////
 
 template<typename Type>
 void removeDuplicates(std::vector<Type>& vec);
+double street_segment_length_helper(unsigned street_segment_id);
 
 MapInfo MAP;
+InfoStreetSegmentsLocal LocalStreetSegments;
 
 bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
@@ -69,6 +75,8 @@ bool load_map(std::string map_path) {
     for(int i = 0; i < getNumStreetSegments(); i++) {
         InfoStreetSegment segment = getInfoStreetSegment(i);
         MAP.street_db[segment.streetID].segments.push_back(i);
+        LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
+        LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
     }
     
     MAP.intersection_db.resize(getNumIntersections());
@@ -127,6 +135,30 @@ void removeDuplicates(std::vector<Type>& vec) {
     vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
+double street_segment_length_helper(unsigned street_segment_id) {
+    struct InfoStreetSegment street_segment = getInfoStreetSegment(street_segment_id);
+    double distance = 0.0;
+    int numOfCurves = street_segment.curvePointCount;
+    IntersectionIndex point1 = street_segment.from;
+    IntersectionIndex point2 = street_segment.to;
+    if (numOfCurves == 0) {
+        distance = find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2));
+    } else if (numOfCurves == 1){
+        distance = find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
+        + find_distance_between_two_points(getStreetSegmentCurvePoint(0, street_segment_id), getIntersectionPosition(point2));          
+    } 
+    else if (numOfCurves > 1) {
+        for (int i = 0; i < numOfCurves - 1; i++) {
+            distance = distance + 
+            find_distance_between_two_points(getStreetSegmentCurvePoint(i, street_segment_id),
+            getStreetSegmentCurvePoint(i+1, street_segment_id));
+        }
+        distance = distance + 
+        find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
+        + find_distance_between_two_points(getStreetSegmentCurvePoint(numOfCurves - 1, street_segment_id), getIntersectionPosition(point2));
+    }
+    return distance;
+}
 ////////////////////////////////////////////////
 ////// End of helper functions for m1  /////////
 ////////////////////////////////////////////////
@@ -226,50 +258,21 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
 }
 
 double find_street_segment_length(unsigned street_segment_id) {
-    struct InfoStreetSegment street_segment = getInfoStreetSegment(street_segment_id);
-    double distance = 0.0;
-    int numOfCurves = street_segment.curvePointCount;
-    IntersectionIndex point1 = street_segment.from;
-    IntersectionIndex point2 = street_segment.to;
-    if (numOfCurves == 0) {
-        distance = find_distance_between_two_points(getIntersectionPosition(point1), getIntersectionPosition(point2));
-    } else if (numOfCurves == 1){
-        distance = find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
-        + find_distance_between_two_points(getStreetSegmentCurvePoint(0, street_segment_id), getIntersectionPosition(point2));          
-    } 
-    else if (numOfCurves > 1) {
-        for (int i = 0; i < numOfCurves - 1; i++) {
-            distance = distance + 
-            find_distance_between_two_points(getStreetSegmentCurvePoint(i, street_segment_id),
-            getStreetSegmentCurvePoint(i+1, street_segment_id));
-        }
-        distance = distance + 
-        find_distance_between_two_points(getIntersectionPosition(point1),getStreetSegmentCurvePoint(0, street_segment_id))
-        + find_distance_between_two_points(getStreetSegmentCurvePoint(numOfCurves - 1, street_segment_id), getIntersectionPosition(point2));
-    }
-    //std::cout << distance << std::endl;
-    return distance;
+    return LocalStreetSegments.street_segment_length[street_segment_id];
 }
 
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
     for (int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
-        distance = distance + find_street_segment_length(MAP.street_db[street_id].segments[i]);
+        distance = distance + LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
     }
-//    for (int i = 0; i < getNumStreetSegments(); i++) {
-//        if (getInfoStreetSegment(i).streetID == street_id) {
-//            distance = distance + find_street_segment_length(i);
-//        }
-//         
-//    }
     return distance;
 }
 
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
-    //time = find_street_segment_length(street_segment_id) / getInfoStreetSegment(street_segment_id).speedLimit * 3.6;
-    //getInfoStreetSegment(street_segment_id); // 8.19s
-    //find_street_segment_length(street_segment_id);
+    time = LocalStreetSegments.street_segment_length[street_segment_id] 
+            / LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6;
     return time;
 }
 
