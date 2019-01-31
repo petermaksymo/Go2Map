@@ -68,6 +68,7 @@ bool load_map(std::string map_path) {
     //Load your map related data structures here
     // The time constraint is 3000ms for load_map
     
+    // Warnign: Other code in load_map depend on street_db having size getNumStreets()
     MAP.street_db.resize(getNumStreets());
     
     //Iterating through all street segments
@@ -103,7 +104,7 @@ bool load_map(std::string map_path) {
     //Iterate through all streets
     //Load street_name_id_map with all street name and id pairs
     std::string street_name = "";
-    for(unsigned street_index = 0; street_index < (unsigned int)getNumStreets(); street_index++) {
+    for(unsigned street_index = 0; street_index < MAP.street_db.size(); street_index++) {
         street_name = getStreetName(street_index);
         boost::algorithm::to_lower(street_name);
         // check if street name already in map, generate continually add a character until is unique
@@ -263,7 +264,7 @@ double find_street_segment_length(unsigned street_segment_id) {
 
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
-    for (int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
+    for (unsigned int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
         distance = distance + LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
     }
     return distance;
