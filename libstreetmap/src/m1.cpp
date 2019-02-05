@@ -104,6 +104,7 @@ bool load_map(std::string map_path) {
         //Load street_name_id_map with all street name and id pairs
         std::string street_name = getStreetName(i);
         boost::algorithm::to_lower(street_name);
+        
         // insert pair into multimap - multimap allows for duplicate keys
         MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, i));
     }
@@ -116,18 +117,19 @@ void close_map() {
     MAP.street_name_id_map.clear();
     MAP.intersection_db.clear();
     MAP.street_db.clear();
-    //Clean-up your map related data structures here
-    closeStreetDatabase();
     
+    closeStreetDatabase();
 }
 
 
-//was pre-computed in load_map for speed
+//Returns the street segments for the given intersection 
+//pre-computed in load_map for performance
 std::vector<unsigned> find_intersection_street_segments(unsigned intersection_id) {    
     return MAP.intersection_db[intersection_id].connected_street_segments;
 }
 
 
+//Returns all the street names at the given intersection
 std::vector<std::string> find_intersection_street_names(unsigned intersection_id) {
     std::vector<std::string> street_names;
     
@@ -141,6 +143,7 @@ std::vector<std::string> find_intersection_street_names(unsigned intersection_id
 }
 
 
+//Returns true if you can get from intersection1 to intersection2 using a single street segment
 bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
     //goes through all connected street segments to intersection 1
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id1); i++ ) {
@@ -155,6 +158,8 @@ bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2
     return false;
 }
 
+
+//Returns all intersections reachable by traveling down one street segment 
 std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
     std::vector<unsigned> adjacent_intersections;
     
@@ -167,7 +172,7 @@ std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
             if(unsigned(s_segment.from) == intersection_id)
                 adjacent_intersections.push_back(s_segment.to);
         } else {
-            //adds the intersection that isn't the one called in this function
+            //adds the intersection that isn't the one called
             adjacent_intersections.push_back(
                 unsigned(s_segment.to) == intersection_id ? s_segment.from : s_segment.to
             );
@@ -179,18 +184,21 @@ std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
 }
 
 
+//Returns all street segments for the given street
 //pre-computed in load_map for performance
 std::vector<unsigned> find_street_street_segments(unsigned street_id) {
     return MAP.street_db[street_id].segments;
 }
 
 
+//Returns all intersections along the a given street
 //pre-computed in load_map for performance
 std::vector<unsigned> find_all_street_intersections(unsigned street_id) {        
     return MAP.street_db[street_id].intersections;
 }
 
 
+//Returns all intersection ids between two streets
 std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1, 
                                                               unsigned street_id2) {
     std::vector<unsigned> intersections;
