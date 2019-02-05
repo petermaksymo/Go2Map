@@ -236,6 +236,7 @@ double find_street_segment_travel_time(unsigned street_segment_id) {
     return time;
 }
 
+// Returns the id to the POI that is closest to the position that is passed
 unsigned find_closest_point_of_interest(LatLon my_position) {
     int min_distance = -1;
     POIIndex min_index = 0;
@@ -252,6 +253,8 @@ unsigned find_closest_point_of_interest(LatLon my_position) {
     return min_index;
 }
 
+
+// Returns the id to the intersection that is closest to the position that is passed
 unsigned find_closest_intersection(LatLon my_position) {
     int min_distance = -1;
     IntersectionIndex min_index = 0;
@@ -268,18 +271,22 @@ unsigned find_closest_intersection(LatLon my_position) {
     return min_index;
 }
 
+
+// Finds street ids from the prefix of a street e.g. "bloO" finds id of "Bloor Street"
+// Street name and id pairs are pre-computed and stored in a map
+// Uses the lower_bound function to find the spot that the given prefix could be inserted to the list
+// Continues check the next street name to see if it is a prefix, returns once not a prefix
 std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
     std::vector<unsigned> street_ids = {};
     std::map<std::string, int>::iterator it;
     
     boost::algorithm::to_lower(street_prefix);
     
-    // return if empty string
+    // return empty vector if passed empty string
     if(street_prefix.length() == 0) return street_ids;
     
-    // find the first key in the map that the street_prefix should go before or be equal to
+    // lower_bound finds the first key in the map that the street_prefix should go before or be equal to
     it = MAP.street_name_id_map.lower_bound(street_prefix); // < O(logN)
-    
     
     // if the it is not the end of the map AND
     // if the street name has the prefix
