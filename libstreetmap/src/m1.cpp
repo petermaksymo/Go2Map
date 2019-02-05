@@ -225,8 +225,10 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
     // Convert Latitude/Longitude to Cartesian coordinate
     double point1_y = point1.lat() * DEG_TO_RAD;
     double point1_x = point1.lon() * cos(avg_lat) * DEG_TO_RAD;
+    
     double point2_y= point2.lat() * DEG_TO_RAD;
     double point2_x= point2.lon() * cos(avg_lat) * DEG_TO_RAD;
+    
     double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) ); //Distance base on formula provided
     return distance;
 }
@@ -247,6 +249,7 @@ double find_street_length(unsigned street_id) {
     }
     return distance;
 }
+
 
 // Calculate travel time by accessing pre-computed street segment length and stored street segment speed limit
 double find_street_segment_travel_time(unsigned street_segment_id) {
