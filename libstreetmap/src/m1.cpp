@@ -110,6 +110,7 @@ bool load_map(std::string map_path) {
     return load_successful;
 }
 
+
 void close_map() {
     MAP.street_name_id_map.clear();
     MAP.intersection_db.clear();
@@ -137,6 +138,7 @@ std::vector<std::string> find_intersection_street_names(unsigned intersection_id
     
     return street_names;
 }
+
 
 bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
     //goes through all connected street segments to intersection 1
@@ -175,15 +177,18 @@ std::vector<unsigned> find_adjacent_intersections(unsigned intersection_id) {
     return adjacent_intersections;
 }
 
+
 //pre-computed in load_map for performance
 std::vector<unsigned> find_street_street_segments(unsigned street_id) {
     return MAP.street_db[street_id].segments;
 }
 
+
 //pre-computed in load_map for performance
 std::vector<unsigned> find_all_street_intersections(unsigned street_id) {        
     return MAP.street_db[street_id].intersections;
 }
+
 
 std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1, 
                                                               unsigned street_id2) {
@@ -204,6 +209,7 @@ std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1,
     return intersections;
 }
 
+
 double find_distance_between_two_points(LatLon point1, LatLon point2) {
     double avg_lat = (point1.lat() + point2.lat()) / 2.0 * DEG_TO_RAD;
     double point1_y = point1.lat() * DEG_TO_RAD;
@@ -214,9 +220,11 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
     return distance;
 }
 
+
 double find_street_segment_length(unsigned street_segment_id) {
     return MAP.LocalStreetSegments.street_segment_length[street_segment_id];
 }
+
 
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
@@ -226,12 +234,14 @@ double find_street_length(unsigned street_id) {
     return distance;
 }
 
+
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
     time = MAP.LocalStreetSegments.street_segment_length[street_segment_id] 
             / MAP.LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6;
     return time;
 }
+
 
 // Returns the id to the POI that is closest to the position that is passed
 unsigned find_closest_point_of_interest(LatLon my_position) {
