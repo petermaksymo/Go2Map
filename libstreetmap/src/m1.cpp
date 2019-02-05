@@ -34,7 +34,6 @@ struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
 };
 
-
 struct InfoStreets {
     std::vector<unsigned> segments;
     std::vector<unsigned> intersections;
@@ -46,12 +45,12 @@ struct InfoStreetSegmentsLocal {
 };
 
 
-// The vectors contain are all streets/intersections
+// The main structure for the globally defined MAP
 struct MapInfo {
-    std::vector<InfoIntersections> intersection_db;
-    std::vector<InfoStreets> street_db;
-    std::multimap<std::string, int> street_name_id_map;
-    InfoStreetSegmentsLocal LocalStreetSegments;
+    std::vector<InfoIntersections> intersection_db;     //all intersections
+    std::vector<InfoStreets> street_db;                 //all streets
+    std::multimap<std::string, int> street_name_id_map; //for street names
+    InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments
 };
 ////////////////////////////////////////////////
 /// END of Structures for the MAP database  ////
@@ -64,17 +63,18 @@ bool load_map(std::string map_path) {
    
     if(not load_successful) return false;
     
-    //Load your map related data structures here
-    // The time constraint is 3000ms for load_map
+    //Load our map related data structures here
     
-    // Warnign: Other code in load_map depend on street_db having size getNumStreets()
+    // Resize for tiny performance benefit
     MAP.street_db.resize(getNumStreets());
     
     //Iterating through all street segments
-    //Loads up street_db with all segments of a street
+    //Loads up street_db with all segments of a street, and calculate lengths
     for(int i = 0; i < getNumStreetSegments(); i++) {
         InfoStreetSegment segment = getInfoStreetSegment(i);
+        
         MAP.street_db[segment.streetID].segments.push_back(i);
+        
         MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
         MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
     }
@@ -89,26 +89,25 @@ bool load_map(std::string map_path) {
         } 
     }
 
-    //Iterating through all streets
-    //Loads up street_db with all intersections of a street 
+    //Iterating through all streets 
     for(unsigned i = 0; i < MAP.street_db.size(); i++) {
+        
+        //Loads up street_db with all intersections of a street
         for(std::vector<unsigned>::iterator it = MAP.street_db[i].segments.begin(); 
                 it != MAP.street_db[i].segments.end(); it++) {
+            
             MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).from);
             MAP.street_db[i].intersections.push_back(getInfoStreetSegment(*it).to);
         }
         removeDuplicates(MAP.street_db[i].intersections);
-    }
-    
-    //Iterate through all streets
-    //Load street_name_id_map with all street name and id pairs
-    std::string street_name = "";
-    for(unsigned street_index = 0; street_index < MAP.street_db.size(); street_index++) {
-        street_name = getStreetName(street_index);
+        
+        //Load street_name_id_map with all street name and id pairs
+        std::string street_name = getStreetName(i);
         boost::algorithm::to_lower(street_name);
         // insert pair into multimap - multimap allows for duplicate keys
-        MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, street_index));
+        MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, i));
     }
+    
     return load_successful;
 }
 

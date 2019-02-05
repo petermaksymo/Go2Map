@@ -7,10 +7,9 @@
 
 #include <vector>
 
-//sorts and removes all duplicates in a vectortemplate<typename Type>
+//sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec);
 
 //Pre-compute length of street 
 double street_segment_length_helper(unsigned street_segment_id);
-
 
