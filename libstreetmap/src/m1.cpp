@@ -48,7 +48,7 @@ struct InfoStreetSegmentsLocal {
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;
     std::vector<InfoStreets> street_db;
-    std::map<std::string, int> street_name_id_map;
+    std::multimap<std::string, int> street_name_id_map;
     InfoStreetSegmentsLocal LocalStreetSegments;
 };
 ////////////////////////////////////////////////
@@ -104,11 +104,8 @@ bool load_map(std::string map_path) {
     for(unsigned street_index = 0; street_index < MAP.street_db.size(); street_index++) {
         street_name = getStreetName(street_index);
         boost::algorithm::to_lower(street_name);
-        // check if street name already in map, generate continually add a character until is unique
-        while(MAP.street_name_id_map.find(street_name) != MAP.street_name_id_map.end()) {
-            street_name = street_name + " *";
-        }
-        MAP.street_name_id_map[street_name] = street_index;
+        // insert pair into multimap - multimap allows for duplicate keys
+        MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, street_index));
     }
     return load_successful;
 }
@@ -278,7 +275,7 @@ unsigned find_closest_intersection(LatLon my_position) {
 // Continues check the next street name to see if it is a prefix, returns once not a prefix
 std::vector<unsigned> find_street_ids_from_partial_street_name(std::string street_prefix) {
     std::vector<unsigned> street_ids = {};
-    std::map<std::string, int>::iterator it;
+    std::multimap<std::string, int>::iterator it;
     
     boost::algorithm::to_lower(street_prefix);
     
