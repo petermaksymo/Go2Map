@@ -4,6 +4,8 @@
     <df root="." name="0">
       <df name="libstreetmap">
         <df name="src">
+          <in>helper_functions.cpp</in>
+          <in>helper_functions.h</in>
           <in>m1.cpp</in>
         </df>
         <df name="tests">
@@ -49,6 +51,7 @@
           <executablePath>mapper</executablePath>
           <ccTool flags="-O3 -std=c++11 -fopenmp">
             <incDir>
+              <pElem>libstreetmap/src</pElem>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
               <pElem>/usr/include/cairo</pElem>
@@ -66,6 +69,11 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -118,6 +126,16 @@
           </preprocessorList>
         </ccTool>
       </folder>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -166,6 +184,16 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -242,6 +270,16 @@
           </incDir>
         </ccTool>
       </folder>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="1">
         </ccTool>
@@ -301,6 +339,16 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -359,6 +407,16 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -409,6 +467,16 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/src/helper_functions.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="0">
         </ccTool>
