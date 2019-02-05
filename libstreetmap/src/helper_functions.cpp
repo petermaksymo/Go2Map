@@ -1,11 +1,8 @@
 
 #include "StreetsDatabaseAPI.h"
-#include "math.h"
 #include "m1.h"
-#include <algorithm>
-#include <map>
-#include <boost/algorithm/string.hpp>
 #include "helper_functions.h"
+#include <algorithm>
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec) {
