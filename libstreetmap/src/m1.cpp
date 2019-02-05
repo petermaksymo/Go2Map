@@ -204,32 +204,40 @@ std::vector<unsigned> find_intersection_ids_from_street_ids(unsigned street_id1,
     return intersections;
 }
 
+
+// Calculate distance between two points in LatLon form base on average Latitude
 double find_distance_between_two_points(LatLon point1, LatLon point2) {
-    double avg_lat = (point1.lat() + point2.lat()) / 2.0 * DEG_TO_RAD;
+    double avg_lat = (point1.lat() + point2.lat()) / 2.0 * DEG_TO_RAD; //Average latitude
+    // Convert Latitude/Longitude to Cartesian coordinate
     double point1_y = point1.lat() * DEG_TO_RAD;
     double point1_x = point1.lon() * cos(avg_lat) * DEG_TO_RAD;
     double point2_y= point2.lat() * DEG_TO_RAD;
     double point2_x= point2.lon() * cos(avg_lat) * DEG_TO_RAD;
-    double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) );
+    double distance = EARTH_RADIUS_IN_METERS * sqrt(pow((point2_y-point1_y),2) + pow((point2_x-point1_x), 2) ); //Distance base on formula provided
     return distance;
 }
 
+
+// Access street segment length pre-computed and stored to MAP
 double find_street_segment_length(unsigned street_segment_id) {
     return MAP.LocalStreetSegments.street_segment_length[street_segment_id];
 }
 
+// Calculate length of entire street base on each one of its segment
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
+    // Iterate through each segment of the street
     for (unsigned int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
         distance = distance + MAP.LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
     }
     return distance;
 }
 
+// Calculate travel time by accessing pre-computed street segment length and stored street segment speed limit
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
     time = MAP.LocalStreetSegments.street_segment_length[street_segment_id] 
-            / MAP.LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6;
+            / MAP.LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6; // Multiplying by 3.6 to convert from KM/h to M/s
     return time;
 }
 
