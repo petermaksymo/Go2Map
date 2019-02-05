@@ -39,24 +39,23 @@ struct InfoStreets {
     std::vector<unsigned> intersections;
 };
 
+struct InfoStreetSegmentsLocal {
+    std::vector<double> street_segment_length;
+    std::vector<double> street_segment_speed_limit; 
+};
+
 // The vectors contain are all streets/intersections
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;
     std::vector<InfoStreets> street_db;
     std::map<std::string, int> street_name_id_map;
-};
-
-struct InfoStreetSegmentsLocal {
-    std::vector<double> street_segment_length;
-    std::vector<double> street_segment_speed_limit; 
+    InfoStreetSegmentsLocal LocalStreetSegments;
 };
 ////////////////////////////////////////////////
 /// END of Structures for the MAP database  ////
 ////////////////////////////////////////////////
 
-
 MapInfo MAP;
-InfoStreetSegmentsLocal LocalStreetSegments;
 
 bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
@@ -74,8 +73,8 @@ bool load_map(std::string map_path) {
     for(int i = 0; i < getNumStreetSegments(); i++) {
         InfoStreetSegment segment = getInfoStreetSegment(i);
         MAP.street_db[segment.streetID].segments.push_back(i);
-        LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
-        LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
+        MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
+        MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
     }
     
     MAP.intersection_db.resize(getNumIntersections());
@@ -219,21 +218,21 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
 }
 
 double find_street_segment_length(unsigned street_segment_id) {
-    return LocalStreetSegments.street_segment_length[street_segment_id];
+    return MAP.LocalStreetSegments.street_segment_length[street_segment_id];
 }
 
 double find_street_length(unsigned street_id) {
     double distance = 0.0;
     for (unsigned int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
-        distance = distance + LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
+        distance = distance + MAP.LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
     }
     return distance;
 }
 
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
-    time = LocalStreetSegments.street_segment_length[street_segment_id] 
-            / LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6;
+    time = MAP.LocalStreetSegments.street_segment_length[street_segment_id] 
+            / MAP.LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6;
     return time;
 }
 
