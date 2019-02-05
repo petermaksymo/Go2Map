@@ -34,6 +34,7 @@ struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
 };
 
+
 struct InfoStreets {
     std::vector<unsigned> segments;
     std::vector<unsigned> intersections;
@@ -43,6 +44,7 @@ struct InfoStreetSegmentsLocal {
     std::vector<double> street_segment_length;
     std::vector<double> street_segment_speed_limit; 
 };
+
 
 // The vectors contain are all streets/intersections
 struct MapInfo {
