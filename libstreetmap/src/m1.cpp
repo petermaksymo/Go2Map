@@ -145,14 +145,24 @@ std::vector<std::string> find_intersection_street_names(unsigned intersection_id
 
 //Returns true if you can get from intersection1 to intersection2 using a single street segment
 bool are_directly_connected(unsigned intersection_id1, unsigned intersection_id2) {
+    //catch intersection connected to itself corner case
+    if (intersection_id1 == intersection_id2) return true;
+    
     //goes through all connected street segments to intersection 1
     for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id1); i++ ) {
         StreetSegmentIndex street_segment_index = getIntersectionStreetSegment(i, intersection_id1); 
+        InfoStreetSegment street_segment = getInfoStreetSegment(street_segment_index);
         
-        //checks if the segment is connected to intersection 2
-        if(unsigned(getInfoStreetSegment(street_segment_index).to) == intersection_id2 
-            || unsigned(getInfoStreetSegment(street_segment_index).from) == intersection_id2 ) 
+        if (street_segment.oneWay) {
+            //check one way special case
+            if(unsigned(street_segment.to) == intersection_id2 )
                 return true;
+        } else {
+            //checks if the segment is connected to intersection 2
+            if(unsigned(street_segment.to) == intersection_id2 
+                || unsigned(street_segment.from) == intersection_id2 ) 
+                    return true;
+        }
     }
     
     return false;
