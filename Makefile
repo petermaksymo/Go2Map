@@ -50,12 +50,12 @@
 
 #
 # By default the following custom flags are enabled:
-#    * pkg-config is used to set all compile and linking flags required by EasyGL (x11, xft, fontconfig, cairo)
+#    * pkg-config is used to set all compile and linking flags required by EZGL (x11, gtk)
 #    * -fopenmp (OpenMP for parallel programming)
 #    * -lreadline (interactive line editing library)
 #
-CUSTOM_COMPILE_FLAGS = $(shell pkg-config --cflags x11 xft fontconfig cairo) -fopenmp 
-CUSTOM_LINK_FLAGS    = $(shell pkg-config --libs x11 xft fontconfig cairo) -fopenmp -lreadline 
+CUSTOM_COMPILE_FLAGS = $(shell pkg-config --cflags x11 gtk+-3.0 libcurl) -fopenmp 
+CUSTOM_LINK_FLAGS    = $(shell pkg-config --libs x11 gtk+-3.0 libcurl) -fopenmp -lreadline 
 
 ################################################################################
 #	                ! WARNING - Here Be Dragons - WARNING !
@@ -202,14 +202,14 @@ WARN_CFLAGS = -Wall \
 			 -Woverloaded-virtual \
 			 -Wctor-dtor-privacy \
 			 -Wnon-virtual-dtor \
-			 -Wold-style-cast \
-			 -Wshadow \
 			 -Wredundant-decls \
+			 -Wshadow \
+			 #-Wold-style-cast \
 			 #-Wconversion \
 			 #-Wno-sign-conversion
 
 # Find all the include directoires for each component
-LIB_STREETMAP_INCLUDE_FLAGS = $(foreach dir, $(call rfiledirs, $(LIB_STREETMAP_SRC_DIR), *.h *.hpp), -I$(dir))
+LIB_STREETMAP_INCLUDE_FLAGS = $(foreach dir, $(call rfiledirs, $(LIB_STREETMAP_SRC_DIR), *.h *.hpp), -I$(dir) -I$(dir)..)
 EXE_INCLUDE_FLAGS = $(foreach dir, $(call rfiledirs, $(EXE_SRC_DIR), *.h *.hpp), -I$(dir))
 STREETS_DATABASE_INCLUDE_FLAGS = $(foreach dir, $(STREETS_DATABASE_INCLUDE_DIRS), -I$(dir))
 ECE297_MILESTONE_INCLUDE_FLAGS = $(foreach dir, $(ECE297_MILESTONE_INCLUDE_DIRS), -I$(dir))
@@ -235,8 +235,10 @@ RELEASE_LFLAGS =
 
 #What extra flags to use in release profile build?
 # Note: provide -g so symbols are included in profiling info
+#       We provide the -no-pie link flag to work-around a known bug in gcc6 which causes
+#       the produce profile to be empty otherwise. See: https://bugs.launchpad.net/bugs/1678510
 PROFILE_CFLAGS = -g -O3 -pg -fno-inline
-PROFILE_LFLAGS = -pg
+PROFILE_LFLAGS = -no-pie -pg
 
 #Pick either debug/release/profile build flags 
 ifeq (release, $(CONF))
