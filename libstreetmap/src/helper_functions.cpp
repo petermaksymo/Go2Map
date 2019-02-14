@@ -1,3 +1,4 @@
+/* Useful helper functions */
 
 #include "StreetsDatabaseAPI.h"
 #include "m1.h"

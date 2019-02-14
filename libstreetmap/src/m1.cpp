@@ -58,14 +58,42 @@ struct MapInfo {
 
 MapInfo MAP;
 
+// pre-define helper functions used in load_map
+void load_street_segments ();
+void load_intersections ();
+void load_streets ();
+
 bool load_map(std::string map_path) {
     bool load_successful = loadStreetsDatabaseBIN(map_path);
    
     if(not load_successful) return false;
     
     //Load our map related data structures here
+    load_street_segments();
     
-    // Resize for tiny performance benefit
+    load_intersections();
+
+    load_streets();
+    
+    return load_successful;
+}
+
+
+void close_map() {
+    MAP.street_name_id_map.clear();
+    MAP.intersection_db.clear();
+    MAP.street_db.clear();
+    
+    closeStreetDatabase();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+////////////////// Helper functions for load_map  /////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// load extra street segment related info into MAP
+void load_street_segments () {
+   // Resize for tiny performance benefit
     MAP.street_db.resize(getNumStreets());
     
     //Iterating through all street segments
@@ -77,8 +105,11 @@ bool load_map(std::string map_path) {
         
         MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
         MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
-    }
-    
+    } 
+}
+
+// load extra intersection info into MAP
+void load_intersections () {
     MAP.intersection_db.resize(getNumIntersections());
     
     //Iterating through all intersections
@@ -88,7 +119,10 @@ bool load_map(std::string map_path) {
             MAP.intersection_db[i].connected_street_segments.push_back(getIntersectionStreetSegment(j, i));
         } 
     }
+}
 
+// loads street data into MAP
+void load_streets () { 
     //Iterating through all streets 
     for(unsigned i = 0; i < MAP.street_db.size(); i++) {
         
@@ -108,18 +142,11 @@ bool load_map(std::string map_path) {
         // insert pair into multimap - multimap allows for duplicate keys
         MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, i));
     }
-    
-    return load_successful;
 }
 
-
-void close_map() {
-    MAP.street_name_id_map.clear();
-    MAP.intersection_db.clear();
-    MAP.street_db.clear();
-    
-    closeStreetDatabase();
-}
+///////////////////////////////////////////////////////////////////////////////
+//////////////// end of helper functions for load_map  ////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 
 //Returns the street segments for the given intersection 

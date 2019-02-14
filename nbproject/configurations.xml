@@ -4,6 +4,14 @@
     <df root="." name="0">
       <df name="libstreetmap">
         <df name="src">
+          <df name="ezgl">
+            <in>application.cpp</in>
+            <in>callback.cpp</in>
+            <in>camera.cpp</in>
+            <in>canvas.cpp</in>
+            <in>control.cpp</in>
+            <in>graphics.cpp</in>
+          </df>
           <in>helper_functions.cpp</in>
           <in>helper_functions.h</in>
           <in>m1.cpp</in>
@@ -52,14 +60,27 @@
           <ccTool flags="-O3 -std=c++11 -fopenmp">
             <incDir>
               <pElem>libstreetmap/src</pElem>
+              <pElem>libstreetmap</pElem>
+              <pElem>libstreetmap/src/ezgl</pElem>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/gtk-3.0</pElem>
+              <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+              <pElem>/usr/include/at-spi-2.0</pElem>
+              <pElem>/usr/include/dbus-1.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+              <pElem>/usr/include/gio-unix-2.0</pElem>
               <pElem>/usr/include/cairo</pElem>
-              <pElem>/usr/include/glib-2.0</pElem>
-              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pango-1.0</pElem>
+              <pElem>/usr/include/harfbuzz</pElem>
+              <pElem>/usr/include/atk-1.0</pElem>
               <pElem>/usr/include/pixman-1</pElem>
               <pElem>/usr/include/freetype2</pElem>
               <pElem>/usr/include/libpng16</pElem>
+              <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/x86_64-linux-gnu</pElem>
               <pElem>.</pElem>
             </incDir>
           </ccTool>
@@ -69,10 +90,45 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/ezgl/application.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/callback.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/camera.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/canvas.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/control.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/graphics.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
