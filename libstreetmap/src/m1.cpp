@@ -201,9 +201,9 @@ double find_street_segment_travel_time(unsigned street_segment_id) {
 
 // Returns the id to the POI that is closest to the position that is passed
 unsigned find_closest_point_of_interest(LatLon my_position) {
-    int min_distance = -1;
+    double min_distance = -1;
     POIIndex min_index = 0;
-    int distance_temp = 0;
+    double distance_temp = 0;
     // loop over every point of interest, calculating distance between each point of interest and my_position
     for(int i = 0; i < getNumPointsOfInterest(); i++) {
         distance_temp =  find_distance_between_two_points(my_position, getPointOfInterestPosition(i));
@@ -219,9 +219,9 @@ unsigned find_closest_point_of_interest(LatLon my_position) {
 
 // Returns the id to the intersection that is closest to the position that is passed
 unsigned find_closest_intersection(LatLon my_position) {
-    int min_distance = -1;
+    double min_distance = -1;
     IntersectionIndex min_index = 0;
-    int distance_temp = 0;
+    double distance_temp = 0;
     // loop over every intersection, calculating distance between each intersection and my_position
     for(int i = 0; i < getNumIntersections(); i++) {
         distance_temp =  find_distance_between_two_points(my_position, getIntersectionPosition(i));
