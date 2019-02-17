@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string>
 
+#include "map_db.h"
 #include "m1.h"
 
 //Program exit codes
