@@ -14,7 +14,7 @@ void draw_selected_intersection (ezgl::renderer &g);
 void draw_street_segments (ezgl::renderer &g);
 void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
-
+void draw_street_name(ezgl::renderer &g);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 
 
@@ -48,6 +48,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_street_segments(g);
     draw_points_of_interest(g);
     draw_selected_intersection(g);
+    draw_street_name(g);
 }
 
 
@@ -81,6 +82,25 @@ void draw_street_segments (ezgl::renderer &g) {
     }
 }
 
+void draw_street_name(ezgl::renderer &g) {
+    for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
+        double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
+        double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
+        double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());
+        double y2 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).to].position.lat());
+        
+        g.set_color(ezgl::RED);
+        ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
+        ezgl::rectangle current_view = g.get_visible_world();
+        
+        double scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
+        (current_view.right() - current_view.left());
+        std::cout << scale << std::endl;
+        if (scale > 58 && i % 3 == 0 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
+            g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
+        }
+    }
+}
 
 void draw_points_of_interest (ezgl::renderer &g) {
     for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
