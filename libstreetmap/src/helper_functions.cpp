@@ -3,12 +3,24 @@
 #include "StreetsDatabaseAPI.h"
 #include "m1.h"
 #include "helper_functions.h"
+#include "map_db.h"
+#include "math.h"
 #include <algorithm>
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec) {
     std::sort(vec.begin(), vec.end());
     vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
+}
+
+double lat_to_y (double lat) {  
+    return (lat * DEG_TO_RAD);
+}
+
+double lon_to_x (double lon) {
+    double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
+    
+    return (lon * cos(avg_lat) * DEG_TO_RAD);
 }
 
 //Pre-compute length of street segment
