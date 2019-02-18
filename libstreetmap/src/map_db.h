@@ -16,6 +16,7 @@ struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
     LatLon position;
     std::string name;
+    bool selected = false;
 };
 
 struct InfoStreets {

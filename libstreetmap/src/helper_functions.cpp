@@ -13,14 +13,24 @@ void removeDuplicates(std::vector<unsigned>& vec) {
     vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
-double lat_to_y (double lat) {  
+double y_from_lat (double lat) {  
     return (lat * DEG_TO_RAD);
 }
 
-double lon_to_x (double lon) {
+double x_from_lon (double lon) {
     double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
     
     return (lon * cos(avg_lat) * DEG_TO_RAD);
+}
+
+double lat_from_y (double y) {
+    return (y / DEG_TO_RAD);
+}
+
+double lon_from_x (double x) {
+    double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
+    
+    return (x / (cos(avg_lat) * DEG_TO_RAD));
 }
 
 //Pre-compute length of street segment
