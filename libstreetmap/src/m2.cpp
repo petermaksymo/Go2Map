@@ -13,6 +13,7 @@ void draw_main_canvas (ezgl::renderer &g);
 void draw_intersections (ezgl::renderer &g);
 void draw_street_segments (ezgl::renderer &g);
 void draw_points_of_interest (ezgl::renderer &g);
+void draw_features (ezgl::renderer &g);
 
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 
@@ -43,6 +44,7 @@ void draw_main_canvas (ezgl::renderer &g) {
             {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
     );
     
+    draw_features(g);
     draw_intersections(g);
     draw_street_segments(g);
     draw_points_of_interest(g);
@@ -96,6 +98,43 @@ void draw_points_of_interest (ezgl::renderer &g) {
         
         g.fill_rectangle({x,y}, {x+width, y+height});
     }
+}
+
+
+void draw_features (ezgl::renderer &g) {
+    for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
+        std::vector<ezgl::point2d> feature_points;
+        g.set_color(ezgl::BLUE);
+           
+        //check if a closed feature and then draw accordingly
+        if (getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat()
+            && getFeaturePoint(0,i).lon() == getFeaturePoint(getFeaturePointCount(i)-1,i).lon()) {
+        
+                for (int j = 0; j < getFeaturePointCount(i); j++) {
+                    double x = x_from_lon(getFeaturePoint(j, i).lon());
+                    double y = y_from_lat(getFeaturePoint(j, i).lat());
+
+                    feature_points.push_back(ezgl::point2d(x,y));
+                }
+                
+                if(feature_points.size() > 1)
+                    g.fill_poly(feature_points);
+        } else {
+            for (int point = 0; point < getFeaturePointCount(i) - 1; point ++) {
+                double x1 = x_from_lon(getFeaturePoint(point, i).lon());
+                double y1 = y_from_lat(getFeaturePoint(point, i).lat());
+                double x2 = x_from_lon(getFeaturePoint(point+1, i).lon());
+                double y2 = y_from_lat(getFeaturePoint(point+1, i).lat());
+
+                ezgl::point2d start(x1,y1);
+                ezgl::point2d end(x2,y2);   
+
+                g.draw_line(start, end);
+            }
+        }
+    }
+    
+    
 }
 
 
