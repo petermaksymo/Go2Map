@@ -59,6 +59,9 @@ void load_intersections () {
         MAP.world_values.max_lon = std::max(MAP.world_values.max_lon, MAP.intersection_db[i].position.lon());
         MAP.world_values.min_lon = std::min(MAP.world_values.min_lon, MAP.intersection_db[i].position.lon());
     }
+    
+    //initialize out of bounds
+    MAP.last_selected_intersection = getNumIntersections() + 1;
 }
 
 // loads street data into MAP

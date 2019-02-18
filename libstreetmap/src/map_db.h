@@ -16,7 +16,7 @@ struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
     LatLon position;
     std::string name;
-    bool selected = false;
+    bool is_selected = false;
 };
 
 struct InfoStreets {
@@ -39,6 +39,7 @@ struct WorldValues {
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
+    int last_selected_intersection;                     //last selected intersection to wipe selected state
     std::vector<InfoStreets> street_db;                 //all streets
     std::multimap<std::string, int> street_name_id_map; //for street names
     InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments

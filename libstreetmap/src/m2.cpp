@@ -45,9 +45,9 @@ void draw_main_canvas (ezgl::renderer &g) {
     );
     
     draw_features(g);
-    draw_intersections(g);
     draw_street_segments(g);
     draw_points_of_interest(g);
+    draw_intersections(g);
 }
 
 
@@ -59,19 +59,19 @@ void draw_intersections (ezgl::renderer &g) {
         float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
         float height = width;
         
-        //make selected intersections red
-        if (MAP.intersection_db[i].selected) {
+        //only draw selected intersections
+        if (MAP.intersection_db[i].is_selected) {
             g.set_color(ezgl::RED);
-        } else {
-            g.set_color(ezgl::GREY_55);
-        }
+            g.fill_rectangle({x,y}, {x+width, y+height});
+        } 
         
-        g.fill_rectangle({x,y}, {x+width, y+height});
     }
 }
 
 
 void draw_street_segments (ezgl::renderer &g) {
+    g.set_color(ezgl::GREY_55);
+    
     for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
         double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
         double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
@@ -140,13 +140,19 @@ void draw_features (ezgl::renderer &g) {
 
 //currently highlights closest intersection red
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
+    //clear previously selected intersection
+    if(MAP.last_selected_intersection <= getNumIntersections()) {
+        MAP.intersection_db[MAP.last_selected_intersection].is_selected = false;
+    }
+    
     std::cout << "Mouse clicked at (" << x << ", " << y << ")\n";
     
     LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
     int id = find_closest_intersection(position);
     
     std::cout << "Closest Intersection: " << MAP.intersection_db[id].name << "\n";
-    MAP.intersection_db[id].selected = true;
+    MAP.intersection_db[id].is_selected = true;
+    MAP.last_selected_intersection = id;
     
     app->refresh_drawing();
 }
