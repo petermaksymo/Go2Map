@@ -10,7 +10,7 @@
 #include "ezgl/graphics.hpp"
 
 void draw_main_canvas (ezgl::renderer &g);
-void draw_intersections (ezgl::renderer &g);
+void draw_selected_intersection (ezgl::renderer &g);
 void draw_street_segments (ezgl::renderer &g);
 void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
@@ -47,24 +47,20 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_features(g);
     draw_street_segments(g);
     draw_points_of_interest(g);
-    draw_intersections(g);
+    draw_selected_intersection(g);
 }
 
 
-void draw_intersections (ezgl::renderer &g) {
-    for (unsigned int i = 0; i < MAP.intersection_db.size(); i++) {
-        float x = x_from_lon(MAP.intersection_db[i].position.lon());
-        float y = y_from_lat(MAP.intersection_db[i].position.lat());
+void draw_selected_intersection (ezgl::renderer &g) {
+    int id = MAP.last_selected_intersection;
+    if (id <= getNumIntersections()) {
+        float x = x_from_lon(MAP.intersection_db[id].position.lon());
+        float y = y_from_lat(MAP.intersection_db[id].position.lat());
         
-        float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
-        float height = width;
+        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/5000;
         
-        //only draw selected intersections
-        if (MAP.intersection_db[i].is_selected) {
-            g.set_color(ezgl::RED);
-            g.fill_rectangle({x,y}, {x+width, y+height});
-        } 
-        
+        g.set_color(ezgl::RED);
+        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
     }
 }
 
@@ -91,12 +87,10 @@ void draw_points_of_interest (ezgl::renderer &g) {
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
         double y = y_from_lat(getPointOfInterestPosition(i).lat());
         
-        float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
-        float height = width;
+        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/5000;
         
-        g.set_color(ezgl::GREEN);
-        
-        g.fill_rectangle({x,y}, {x+width, y+height});
+        g.set_color(ezgl::GREEN);       
+        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);;
     }
 }
 
@@ -132,9 +126,7 @@ void draw_features (ezgl::renderer &g) {
                 g.draw_line(start, end);
             }
         }
-    }
-    
-    
+    }  
 }
 
 
