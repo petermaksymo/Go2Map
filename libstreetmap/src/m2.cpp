@@ -8,9 +8,11 @@
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
+#include "ezgl/point.hpp"
 
 void draw_main_canvas (ezgl::renderer &g);
 void draw_intersections (ezgl::renderer &g);
+void draw_street_segments (ezgl::renderer &g);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 
 
@@ -41,6 +43,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     );
     
     draw_intersections(g);
+    draw_street_segments(g);
 }
 
 
@@ -49,7 +52,7 @@ void draw_intersections (ezgl::renderer &g) {
         float x = x_from_lon(MAP.intersection_db[i].position.lon());
         float y = y_from_lat(MAP.intersection_db[i].position.lat());
         
-        float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/1000;
+        float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
         float height = width;
         
         if (MAP.intersection_db[i].selected) {
@@ -59,6 +62,20 @@ void draw_intersections (ezgl::renderer &g) {
         }
         
         g.fill_rectangle({x,y}, {x+width, y+height});
+    }
+}
+
+void draw_street_segments (ezgl::renderer &g) {
+    for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
+        double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
+        double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
+        double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());
+        double y2 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).to].position.lat());
+        
+        ezgl::point2d start(x1,y1);
+        ezgl::point2d end(x2,y2);   
+        
+        g.draw_line(start, end);
     }
 }
 
