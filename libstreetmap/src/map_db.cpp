@@ -38,6 +38,12 @@ void load_street_segments () {
 void load_intersections () {
     MAP.intersection_db.resize(getNumIntersections());
     
+    //initialize world values so comparing later works
+    MAP.world_values.max_lat = getIntersectionPosition(0).lat();
+    MAP.world_values.min_lat = MAP.world_values.max_lat;
+    MAP.world_values.max_lon = getIntersectionPosition(0).lon();
+    MAP.world_values.min_lon = MAP.world_values.max_lon;
+    
     //Iterating through all intersections
     //Loads up intersections_db with all connected street segments
     for(int i = 0; i < getNumIntersections(); i++) {
