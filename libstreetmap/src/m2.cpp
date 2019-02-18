@@ -8,11 +8,12 @@
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
-#include "ezgl/point.hpp"
 
 void draw_main_canvas (ezgl::renderer &g);
 void draw_intersections (ezgl::renderer &g);
 void draw_street_segments (ezgl::renderer &g);
+void draw_points_of_interest (ezgl::renderer &g);
+
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 
 
@@ -44,6 +45,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     
     draw_intersections(g);
     draw_street_segments(g);
+    draw_points_of_interest(g);
 }
 
 
@@ -55,6 +57,7 @@ void draw_intersections (ezgl::renderer &g) {
         float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
         float height = width;
         
+        //make selected intersections red
         if (MAP.intersection_db[i].selected) {
             g.set_color(ezgl::RED);
         } else {
@@ -64,6 +67,7 @@ void draw_intersections (ezgl::renderer &g) {
         g.fill_rectangle({x,y}, {x+width, y+height});
     }
 }
+
 
 void draw_street_segments (ezgl::renderer &g) {
     for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
@@ -79,6 +83,23 @@ void draw_street_segments (ezgl::renderer &g) {
     }
 }
 
+
+void draw_points_of_interest (ezgl::renderer &g) {
+    for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
+        double x = x_from_lon(getPointOfInterestPosition(i).lon());
+        double y = y_from_lat(getPointOfInterestPosition(i).lat());
+        
+        float width = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/2000;
+        float height = width;
+        
+        g.set_color(ezgl::GREEN);
+        
+        g.fill_rectangle({x,y}, {x+width, y+height});
+    }
+}
+
+
+//currently highlights closest intersection red
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
     std::cout << "Mouse clicked at (" << x << ", " << y << ")\n";
     
