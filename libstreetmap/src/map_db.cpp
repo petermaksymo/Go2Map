@@ -34,6 +34,7 @@ void load_street_segments () {
 }
 
 // load extra intersection info into MAP
+// Also determines the max and min LatLon for drawing
 void load_intersections () {
     MAP.intersection_db.resize(getNumIntersections());
     
@@ -42,9 +43,15 @@ void load_intersections () {
     for(int i = 0; i < getNumIntersections(); i++) {
         for (int j = 0; j < getIntersectionStreetSegmentCount(i); j++ ) {
             MAP.intersection_db[i].connected_street_segments.push_back(getIntersectionStreetSegment(j, i));
-        } 
+        }         
         MAP.intersection_db[i].position = getIntersectionPosition(i);
         MAP.intersection_db[i].name = getIntersectionName(i);
+        
+        //Check and update min/max lat/lon in world_values
+        MAP.world_values.max_lat = std::max(MAP.world_values.max_lat, MAP.intersection_db[i].position.lat());
+        MAP.world_values.min_lat = std::min(MAP.world_values.min_lat, MAP.intersection_db[i].position.lat());
+        MAP.world_values.max_lon = std::max(MAP.world_values.max_lon, MAP.intersection_db[i].position.lon());
+        MAP.world_values.min_lon = std::min(MAP.world_values.min_lon, MAP.intersection_db[i].position.lon());
     }
 }
 

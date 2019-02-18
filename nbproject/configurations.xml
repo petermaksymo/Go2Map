@@ -11,12 +11,12 @@
             <in>canvas.cpp</in>
             <in>control.cpp</in>
             <in>graphics.cpp</in>
-            <in>map_db.cpp</in>
           </df>
           <in>helper_functions.cpp</in>
           <in>helper_functions.h</in>
           <in>m1.cpp</in>
           <in>m2.cpp</in>
+          <in>map_db.cpp</in>
           <in>map_db.h</in>
         </df>
         <df name="tests">
@@ -126,8 +126,6 @@
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -140,6 +138,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -191,8 +191,6 @@
           </preprocessorList>
         </ccTool>
       </folder>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -208,6 +206,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -255,8 +255,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -272,6 +270,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -347,8 +347,6 @@
           </incDir>
         </ccTool>
       </folder>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -364,6 +362,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -422,8 +422,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -439,6 +437,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -496,8 +496,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -513,6 +511,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -562,8 +562,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/ezgl/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -579,6 +577,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>

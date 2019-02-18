@@ -28,12 +28,20 @@ struct InfoStreetSegmentsLocal {
     std::vector<double> street_segment_speed_limit; 
 };
 
+struct WorldValues {
+    double max_lat; //maximum latitude for drawing
+    double max_lon; //maximum longitude for drawing
+    double min_lat; //minimum latitude for drawing
+    double min_lon; //minimum longitude for drawing
+};
+
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
     std::vector<InfoStreets> street_db;                 //all streets
     std::multimap<std::string, int> street_name_id_map; //for street names
     InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments
+    WorldValues world_values;                           //values about the world (e.g. max latitude))
 };
 
 
