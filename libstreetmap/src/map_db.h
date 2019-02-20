@@ -36,14 +36,19 @@ struct WorldValues {
     double min_lon; //minimum longitude for drawing
 };
 
+//Values that change throughout map navigation
+struct Map_State {
+    int last_selected_intersection;  //last selected intersection to wipe selected
+};
+
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
-    int last_selected_intersection;                     //last selected intersection to wipe selected state
     std::vector<InfoStreets> street_db;                 //all streets
     std::multimap<std::string, int> street_name_id_map; //for street names
     InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments
     WorldValues world_values;                           //values about the world (e.g. max latitude))
+    Map_State state;
 };
 
 

@@ -16,6 +16,7 @@ void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
 void draw_street_name(ezgl::renderer &g);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
+void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
 
 
 void draw_map () {
@@ -34,7 +35,7 @@ void draw_map () {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
     
     
-    application.run(nullptr, act_on_mouse_click, nullptr, nullptr);
+    application.run(nullptr, act_on_mouse_click, act_on_mouse_move, nullptr);
 }
 
 
@@ -54,7 +55,7 @@ void draw_main_canvas (ezgl::renderer &g) {
 
 
 void draw_selected_intersection (ezgl::renderer &g) {
-    int id = MAP.last_selected_intersection;
+    int id = MAP.state.last_selected_intersection;
     if (id <= getNumIntersections()) {
         float x = x_from_lon(MAP.intersection_db[id].position.lon());
         float y = y_from_lat(MAP.intersection_db[id].position.lat());
@@ -168,23 +169,30 @@ void draw_features (ezgl::renderer &g) {
 }
 
 
-//currently highlights closest intersection red
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
-    //This part was used from the slides in tutorial
-    //clear previously selected intersection
-    if(MAP.last_selected_intersection <= getNumIntersections()) {
-        MAP.intersection_db[MAP.last_selected_intersection].is_selected = false;
-    }
     
-    std::cout << "Mouse clicked at (" << x << ", " << y << ")\n";
-    
-    LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
-    int id = find_closest_intersection(position);
-    
-    std::cout << "Closest Intersection: " << MAP.intersection_db[id].name << "\n";
-    MAP.intersection_db[id].is_selected = true;
-    MAP.last_selected_intersection = id;
-    
-    app->refresh_drawing();
-    //end of use from tutorial slides
+    //highlight intersection when clicked on
+    if(event->button == 1) {
+        //This part was used from the slides in tutorial
+        //clear previously selected intersection
+        if(MAP.state.last_selected_intersection <= getNumIntersections()) {
+            MAP.intersection_db[MAP.state.last_selected_intersection].is_selected = false;
+        }
+
+        std::cout << "Mouse clicked at (" << x << ", " << y << ")\n";
+
+        LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
+        int id = find_closest_intersection(position);
+
+        std::cout << "Closest Intersection: " << MAP.intersection_db[id].name << "\n";
+        MAP.intersection_db[id].is_selected = true;
+        MAP.state.last_selected_intersection = id;
+
+        app->refresh_drawing();
+        //end of use from tutorial slides
+    } 
+}
+
+void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y) {        
+  
 }

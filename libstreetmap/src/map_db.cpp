@@ -61,7 +61,7 @@ void load_intersections () {
     }
     
     //initialize out of bounds
-    MAP.last_selected_intersection = getNumIntersections() + 1;
+    MAP.state.last_selected_intersection = getNumIntersections() + 1;
 }
 
 // loads street data into MAP
