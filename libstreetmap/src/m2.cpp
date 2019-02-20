@@ -39,7 +39,8 @@ void draw_map () {
 
 
 void draw_main_canvas (ezgl::renderer &g) {    
-    g.draw_rectangle(
+    g.set_color(ezgl::BACKGROUND_GREY);
+    g.fill_rectangle(
             {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
             {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
     );
@@ -60,14 +61,14 @@ void draw_selected_intersection (ezgl::renderer &g) {
         
         float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/5000;
         
-        g.set_color(ezgl::RED);
+        g.set_color(ezgl::GREEN);
         g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
     }
 }
 
 
 void draw_street_segments (ezgl::renderer &g) {
-    g.set_color(ezgl::GREY_55);
+    g.set_color(ezgl::WHITE);
     
     for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
         double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
@@ -109,9 +110,9 @@ void draw_points_of_interest (ezgl::renderer &g) {
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
         double y = y_from_lat(getPointOfInterestPosition(i).lat());
         
-        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/5000;
+        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
         
-        g.set_color(ezgl::GREEN);       
+        g.set_color(ezgl::RED);       
         g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);;
     }
 }
@@ -120,7 +121,22 @@ void draw_points_of_interest (ezgl::renderer &g) {
 void draw_features (ezgl::renderer &g) {
     for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
         std::vector<ezgl::point2d> feature_points;
-        g.set_color(ezgl::BLUE);
+        
+        //set feature colour:
+        FeatureType feature_type = getFeatureType(i);
+        switch(feature_type) {
+            case Unknown    : g.set_color(ezgl::NONE); break;
+            case Park       : g.set_color(ezgl::PARK_GREEN); break;
+            case Beach      : g.set_color(ezgl::BEACH_YELLOW); break;
+            case Lake       : g.set_color(ezgl::WATER_BLUE); break;
+            case River      : g.set_color(ezgl::WATER_BLUE); break;
+            case Island     : g.set_color(ezgl::PARK_GREEN); break;
+            case Building   : g.set_color(ezgl::BUILDING_GREY); break;
+            case Greenspace : g.set_color(ezgl::PARK_GREEN); break;
+            case Golfcourse : g.set_color(ezgl::PARK_GREEN); break;
+            case Stream     : g.set_color(ezgl::WATER_BLUE); break;
+            default         : g.set_color(ezgl::NONE); break;
+        }
            
         //check if a closed feature and then draw accordingly
         if (getFeaturePoint(0,i).lat() == getFeaturePoint(getFeaturePointCount(i)-1,i).lat()

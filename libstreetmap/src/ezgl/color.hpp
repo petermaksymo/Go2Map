@@ -64,6 +64,15 @@ struct color {
   }
 };
 
+//custom colors
+static constexpr color NONE(0, 0, 0, 0);
+static constexpr color BACKGROUND_GREY(230, 230, 230);
+static constexpr color WATER_BLUE(117, 207, 241);
+static constexpr color PARK_GREEN(182, 229, 158);
+static constexpr color BUILDING_GREY(215, 215, 215);
+static constexpr color BEACH_YELLOW(249, 242, 200);
+
+//given colors
 static constexpr color WHITE(0xFF, 0xFF, 0xFF);
 static constexpr color BLACK(0x00, 0x00, 0x00);
 static constexpr color GREY_55(0x8C, 0x8C, 0x8C);
