@@ -78,6 +78,8 @@ void draw_street_segments (ezgl::renderer &g) {
         ezgl::point2d start(x1,y1);
         ezgl::point2d end(x2,y2);   
         
+        g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[i] / 20);
+        
         g.draw_line(start, end);
     }
 }
@@ -95,7 +97,7 @@ void draw_street_name(ezgl::renderer &g) {
         
         double scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() - current_view.left());
-        std::cout << scale << std::endl;
+        //std::cout << scale << std::endl;
         if (scale > 58 && i % 3 == 0 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
             g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
         }
@@ -152,6 +154,7 @@ void draw_features (ezgl::renderer &g) {
 
 //currently highlights closest intersection red
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
+    //This part was used from the slides in tutorial
     //clear previously selected intersection
     if(MAP.last_selected_intersection <= getNumIntersections()) {
         MAP.intersection_db[MAP.last_selected_intersection].is_selected = false;
@@ -167,4 +170,5 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
     MAP.last_selected_intersection = id;
     
     app->refresh_drawing();
+    //end of use from tutorial slides
 }
