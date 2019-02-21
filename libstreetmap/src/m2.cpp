@@ -97,7 +97,12 @@ void draw_street_name(ezgl::renderer &g) {
         double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());
         double y2 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).to].position.lat());
         
-        g.set_color(ezgl::RED);
+        double angle = ( tan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
+        //keep orientation of text the same
+        angle = angle > 180 ? angle - 180 : angle;
+        
+        g.set_color(ezgl::BLACK);
+        g.set_text_rotation(angle);
         ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
         ezgl::rectangle current_view = g.get_visible_world();
         
@@ -135,7 +140,7 @@ void draw_features (ezgl::renderer &g) {
             case Beach      : g.set_color(ezgl::BEACH_YELLOW); break;
             case Lake       : g.set_color(ezgl::WATER_BLUE); break;
             case River      : g.set_color(ezgl::WATER_BLUE); break;
-            case Island     : g.set_color(ezgl::PARK_GREEN); break;
+            case Island     : g.set_color(ezgl::BACKGROUND_GREY); break;
             case Building   : g.set_color(ezgl::BUILDING_GREY); break;
             case Greenspace : g.set_color(ezgl::PARK_GREEN); break;
             case Golfcourse : g.set_color(ezgl::PARK_GREEN); break;
