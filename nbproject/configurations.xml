@@ -137,11 +137,11 @@
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="4">
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">

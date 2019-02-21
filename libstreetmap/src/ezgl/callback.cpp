@@ -268,9 +268,6 @@ gboolean press_proceed(GtkWidget *, gpointer data)
   return TRUE;
 }
 
-gboolean press_find(GtkWidget *widget, gpointer data) {
-    std::cout << "Test" << std::endl;
-}
 }
 
 

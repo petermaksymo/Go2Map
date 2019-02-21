@@ -8,6 +8,9 @@
 #include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
+#include <iostream>
+#include <sstream>
+#include <string>
 
 void draw_main_canvas (ezgl::renderer &g);
 void draw_selected_intersection (ezgl::renderer &g);
@@ -223,3 +226,23 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y) {        
   
 }
+
+void search_intersection() {
+    std::string street1, street2;
+    //std::cout << "Enter first street name: ";
+    //std::cin >> street1;
+    //std::cout << "Enter second street name: ";
+    //std::cin >> street2;
+//    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("bay");
+//    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("bloor");
+//    std::cout << streetID1[0] << " " << streetID2[0] << std::endl;
+//    std::vector<unsigned> intersectionID = find_intersection_ids_from_street_ids(streetID1[0], streetID2[0]);
+//    MAP.state.last_selected_intersection = intersectionID[0];
+    //std::cout << street1 << street2;
+}
+
+gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
+    search_intersection();
+}
+
+
