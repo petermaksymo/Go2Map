@@ -15,6 +15,7 @@ void draw_street_segments (ezgl::renderer &g);
 void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
 void draw_street_name(ezgl::renderer &g);
+void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
 
@@ -71,18 +72,21 @@ void draw_selected_intersection (ezgl::renderer &g) {
 void draw_street_segments (ezgl::renderer &g) {
     g.set_color(ezgl::WHITE);
     
-    for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
-        double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
-        double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
-        double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());
-        double y2 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).to].position.lat());
+    for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
+        //load all LatLon of points into a vector for the draw_curve helper function
+        std::vector<LatLon> points;
+        points.push_back(MAP.intersection_db[getInfoStreetSegment(id).from].position);
+        if(getInfoStreetSegment(id).curvePointCount > 0) {
+            for(int i = 0; i < getInfoStreetSegment(id).curvePointCount; i++) {
+                points.push_back(getStreetSegmentCurvePoint(i, id));
+            }
+        }
+        points.push_back(MAP.intersection_db[getInfoStreetSegment(id).to].position);
         
-        ezgl::point2d start(x1,y1);
-        ezgl::point2d end(x2,y2);   
+        //set width before drawing
+        g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
         
-        g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[i] / 20);
-        
-        g.draw_line(start, end);
+        draw_curve(g, points);
     }
 }
 
@@ -153,19 +157,29 @@ void draw_features (ezgl::renderer &g) {
                 if(feature_points.size() > 1)
                     g.fill_poly(feature_points);
         } else {
-            for (int point = 0; point < getFeaturePointCount(i) - 1; point ++) {
-                double x1 = x_from_lon(getFeaturePoint(point, i).lon());
-                double y1 = y_from_lat(getFeaturePoint(point, i).lat());
-                double x2 = x_from_lon(getFeaturePoint(point+1, i).lon());
-                double y2 = y_from_lat(getFeaturePoint(point+1, i).lat());
-
-                ezgl::point2d start(x1,y1);
-                ezgl::point2d end(x2,y2);   
-
-                g.draw_line(start, end);
+            std::vector<LatLon> points;
+            for (int point = 0; point < getFeaturePointCount(i); point ++) {
+                points.push_back(getFeaturePoint(point, i));
             }
+            draw_curve(g, points);
         }
     }  
+}
+
+
+//helper function to draw curves
+void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {
+    for(unsigned int i = 0; i < points.size() - 1; i++) {
+        double x1 = x_from_lon(points[i].lon());
+        double y1 = y_from_lat(points[i].lat());
+        double x2 = x_from_lon(points[i+1].lon());
+        double y2 = y_from_lat(points[i+1].lat());
+
+        ezgl::point2d start(x1,y1);
+        ezgl::point2d end(x2,y2);   
+
+        g.draw_line(start, end);
+    }
 }
 
 
