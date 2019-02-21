@@ -69,10 +69,10 @@ void draw_selected_intersection (ezgl::renderer &g) {
 }
 
 
-void draw_street_segments (ezgl::renderer &g) {
-    g.set_color(ezgl::WHITE);
-    
+void draw_street_segments (ezgl::renderer &g) {    
     for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
+        g.set_color(ezgl::WHITE);
+        
         //load all LatLon of points into a vector for the draw_curve helper function
         std::vector<LatLon> points;
         points.push_back(MAP.intersection_db[getInfoStreetSegment(id).from].position);
@@ -85,6 +85,9 @@ void draw_street_segments (ezgl::renderer &g) {
         
         //set width before drawing
         g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
+        if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 90) {
+            g.set_color(ezgl::ORANGE);
+        }
         
         draw_curve(g, points);
     }
