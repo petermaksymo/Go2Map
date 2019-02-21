@@ -1,10 +1,12 @@
 #include "ezgl/callback.hpp"
+#include <time.h>       //used for timing
 
 namespace ezgl {
 
-// File wide static variables to track whether the middle mouse
+// File wide static variables to track whether the pan
 // button is currently pressed AND the old x and y positions of the mouse pointer
-bool middle_mouse_button_pressed = false;
+bool pan_button_pressed = false;
+clock_t time_at_click;
 int last_panning_event_time = 0;
 double prev_x = 0, prev_y = 0;
 
@@ -21,21 +23,43 @@ gboolean press_key(GtkWidget *, GdkEventKey *event, gpointer data)
   return FALSE; // propagate the event
 }
 
-gboolean press_mouse(GtkWidget *, GdkEventButton *event, gpointer data)
+gboolean press_mouse(GtkWidget *, GdkEventButton *event, gpointer)
 {
-  auto application = static_cast<ezgl::application *>(data);
+    if(event->type == GDK_BUTTON_PRESS) {
 
-  if(event->type == GDK_BUTTON_PRESS) {
-
-    // Check for Middle mouse press to support dragging
-    if(event->button == 2) {
-      middle_mouse_button_pressed = true;
+    // Check for pan button press to support dragging
+    if(event->button == 1) {
+      time_at_click = clock();
+      pan_button_pressed = true;
       prev_x = event->x;
       prev_y = event->y;
     }
 
+    }
+
+    return TRUE; // consume the event
+}
+
+gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer data )
+{
+  if(event->type == GDK_BUTTON_RELEASE) {
+    auto application = static_cast<ezgl::application *>(data);
+      
+    clock_t time_since_click = 0;
+    
+    // Check for pan button release to support dragging
+    if(event->button == 1) {
+      time_since_click = clock() - time_at_click;
+      time_at_click = 0;
+      pan_button_pressed = false;
+    }
+    
     // Call the user-defined mouse press callback if defined
-    if(application->mouse_press_callback != nullptr) {
+    // Its being called on release instead of on press so we can support panning with
+    // a click and drag of the left mouse button, thats why it is also dependant on
+    // time_since_click being <10000, regular clicks take ~300 while a drag takes hundreds 
+    // of thousands
+    if((double)time_since_click < 10000 && application->mouse_press_callback != nullptr) {
       ezgl::point2d const widget_coordinates(event->x, event->y);
 
       std::string main_canvas_id = application->get_main_canvas_id();
@@ -49,26 +73,14 @@ gboolean press_mouse(GtkWidget *, GdkEventButton *event, gpointer data)
   return TRUE; // consume the event
 }
 
-gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer )
-{
-  if(event->type == GDK_BUTTON_RELEASE) {
-    // Check for Middle mouse release to support dragging
-    if(event->button == 2) {
-      middle_mouse_button_pressed = false;
-    }
-  }
-
-  return TRUE; // consume the event
-}
-
 gboolean move_mouse(GtkWidget *, GdkEventButton *event, gpointer data)
 {
   auto application = static_cast<ezgl::application *>(data);
 
   if(event->type == GDK_MOTION_NOTIFY) {
 
-    // Check if the middle mouse is pressed to support dragging
-    if(middle_mouse_button_pressed) {
+    // Check if the pan button is pressed to support dragging
+    if(pan_button_pressed) {
       // drop this panning event if we have just served another one
       if(gtk_get_current_event_time() - last_panning_event_time < 100)
         return true;

@@ -91,6 +91,8 @@ void draw_street_segments (ezgl::renderer &g) {
         
         //set width before drawing
         g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
+        
+        //make highways orange
         if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 90) {
             g.set_color(ezgl::ORANGE);
         }
