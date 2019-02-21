@@ -222,6 +222,10 @@ void application::register_default_buttons_callbacks(ezgl::application *applicat
   // Connect press_proceed function to the Proceed button
   GObject *proceed_button = application->get_object("ProceedButton");
   g_signal_connect(proceed_button, "clicked", G_CALLBACK(press_proceed), application);
+  
+  // Connect press_find function to the Find button
+  GObject *find_button = application->get_object("FindButton");
+  g_signal_connect(find_button, "clicked", G_CALLBACK(press_find), application);
 }
 
 void application::update_message(std::string const &message)

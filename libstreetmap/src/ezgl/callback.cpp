@@ -1,5 +1,6 @@
 #include "ezgl/callback.hpp"
 #include <time.h>       //used for timing
+#include <iostream>
 
 namespace ezgl {
 
@@ -265,6 +266,10 @@ gboolean press_proceed(GtkWidget *, gpointer data)
   ezgl_app->quit();
 
   return TRUE;
+}
+
+gboolean press_find(GtkWidget *widget, gpointer data) {
+    std::cout << "Test" << std::endl;
 }
 }
 
