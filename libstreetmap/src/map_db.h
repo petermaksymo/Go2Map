@@ -39,6 +39,7 @@ struct WorldValues {
 //Values that change throughout map navigation
 struct Map_State {
     int last_selected_intersection;  //last selected intersection to wipe selected
+    double scale; // Scale showing how zoomed the map is 
 };
 
 // The main structure for the globally defined MAP

@@ -52,6 +52,12 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_points_of_interest(g);
     draw_selected_intersection(g);
     draw_street_name(g);
+    
+    // Calculate the scale every time main canvas is drawn
+    ezgl::rectangle current_view = g.get_visible_world();
+    MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
+        (current_view.right() - current_view.left());
+    
 }
 
 
@@ -107,12 +113,9 @@ void draw_street_name(ezgl::renderer &g) {
         g.set_color(ezgl::BLACK);
         g.set_text_rotation(angle);
         ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
-        ezgl::rectangle current_view = g.get_visible_world();
         
-        double scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
-        (current_view.right() - current_view.left());
-        //std::cout << scale << std::endl;
-        if (scale > 58 && i % 3 == 0 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
+        //std::cout << MAP.state.scale << std::endl;
+        if (MAP.state.scale > 58 && i % 3 == 0 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
             g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
         }
     }
