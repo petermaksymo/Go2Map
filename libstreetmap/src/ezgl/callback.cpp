@@ -9,6 +9,7 @@ bool pan_button_pressed = false;
 clock_t time_at_click;
 int last_panning_event_time = 0;
 double prev_x = 0, prev_y = 0;
+double prev_dx = 0, prev_dy = 0;
 
 gboolean press_key(GtkWidget *, GdkEventKey *event, gpointer data)
 {
@@ -45,21 +46,19 @@ gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer data )
   if(event->type == GDK_BUTTON_RELEASE) {
     auto application = static_cast<ezgl::application *>(data);
       
-    clock_t time_since_click = 0;
+    bool was_panning = false;
     
     // Check for pan button release to support dragging
     if(event->button == 1) {
-      time_since_click = clock() - time_at_click;
+      was_panning = (double)(clock() - time_at_click) >= 10000;
       time_at_click = 0;
       pan_button_pressed = false;
     }
     
     // Call the user-defined mouse press callback if defined
     // Its being called on release instead of on press so we can support panning with
-    // a click and drag of the left mouse button, thats why it is also dependant on
-    // time_since_click being <10000, regular clicks take ~300 while a drag takes hundreds 
-    // of thousands
-    if((double)time_since_click < 10000 && application->mouse_press_callback != nullptr) {
+    // a click and drag of the left mouse button, 
+    if(!was_panning && application->mouse_press_callback != nullptr) {
       ezgl::point2d const widget_coordinates(event->x, event->y);
 
       std::string main_canvas_id = application->get_main_canvas_id();
@@ -68,6 +67,26 @@ gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer data )
       ezgl::point2d const world = canvas->get_camera().widget_to_world(widget_coordinates);
       application->mouse_press_callback(application, event, world.x, world.y);
     }
+    
+//    //implement inertial scrolling
+//    if(was_panning) {
+//        std::string main_canvas_id = application->get_main_canvas_id();
+//        auto canvas = application->get_canvas(main_canvas_id);
+//        
+//        
+//        //translate by 1/10th prev_dx/dy each time for a max of 5 times
+//        //or when very small
+//        int counter = 0;
+//        while((prev_dx > 0.00000001 && prev_dy > 0.00000001) || counter < 5) {
+//            translate(canvas, -prev_dx, -prev_dy);
+//            application->refresh_drawing();
+//            
+//            prev_dx = prev_dx/10.0;
+//            prev_dy = prev_dy/10.0;
+//            counter ++;
+//        }
+//    }
+    
   }
 
   return TRUE; // consume the event
@@ -100,6 +119,10 @@ gboolean move_mouse(GtkWidget *, GdkEventButton *event, gpointer data)
 
       prev_x = motion_event->x;
       prev_y = motion_event->y;
+      
+      //set these for inertial panning
+      prev_dx = dx;
+      prev_dy = dy;
 
       // Flip the delta x to avoid inverted dragging
       translate(canvas, -dx, -dy);
