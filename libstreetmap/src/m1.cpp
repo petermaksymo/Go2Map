@@ -21,6 +21,8 @@
 #include "map_db.h"
 #include "m1.h"
 #include "StreetsDatabaseAPI.h"
+#include "OSMDatabaseAPI.h"
+#include "OSMFetchers.h"
 #include "math.h"
 #include <algorithm>
 #include <map>
@@ -28,9 +30,17 @@
 #include "helper_functions.h"
 
 bool load_map(std::string map_path) {
-    bool load_successful = loadStreetsDatabaseBIN(map_path);
+    //get the path to the osm.bin file by replacing the extension of map_path
+    std::string OSM_map_path = map_path;
+    std::string to_replace = "streets.bin";
+    OSM_map_path.replace(OSM_map_path.rfind(to_replace), to_replace.length(), "osm.bin");
+    
+    bool load_successful = loadStreetsDatabaseBIN(map_path) &&
+                           loadOSMDatabaseBIN(OSM_map_path);
    
     if(not load_successful) return false;
+    
+    display_osm_info();
     
     //Load our map related data structures here
     load_street_segments();
@@ -48,6 +58,7 @@ void close_map() {
     MAP.intersection_db.clear();
     MAP.street_db.clear();
     
+    closeOSMDatabase();
     closeStreetDatabase();
 }
 

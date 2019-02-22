@@ -99,6 +99,10 @@
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/ezgl/application.cpp"
             ex="false"
             tool="1"
@@ -201,6 +205,10 @@
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -268,6 +276,10 @@
       <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
@@ -365,6 +377,10 @@
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -444,6 +460,10 @@
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -522,6 +542,10 @@
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -591,6 +615,10 @@
       <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
