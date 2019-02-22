@@ -19,6 +19,7 @@ KD2Node::KD2Node(const std::pair<double, double> &pt, KD2Node* &left_, KD2Node* 
     zoom_level = zoom_level_;
 }
 
+
 KD2Node::KD2Node(const std::pair<double, double> &pt, int zoom_level_) {
     point = pt;
     zoom_level = zoom_level_;
@@ -26,12 +27,15 @@ KD2Node::KD2Node(const std::pair<double, double> &pt, int zoom_level_) {
     right = NULL;
 }
 
+
 KD2Node::~KD2Node() {
     delete left;
     delete right;
 }
 
+
 KD2Tree::KD2Tree() = default;
+
 
 KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts, const int &zoom_level) {
     
@@ -44,6 +48,7 @@ KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts, const int &zoom_lev
     
     root = make_tree(begin, end, depth, length, zoom_level);
 }
+
 
 KD2Tree::~KD2Tree() {
     delete root;
@@ -245,6 +250,11 @@ void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pai
 
 
 
+// Finds the nearest neighbour in the tree to the search_point.
+// Note: min_distance and results must be passed by reference into the function.
+// Checks if node is within the min_distance of the point, in which case it needs
+// to check points on left or right of that node. Otherwise checks the side of
+// the node the point is on.
 void KD2Tree::nearest_neighbour(KD2Node* ptr, // root
                                const std::pair<double, double> &search_point, // search point
                                double &min_distance, // the minimum distance thus far
