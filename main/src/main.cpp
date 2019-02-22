@@ -24,6 +24,7 @@
 #include "map_db.h"
 #include "m1.h"
 #include "m2.h"
+#include "KDTree.h"
 
 //Program exit codes
 constexpr int SUCCESS_EXIT_CODE = 0;        //Everyting went OK
@@ -58,6 +59,20 @@ int main(int argc, char** argv) {
     
     std::cout << "Successfully loaded map '" << map_path << "'\n";
 
+    // Testing KD2Tree
+    std::vector<std::pair<double, double>> test_vector;
+    test_vector.push_back(std::make_pair(1,1));
+    test_vector.push_back(std::make_pair(2,1));
+    test_vector.push_back(std::make_pair(4,1));
+    test_vector.push_back(std::make_pair(2,2));
+    test_vector.push_back(std::make_pair(1,4));
+    test_vector.push_back(std::make_pair(2,3));
+
+    KD2Tree* k2tree = new KD2Tree(test_vector);
+    
+    k2tree->visualize_tree(k2tree->root, 0);
+    
+    
     //You can now do something with the map data
     draw_map();
 

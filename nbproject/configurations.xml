@@ -12,6 +12,8 @@
             <in>control.cpp</in>
             <in>graphics.cpp</in>
           </df>
+          <in>KDTree.cpp</in>
+          <in>KDTree.h</in>
           <in>helper_functions.cpp</in>
           <in>helper_functions.h</in>
           <in>m1.cpp</in>
@@ -93,6 +95,10 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/ezgl/application.cpp"
             ex="false"
             tool="1"
@@ -191,6 +197,10 @@
           </preprocessorList>
         </ccTool>
       </folder>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -255,6 +265,10 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -347,6 +361,10 @@
           </incDir>
         </ccTool>
       </folder>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -422,6 +440,10 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -496,6 +518,10 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -562,6 +588,10 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/KDTree.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
