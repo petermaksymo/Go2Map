@@ -256,8 +256,8 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
 
 void search_intersection() {
     // Manual input for now
-    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("king");
-    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("queen");
+    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("bloor" );
+    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("bay");
     std::vector<unsigned> intersectionID, current_intersection;
     // Check for all possible intersections
     for (int i = 0; i < streetID1.size() - 1; i++) {
@@ -277,13 +277,17 @@ void search_intersection() {
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     search_intersection();
+    double margin = 0.0001;
     auto ezgl_app = static_cast<ezgl::application *>(data);
     std::string main_canvas_id = ezgl_app->get_main_canvas_id();
     auto canvas = ezgl_app->get_canvas(main_canvas_id);
-    LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[1]);
-    ezgl::point2d zoom_point(x_from_lon(pos.lon()), y_from_lat(pos.lat()));
-    std::cout << x_from_lon(pos.lon()) << y_from_lat(pos.lat()) << std::endl;
-    while (MAP.state.scale < 40) ezgl::zoom_in(canvas, zoom_point, 5.0/3.0);
+    LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[0]);
+    ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
+    ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
+    rectangle view(origin, top_right);
+    ezgl:zoom_fit(canvas, view);
+        //ezgl::zoom_in(canvas, zoom_point, 5.0/3.0);
+    
     ezgl_app->refresh_drawing();
 }
 
