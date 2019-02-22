@@ -12,19 +12,21 @@
 KD2Node::KD2Node() = default;
 
 
-KD2Node::KD2Node(const std::pair<double, double> &pt, KD2Node* &left_, KD2Node* &right_, int zoom_level_) {
+KD2Node::KD2Node(const std::pair<double, double> &pt, unsigned int data_id_, int zoom_level_) {
     point = pt;
-    left = left_;
-    right = right_;
-    zoom_level = zoom_level_;
-}
-
-
-KD2Node::KD2Node(const std::pair<double, double> &pt, int zoom_level_) {
-    point = pt;
+    data_id = data_id_;
     zoom_level = zoom_level_;
     left = NULL;
     right = NULL;
+}
+
+
+KD2Node::KD2Node(const std::pair<double, double> &pt, unsigned int data_id_, KD2Node* &left_, KD2Node* &right_, int zoom_level_) {
+    point = pt;
+    data_id = data_id_;
+    left = left_;
+    right = right_;
+    zoom_level = zoom_level_;
 }
 
 
@@ -37,7 +39,7 @@ KD2Node::~KD2Node() {
 KD2Tree::KD2Tree() = default;
 
 
-KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts, const int &zoom_level) {
+KD2Tree::KD2Tree(std::vector<std::pair<std::pair<double, double>, unsigned int>> pts, const int &zoom_level) {
     
     auto begin = pts.begin();
     auto end = pts.end();
@@ -59,11 +61,11 @@ KD2Tree::~KD2Tree() {
 // and left is less than or equal to node. Does this by recursively calling itself
 // on the left and right parts of the sorted points. Alternates between splitting
 // by x and splitting by y.
-KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator begin, // begin
-                          std::vector<std::pair<double, double>>::iterator end, // end
-                          const std::size_t &depth, // depth
-                          const std::size_t &vec_size,
-                          const int &zoom_level) {
+KD2Node* KD2Tree::make_tree(std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator begin, // begin
+                            std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator end, // end
+                            const std::size_t &depth, // depth
+                            const std::size_t &vec_size,
+                            const int &zoom_level) {
       
     
     // Vector passed is empty
@@ -90,8 +92,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
     bool done = false;
     while(!done && middle != begin) {
         // check if previous median point has equal value in the depth dimension
-        if(((depth % 2 == 0) && (xAreEqual(*middle, *(middle - 1)))) || // equal x
-            ((depth % 2 == 1) && (yAreEqual(*middle, *(middle - 1))))) { // equal y
+        if(depthAreEqual(depth, (*middle).first, (*(middle - 1)).first)) { // equal y
             middle--;
             l_size --;
             r_size ++;
@@ -109,7 +110,8 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
     }
     
     KD2Node* new_node = new KD2Node();
-    new_node->point = *middle;
+    new_node->point = (*middle).first;
+    new_node->data_id = (*middle).second;
     new_node->zoom_level = zoom_level;
     new_node->left = make_tree(begin, middle, depth + 1, l_size, zoom_level);
     new_node->right = make_tree(r_begin, end, depth + 1, r_size, zoom_level);
@@ -133,7 +135,7 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &z
         std::cout << " ";
     }
     
-    std::cout << dim << "(" << ptr->point.first << "," << ptr->point.second<< ")" << std::endl;
+    std::cout << dim << "(" << ptr->point.first << "," << ptr->point.second<< "):" << ptr->data_id << std::endl;
     visualize_tree(ptr->left, depth + 1, zoom_level);
     visualize_tree(ptr->right, depth + 1, zoom_level);
 
@@ -144,30 +146,31 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &z
 // Tries to insert left if less than middle point, or right if greater than or
 // equal to.
 // NOTE: Does not work on empty tree
-void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt, const std::size_t &depth, const int &zoom_level) {
+void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<std::pair<double, double>, unsigned int> &new_pt, const std::size_t &depth, const int &zoom_level) {
     if (!ptr) return;
 
-    if(depthLessThan(depth, new_pt, ptr->point)) {
+    if(depthLessThan(depth, new_pt.first, ptr->point)) {
         
         if(ptr->left) insert_pair(ptr->left, new_pt, depth + 1, zoom_level); 
-        else ptr->left = new KD2Node(new_pt, zoom_level);
+        else ptr->left = new KD2Node(new_pt.first, new_pt.second, zoom_level);
  
     } else {
         
         if(ptr->right) insert_pair(ptr->right, new_pt, depth + 1, zoom_level); 
-        else ptr->right = new KD2Node(new_pt, zoom_level);
+        else ptr->right = new KD2Node(new_pt.first, new_pt.second, zoom_level);
     }
 }
 
 // Inserts an vector of points into an RTree by recursively splitting the array
 // to match the nodes in the RTree until places to insert the points are found.
 // Makes use of insert_pair and make_tree.
-void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin, // begin
-                          std::vector<std::pair<double, double>>::iterator end, // end
+void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator begin, // begin
+                          std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator end, // end
                           KD2Node* ptr, // root
                           const std::size_t &depth, // depth of insert
                           const std::size_t &vec_size,
                           const int &zoom_level) { // size of passed vector
+    
     // Vector passed is empty
     if (begin == end) return;
     
@@ -195,14 +198,14 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
     
     // if middle is less than, move right until middle is greater than or end()
     // if middle is greater than, move right until middle - 1 is less than point or begin()
-    if(depthLessThan(depth, *middle, ptr->point)) {
-        while(middle != end && depthLessThan(depth, *middle, ptr->point)) {
+    if(depthLessThan(depth, (*middle).first, ptr->point)) {
+        while(middle != end && depthLessThan(depth, (*middle).first, ptr->point)) {
             middle++;
             l_size++;
             r_size--;
         }
     } else {
-        while(middle != begin && !depthLessThan(depth, *(middle -1), ptr->point)) {
+        while(middle != begin && !depthLessThan(depth, (*(middle -1)).first, ptr->point)) {
             middle--;
             l_size--;
             r_size++;
@@ -222,7 +225,7 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
 // Recursively calls itself depending on if the point is in the range, to less than, or greater than the range.
 // It only pushes the point to the results vector if it is within the range.
 void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pair<double, double> &x_range, const std::pair<double, double> &y_range, // range from smallest to greatest
-                std::vector<std::pair<double, double>> &results, const int &zoom_level) {
+                std::vector<std::pair<std::pair<double, double>, unsigned int>> &results, const int &zoom_level) {
     
     if(!ptr) return;
     
@@ -241,7 +244,7 @@ void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pai
         range_query(ptr->left, depth + 1, x_range, y_range, results, zoom_level);
         // store the point if is also in range in other dimension
         if(!depthGreaterThanBounds(depth + 1, ptr->point, x_range, y_range) && !depthLessThanBounds(depth + 1, ptr->point, x_range, y_range)) {
-            results.push_back(ptr->point);
+            results.push_back(std::make_pair(ptr->point, ptr->data_id));
         }
         // range query on the right
         range_query(ptr->right, depth + 1, x_range, y_range, results, zoom_level);
@@ -259,7 +262,7 @@ void KD2Tree::nearest_neighbour(KD2Node* ptr, // root
                                const std::pair<double, double> &search_point, // search point
                                double &min_distance, // the minimum distance thus far
                                const std::size_t &depth, // depth of search
-                               std::pair<double, double> &results, // results
+                               std::pair<std::pair<double, double>, unsigned int> &results, // results
                                const int &zoom_level) { // zoom level
     
     if(!ptr) return;
@@ -267,7 +270,7 @@ void KD2Tree::nearest_neighbour(KD2Node* ptr, // root
     if(ptr->zoom_level > zoom_level) return;
     
     if(min_distance < 0 || pt_dist(ptr->point, search_point) < min_distance) {
-        results = ptr->point;
+        results = std::make_pair(ptr->point, ptr->data_id);
         min_distance = pt_dist(ptr->point, search_point);
     }
     
@@ -293,11 +296,11 @@ void KD2Tree::nearest_neighbour(KD2Node* ptr, // root
 
 
 // Helper functions for compairing pairs
-bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
-    return (a.first < b.first);
+bool x_ALessThanB(const std::pair<std::pair<double, double>, unsigned int> &a, const std::pair<std::pair<double, double>, unsigned int> &b) {
+    return (a.first.first < b.first.first);
 }
-bool y_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
-    return (a.second < b.second);
+bool y_ALessThanB(const std::pair<std::pair<double, double>, unsigned int> &a, const std::pair<std::pair<double, double>, unsigned int> &b) {
+    return (a.first.second < b.first.second);
 }
 
 bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b) {
@@ -306,6 +309,10 @@ bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, doubl
 
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.second == b.second);
+}
+
+bool depthAreEqual(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b) {
+    return (((depth % 2 == 0) && (a.first == b.first)) || ((depth % 2 == 1) && (a.second == b.second)));
 }
 
 bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b) {

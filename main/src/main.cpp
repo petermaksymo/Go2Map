@@ -60,13 +60,13 @@ int main(int argc, char** argv) {
     std::cout << "Successfully loaded map '" << map_path << "'\n";
 
     // Testing KD2Tree
-    std::vector<std::pair<double, double>> test_vector_make;
-    test_vector_make.push_back(std::make_pair(1,1));
-    test_vector_make.push_back(std::make_pair(2,1));
-    test_vector_make.push_back(std::make_pair(4,1));
-    test_vector_make.push_back(std::make_pair(2,2));
-    test_vector_make.push_back(std::make_pair(1,4));
-    test_vector_make.push_back(std::make_pair(2,3));
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> test_vector_make;
+    test_vector_make.push_back(std::make_pair(std::make_pair(1,1), 0));
+    test_vector_make.push_back(std::make_pair(std::make_pair(2,1), 1));
+    test_vector_make.push_back(std::make_pair(std::make_pair(4,1), 2));
+    test_vector_make.push_back(std::make_pair(std::make_pair(2,2), 3));
+    test_vector_make.push_back(std::make_pair(std::make_pair(1,4), 4));
+    test_vector_make.push_back(std::make_pair(std::make_pair(2,3), 5));
 
     KD2Tree* k2tree = new KD2Tree(test_vector_make, 0);
     
@@ -76,12 +76,12 @@ int main(int argc, char** argv) {
 //    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
 //    k2tree->insert_pair(k2tree->root, std::make_pair(5,1), 0);
     
-    std::vector<std::pair<double, double>> test_vector_bulk_insert;
-    test_vector_bulk_insert.push_back(std::make_pair(3,1));
-    test_vector_bulk_insert.push_back(std::make_pair(5,1));
-    test_vector_bulk_insert.push_back(std::make_pair(6,1));
-    test_vector_bulk_insert.push_back(std::make_pair(0,0));
-    test_vector_bulk_insert.push_back(std::make_pair(10,10));
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> test_vector_bulk_insert;
+    test_vector_bulk_insert.push_back(std::make_pair(std::make_pair(3,1), 6));
+    test_vector_bulk_insert.push_back(std::make_pair(std::make_pair(5,1), 7));
+    test_vector_bulk_insert.push_back(std::make_pair(std::make_pair(6,1), 8));
+    test_vector_bulk_insert.push_back(std::make_pair(std::make_pair(0,0), 9));
+    test_vector_bulk_insert.push_back(std::make_pair(std::make_pair(10,10), 10));
     
     k2tree->insert_bulk(test_vector_bulk_insert.begin(), // begin
                         test_vector_bulk_insert.end(), // end
@@ -89,57 +89,57 @@ int main(int argc, char** argv) {
                         0, // depth of insert
                         test_vector_bulk_insert.size(),
                         1);
-    std::cout << "\nTree after bulk insert at zoom level 1 (showing ONLY zoom 0):" << std::endl;
+    std::cout << "\nTree after bulk inserts at zoom level 1 (showing ONLY zoom 0):" << std::endl;
     k2tree->visualize_tree(k2tree->root, 0, 0);
     
     std::cout << "\nTree after bulk insert at zoom level 1  (now showing zoom 1):" << std::endl;
     k2tree->visualize_tree(k2tree->root, 0, 1);
     
-    std::vector<std::pair<double, double>> test_vector_range_results;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> test_vector_range_results;
     
     k2tree->range_query(k2tree->root, 0, std::make_pair(0,2), std::make_pair(0,2), test_vector_range_results, 0);
     
-    std::vector<std::pair<double, double>>::iterator it = test_vector_range_results.begin();
+    std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator it = test_vector_range_results.begin();
     
     std::cout << "\nQuery Results x[0,2] y[0,2] Zoom Level 0: " << std::endl;
     
     while(it != test_vector_range_results.end()) {
-        std::cout << "(" << it->first << "," << it->second << ")" << std::endl;
+        std::cout << "(" << it->first.first << "," << it->first.second << "):" << it->second << std::endl;
         it++;
     }
     
-    std::vector<std::pair<double, double>> test_vector_range_results2;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> test_vector_range_results2;
     
     k2tree->range_query(k2tree->root, 0, std::make_pair(0,2), std::make_pair(0,2), test_vector_range_results2, 1);
     
-    std::vector<std::pair<double, double>>::iterator it2 = test_vector_range_results2.begin();
+    std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator it2 = test_vector_range_results2.begin();
     
     std::cout << "\nQuery Results x[0,2] y[0,2] Zoom Level 1: " << std::endl;
     
     while(it2 != test_vector_range_results2.end()) {
-        std::cout << "(" << it2->first << "," << it2->second << ")" << std::endl;
+        std::cout << "(" << it2->first.first << "," << it2->first.second << "):" << it2->second << std::endl;
         it2++;
     }
     
     double min_distance = -1;
-    std::pair<double, double> results;
+    std::pair<std::pair<double, double>, unsigned int> results;
     
     k2tree->nearest_neighbour(k2tree->root, std::make_pair(2,3), min_distance, 0, results, 3);
     
     std::cout << "\nClosest point to (2, 3): " << std::endl;
-    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    std::cout << results.second << ": (" << results.first.first << "," << results.first.second << ") @ " << min_distance << std::endl;
     
     min_distance = -1;
     k2tree->nearest_neighbour(k2tree->root, std::make_pair(1,2), min_distance, 0, results, 3);
 
     std::cout << "\nClosest point to (1, 2): " << std::endl;
-    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    std::cout << results.second << ": (" << results.first.first << "," << results.first.second << ") @ " << min_distance << std::endl;
     
     min_distance = -1;
     k2tree->nearest_neighbour(k2tree->root, std::make_pair(1000,1000), min_distance, 0, results, 3);
 
     std::cout << "\nClosest point to (1000, 1000): " << std::endl;
-    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    std::cout << results.second << ": (" << results.first.first << "," << results.first.second << ") @ " << min_distance << std::endl;
     
     delete k2tree;
     
