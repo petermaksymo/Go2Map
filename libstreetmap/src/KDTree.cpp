@@ -20,6 +20,8 @@ KD2Node::KD2Node(const std::pair<double, double> &pt, KD2Node* &left_, KD2Node* 
 
 KD2Node::KD2Node(const std::pair<double, double> &pt) {
     point = pt;
+    left = NULL;
+    right = NULL;
 }
 
 KD2Node::~KD2Node() {
@@ -47,24 +49,26 @@ KD2Tree::~KD2Tree() {
 
 
 // Creates balanced 2D KD tree where right is greater than or equal to the node,
-// and left is less than or equal to node.
+// and left is less than or equal to node. Does this by recursively calling itself
+// on the left and right parts of the sorted points. Alternates between splitting
+// by x and splitting by y.
 KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator begin, // begin
                           std::vector<std::pair<double, double>>::iterator end, // end
                           const std::size_t &depth, // depth
                           const std::size_t &vec_size) {
       
     
-    // points are empty
+    // Vector passed is empty
     if (begin == end) {
-        return new KD2Node();
+        return NULL;
     }
     
     // sort the array by X or Y depending on depth
     if (vec_size > 1) {
         if (depth % 2 == 0) {
-            std::sort(begin, end, sortByX);
+            std::sort(begin, end, x_ALessThanB);
         } else {
-            std::sort(begin, end, sortByY);
+            std::sort(begin, end, y_ALessThanB);
         }  
     }
     
@@ -75,7 +79,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
     } else if (vec_size == 2) {
         KD2Node* new_node = new KD2Node();
         
-        new_node->left = nullptr;
+        new_node->left = NULL;
         new_node->point = *begin;
         new_node->right = make_tree(std::next(begin, 1), end, depth + 1, vec_size - 1);
         
@@ -121,9 +125,9 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
     return new_node;
 }
 
-// Visualizes KD Tree horizontally
-void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t &depth) {
-    if(ptr == nullptr) return;
+// Recursively visualizes KD Tree horizontally
+void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth) {
+    if(!ptr) return;
     
     char dim = 'Y';
     if (depth % 2 == 0) {
@@ -134,20 +138,42 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t &depth) {
         std::cout << " ";
     }
     
-    std::cout << dim << "(" << ptr->point.first << "," << ptr->point.second<< ")" << std::endl;\
-    
-    visualize_tree(ptr->right, depth + 1);
+    std::cout << dim << "(" << ptr->point.first << "," << ptr->point.second<< ")" << std::endl;
     visualize_tree(ptr->left, depth + 1);
+    visualize_tree(ptr->right, depth + 1);
 
     return;
 }
 
+// Recursive function to insert pair into KD2 Tree
+// Tries to insert left if less than middle point, or right if greater than or
+// equal to.
+void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt, const std::size_t &depth) {
+    if (!ptr) return;
+
+    if(((depth % 2 == 0) && x_ALessThanB(new_pt, ptr->point)) || ((depth % 2 == 1) && y_ALessThanB(new_pt, ptr->point))){
+        
+        if(ptr->left) insert_pair(ptr->left, new_pt, depth + 1); 
+        else ptr->left = new KD2Node(new_pt);
+ 
+    } else {
+        
+        if(ptr->right) insert_pair(ptr->right, new_pt, depth + 1); 
+        else ptr->right = new KD2Node(new_pt);
+    }
+}
+
+//void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
+//                          std::vector<std::pair<double, double>>::iterator, // end
+//                          KD2Node*, // root
+//                          const std::size_t &, // depth of insert
+//                          const std::size_t &); // size of passed vector
 
 // Helper functions for compairing pairs
-bool sortByX(const std::pair<double, double> &a, const std::pair<double, double> &b) {
+bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.first < b.first);
 }
-bool sortByY(const std::pair<double, double> &a, const std::pair<double, double> &b) {
+bool y_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.second < b.second);
 }
 
@@ -158,6 +184,3 @@ bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, doubl
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.second == b.second);
 }
-
-
-

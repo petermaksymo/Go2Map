@@ -72,9 +72,14 @@ int main(int argc, char** argv) {
     
     k2tree->visualize_tree(k2tree->root, 0);
     
+    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
+    k2tree->insert_pair(k2tree->root, std::make_pair(5,1), 0);
+    
+    k2tree->visualize_tree(k2tree->root, 0);
+    
     
     //You can now do something with the map data
-    draw_map();
+    // draw_map();
 
     //Clean-up the map data and related data structures
     std::cout << "Closing map\n";

@@ -32,16 +32,26 @@ class KD2Tree {
         KD2Tree();
         KD2Tree(std::vector<std::pair<double, double>>);
         ~KD2Tree();
+        
         KD2Node* make_tree(std::vector<std::pair<double, double>>::iterator, // begin
                           std::vector<std::pair<double, double>>::iterator, // end
                           const std::size_t &, // depth
                           const std::size_t &); // size of passed vector
-        void visualize_tree(KD2Node* root, const std::size_t &);
+        
+        void visualize_tree(KD2Node*, const std::size_t);
+        
+        void insert_pair(KD2Node*, const std::pair<double, double> &, const std::size_t &);
+        
+//        void insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
+//                          std::vector<std::pair<double, double>>::iterator, // end
+//                          KD2Node*, // root
+//                          const std::size_t &, // depth of insert
+//                          const std::size_t &); // size of passed vector
 };
 
 // Helper functions to sort vector by X and Y coordinates
-bool sortByX(const std::pair<double, double> &a, const std::pair<double, double> &b);
-bool sortByY(const std::pair<double, double> &a, const std::pair<double, double> &b);
+bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b);
+bool y_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b);
 
 bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b);
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b);
