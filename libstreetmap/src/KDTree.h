@@ -50,6 +50,13 @@ class KD2Tree {
                           const std::size_t &, // depth of insert
                           const std::size_t &, // size of passed vector
                           const int &zoom_level); // zoom level flag
+        
+        void range_query(KD2Node*, // root
+                         const std::size_t &depth, // depth of query
+                         const std::pair<double, double> &, // x-range (smaller, greater)
+                         const std::pair<double, double> &, // y-range (smaller, greater)
+                         std::vector<std::pair<double, double>> &, // results
+                         const int &zoom_level);
 };
 
 // Helper functions to sort vector by X and Y coordinates
@@ -60,4 +67,7 @@ bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, doubl
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b);
 
 bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b);
+
+bool depthLessThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y);
+bool depthGreaterThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y);
 

@@ -213,6 +213,38 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
     else ptr->right = make_tree(middle, end, depth + 1, r_size, zoom_level);
 }
 
+
+// Recursively calls itself depending on if the point is in the range, to less than, or greater than the range.
+// It only pushes the point to the results vector if it is within the range.
+void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pair<double, double> &x_range, const std::pair<double, double> &y_range, // range from smallest to greatest
+                std::vector<std::pair<double, double>> &results, const int &zoom_level) {
+    
+    if(!ptr) return;
+    
+    if (ptr->zoom_level > zoom_level) return;
+    
+    // if node is inside bounds, check both and push to results
+    if(depthLessThanBounds(depth, ptr->point, x_range, y_range)) {
+        // call range query on right node (greater than)
+        range_query(ptr->right, depth + 1, x_range, y_range, results, zoom_level);
+    } else if(depthGreaterThanBounds(depth, ptr->point, x_range, y_range)) {
+        // call range query on left node (less than)
+        range_query(ptr->left, depth + 1, x_range, y_range, results, zoom_level);
+    } else {
+        // must intersect the range
+        // range query on the left
+        range_query(ptr->left, depth + 1, x_range, y_range, results, zoom_level);
+        // store the point if is also in range in other dimension
+        if(!depthGreaterThanBounds(depth + 1, ptr->point, x_range, y_range) && !depthLessThanBounds(depth + 1, ptr->point, x_range, y_range)) {
+            results.push_back(ptr->point);
+        }
+        // range query on the right
+        range_query(ptr->right, depth + 1, x_range, y_range, results, zoom_level);
+    }
+}
+
+
+
 // Helper functions for compairing pairs
 bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.first < b.first);
@@ -231,4 +263,12 @@ bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, doubl
 
 bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (((depth % 2 == 0) && (a.first < b.first)) || ((depth % 2 == 1) && (a.second < b.second)));
+}
+
+bool depthLessThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y) {
+    return (((depth % 2 == 0) && (p.first < x.first)) || ((depth % 2 == 1) && (p.second < y.first)));
+}
+
+bool depthGreaterThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y) {
+    return (((depth % 2 == 0) && (p.first > x.second)) || ((depth % 2 == 1) && (p.second > y.second)));
 }

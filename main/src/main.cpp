@@ -70,8 +70,7 @@ int main(int argc, char** argv) {
 
     KD2Tree* k2tree = new KD2Tree(test_vector_make, 0);
     
-    k2tree->visualize_tree(k2tree->root, 0, 0);
-    
+    std::cout << "\nTree after initial make at zoom level 0 (showing zoom 1):" << std::endl;
     k2tree->visualize_tree(k2tree->root, 0, 1);
     
 //    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
@@ -90,10 +89,37 @@ int main(int argc, char** argv) {
                         0, // depth of insert
                         test_vector_bulk_insert.size(),
                         1);
-    
+    std::cout << "\nTree after bulk insert at zoom level 1 (showing ONLY zoom 0):" << std::endl;
     k2tree->visualize_tree(k2tree->root, 0, 0);
+    
+    std::cout << "\nTree after bulk insert at zoom level 1  (now showing zoom 1):" << std::endl;
     k2tree->visualize_tree(k2tree->root, 0, 1);
-    k2tree->visualize_tree(k2tree->root, 0, 2);
+    
+    std::vector<std::pair<double, double>> test_vector_range_results;
+    
+    k2tree->range_query(k2tree->root, 0, std::make_pair(0,2), std::make_pair(0,2), test_vector_range_results, 0);
+    
+    std::vector<std::pair<double, double>>::iterator it = test_vector_range_results.begin();
+    
+    std::cout << "\nQuery Results x[0,2] y[0,2] Zoom Level 0: " << std::endl;
+    
+    while(it != test_vector_range_results.end()) {
+        std::cout << "(" << it->first << "," << it->second << ")" << std::endl;
+        it++;
+    }
+    
+    std::vector<std::pair<double, double>> test_vector_range_results2;
+    
+    k2tree->range_query(k2tree->root, 0, std::make_pair(0,2), std::make_pair(0,2), test_vector_range_results2, 1);
+    
+    std::vector<std::pair<double, double>>::iterator it2 = test_vector_range_results2.begin();
+    
+    std::cout << "\nQuery Results x[0,2] y[0,2] Zoom Level 1: " << std::endl;
+    
+    while(it2 != test_vector_range_results2.end()) {
+        std::cout << "(" << it2->first << "," << it2->second << ")" << std::endl;
+        it2++;
+    }
     
     delete k2tree;
     
