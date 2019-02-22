@@ -28,19 +28,28 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 #include "helper_functions.h"
+#include <thread>
+
+//helper functions for multi threading loading of the two DBs
+void loadStreetsDatabaseBIN_helper(std::string map_path, bool &success);
+void loadOSMDatabaseBIN_helper(std::string map_path, bool &success);
 
 bool load_map(std::string map_path) {
-    //get the path to the osm.bin file by replacing the extension of map_path
-    std::string OSM_map_path = map_path;
-    std::string to_replace = "streets.bin";
-    OSM_map_path.replace(OSM_map_path.rfind(to_replace), to_replace.length(), "osm.bin");
+    bool load_OSM_success, load_Streets_success;
     
-    bool load_successful = loadStreetsDatabaseBIN(map_path) &&
-                           loadOSMDatabaseBIN(OSM_map_path);
+    //spool up a thread to load the OSM data and Streets data in parallel
+    std::thread OSM_thread(loadOSMDatabaseBIN_helper, map_path, std::ref(load_OSM_success));
+    std::thread Streets_thread(loadStreetsDatabaseBIN_helper, map_path, std::ref(load_Streets_success));
+    
+    //wait for both threads to finish
+    OSM_thread.join();
+    Streets_thread.join();
+    
+    bool load_successful = load_OSM_success && load_Streets_success;
    
     if(not load_successful) return false;
     
-    display_osm_info();
+    load_osm_data();
     
     //Load our map related data structures here
     load_street_segments();
@@ -60,6 +69,22 @@ void close_map() {
     
     closeOSMDatabase();
     closeStreetDatabase();
+}
+
+//Loading helper functions:
+void loadStreetsDatabaseBIN_helper(std::string map_path, bool &success) {
+    success = loadStreetsDatabaseBIN(map_path);
+    return;
+}
+
+void loadOSMDatabaseBIN_helper(std::string map_path, bool &success) {
+    //get the path to the osm.bin file by replacing the extension of map_path
+    std::string OSM_map_path = map_path;
+    std::string to_replace = "streets.bin";
+    OSM_map_path.replace(OSM_map_path.rfind(to_replace), to_replace.length(), "osm.bin");
+    
+    success = loadOSMDatabaseBIN(OSM_map_path);
+    return;
 }
 
 //Returns the street segments for the given intersection 
