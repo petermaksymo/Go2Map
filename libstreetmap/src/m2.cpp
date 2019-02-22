@@ -218,7 +218,7 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
         LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
         int id = find_closest_intersection(position);
 
-        std::cout << "Closest Intersection: " << MAP.intersection_db[id].name << "\n";
+        app->update_message("Closest Intersection: " + MAP.intersection_db[id].name);
         MAP.intersection_db[id].is_selected = true;
         MAP.state.last_selected_intersection = id;
         std::cout << id << std::endl;
