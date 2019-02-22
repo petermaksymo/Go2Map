@@ -7,7 +7,7 @@
 #include "KDTree.h"
 #include <vector>
 #include <iostream>
-
+#include <cmath>
 
 KD2Node::KD2Node() = default;
 
@@ -245,6 +245,43 @@ void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pai
 
 
 
+void KD2Tree::nearest_neighbour(KD2Node* ptr, // root
+                               const std::pair<double, double> &search_point, // search point
+                               double &min_distance, // the minimum distance thus far
+                               const std::size_t &depth, // depth of search
+                               std::pair<double, double> &results, // results
+                               const int &zoom_level) { // zoom level
+    
+    if(!ptr) return;
+    
+    if(ptr->zoom_level > zoom_level) return;
+    
+    if(min_distance < 0 || pt_dist(ptr->point, search_point) < min_distance) {
+        results = ptr->point;
+        min_distance = pt_dist(ptr->point, search_point);
+    }
+    
+    // Nearest neighbour could be on either side, left or right of node
+    if(depthOverlapsSplit(depth, min_distance, ptr->point, search_point)) {
+        // call NN on left tree
+        nearest_neighbour(ptr->left, search_point,  min_distance,  depth + 1, results, zoom_level);
+         // call NN on right tree
+        nearest_neighbour(ptr->right, search_point,  min_distance,  depth + 1, results, zoom_level);
+        return;
+        
+    } else if (depthLessThan(depth, search_point, ptr->point)) {
+        nearest_neighbour(ptr->left, search_point,  min_distance,  depth + 1, results, zoom_level);
+        return;
+         
+    } else {
+        nearest_neighbour(ptr->right, search_point,  min_distance,  depth + 1, results, zoom_level);
+        return;
+    }
+}
+
+
+
+
 // Helper functions for compairing pairs
 bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.first < b.first);
@@ -271,4 +308,12 @@ bool depthLessThanBounds(const std::size_t &depth, const std::pair<double, doubl
 
 bool depthGreaterThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y) {
     return (((depth % 2 == 0) && (p.first > x.second)) || ((depth % 2 == 1) && (p.second > y.second)));
+}
+
+double pt_dist(const std::pair<double, double> &a, const std::pair<double, double> &b) {
+    return std::pow((a.first - b.first), 2) + std::pow((a.second - b.second), 2);
+}
+
+bool depthOverlapsSplit(const std::size_t &depth, const double &min_distance, const std::pair<double, double> &a, const std::pair<double, double> &b) {
+    return (((depth % 2 == 0) && (abs(a.first - b.first) >= min_distance)) || ((depth % 2 == 1) && (abs(a.second - b.second) >= min_distance)));
 }

@@ -121,6 +121,26 @@ int main(int argc, char** argv) {
         it2++;
     }
     
+    double min_distance = -1;
+    std::pair<double, double> results;
+    
+    k2tree->nearest_neighbour(k2tree->root, std::make_pair(2,3), min_distance, 0, results, 3);
+    
+    std::cout << "\nClosest point to (2, 3): " << std::endl;
+    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    
+    min_distance = -1;
+    k2tree->nearest_neighbour(k2tree->root, std::make_pair(1,2), min_distance, 0, results, 3);
+
+    std::cout << "\nClosest point to (1, 2): " << std::endl;
+    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    
+    min_distance = -1;
+    k2tree->nearest_neighbour(k2tree->root, std::make_pair(1000,1000), min_distance, 0, results, 3);
+
+    std::cout << "\nClosest point to (1000, 1000): " << std::endl;
+    std::cout << "(" << results.first << "," << results.second << ") @ " << min_distance << std::endl;
+    
     delete k2tree;
     
     //You can now do something with the map data

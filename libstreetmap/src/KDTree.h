@@ -57,6 +57,13 @@ class KD2Tree {
                          const std::pair<double, double> &, // y-range (smaller, greater)
                          std::vector<std::pair<double, double>> &, // results
                          const int &zoom_level);
+ 
+        void nearest_neighbour(KD2Node* ptr, // root
+                               const std::pair<double, double> &search_point, // search point
+                               double &min_distance, // the minimum distance thus far
+                               const std::size_t &depth, // depth of search
+                               std::pair<double, double> &, // results
+                               const int &zoom_level); // zoom level
 };
 
 // Helper functions to sort vector by X and Y coordinates
@@ -71,3 +78,5 @@ bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a,
 bool depthLessThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y);
 bool depthGreaterThanBounds(const std::size_t &depth, const std::pair<double, double> &p, const std::pair<double, double> &x, const std::pair<double, double> &y);
 
+bool depthOverlapsSplit(const std::size_t &depth, const double &min_distance, const std::pair<double, double> &a, const std::pair<double, double> &b);
+double pt_dist(const std::pair<double, double> &a, const std::pair<double, double> &b);
