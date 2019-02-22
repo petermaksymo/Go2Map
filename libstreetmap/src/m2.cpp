@@ -99,8 +99,10 @@ void draw_street_segments (ezgl::renderer &g) {
         if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 90) {
             g.set_color(ezgl::ORANGE);
         }
+        if (MAP.state.scale < 4 && getInfoStreetSegment(id).speedLimit >= 60) draw_curve(g, points);
+        else if (MAP.state.scale > 4 && MAP.state.scale < 10 && getInfoStreetSegment(id).speedLimit >= 50) draw_curve(g, points);
+        else if (MAP.state.scale > 10) draw_curve(g, points);
         
-        draw_curve(g, points);
     }
 }
 
@@ -193,7 +195,7 @@ void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {
 
         ezgl::point2d start(x1,y1);
         ezgl::point2d end(x2,y2);   
-
+        
         g.draw_line(start, end);
     }
 }
