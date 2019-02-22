@@ -153,6 +153,12 @@ gboolean press_right(GtkWidget *widget, gpointer data);
  */
 gboolean press_proceed(GtkWidget *widget, gpointer data);
 
+//Creates a help dialog when the help button is pressed
+gboolean press_help(GtkWidget *widget, gpointer data);
+
+//destroys dialog on response
+void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data);
+
 gboolean press_find(GtkWidget *widget, gpointer data);
 }
 

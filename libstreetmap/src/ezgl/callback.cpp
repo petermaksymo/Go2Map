@@ -268,6 +268,51 @@ gboolean press_proceed(GtkWidget *, gpointer data)
   return TRUE;
 }
 
+//Help dialog, much of this code was used from the ezgl quickstart guide on the ECE297 website
+//http://www.eecg.toronto.edu/~vaughn/ece297/ECE297/assignments/ezgl/ezgl.pdf
+gboolean press_help(GtkWidget *, gpointer data)
+{
+    GObject *window;
+    GtkWidget *content_area;
+    GtkWidget *label;
+    GtkWidget *dialog;
+    auto application = static_cast<ezgl::application *>(data);
+    
+    //get pointer to main application window
+    window = application->get_object(application->get_main_window_id().c_str());
+    
+    //create the help dialog window
+    dialog = gtk_dialog_new_with_buttons(
+        "Help Window",
+        (GtkWindow*) window,
+        GTK_DIALOG_MODAL,
+        ("GOT IT"),
+        GTK_RESPONSE_DELETE_EVENT,
+        NULL
+    );
+    
+    // Create a label and attach it to the content area of the dialog
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    label = gtk_label_new("This is where we will have a tutorial, hopefully we can include images");
+    gtk_container_add(GTK_CONTAINER(content_area), label);
+    
+    //show the dialog
+    gtk_widget_show_all(dialog);
+    
+    //Connect a response to the callback function
+    g_signal_connect(
+        GTK_DIALOG(dialog),
+        "response",
+        G_CALLBACK(on_dialog_response),
+        NULL
+    );
+    
 }
 
+void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
+{
+    gtk_widget_destroy(GTK_WIDGET (dialog));
+}
+
+}
 
