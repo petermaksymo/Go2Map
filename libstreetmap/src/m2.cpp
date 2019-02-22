@@ -219,6 +219,7 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
         std::cout << "Closest Intersection: " << MAP.intersection_db[id].name << "\n";
         MAP.intersection_db[id].is_selected = true;
         MAP.state.last_selected_intersection = id;
+        std::cout << id << std::endl;
 
         app->refresh_drawing();
         //end of use from tutorial slides
@@ -230,21 +231,28 @@ void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, 
 }
 
 void search_intersection() {
-    std::string street1, street2;
-    //std::cout << "Enter first street name: ";
-    //std::cin >> street1;
-    //std::cout << "Enter second street name: ";
-    //std::cin >> street2;
-//    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("bay");
-//    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("bloor");
-//    std::cout << streetID1[0] << " " << streetID2[0] << std::endl;
-//    std::vector<unsigned> intersectionID = find_intersection_ids_from_street_ids(streetID1[0], streetID2[0]);
-//    MAP.state.last_selected_intersection = intersectionID[0];
-    //std::cout << street1 << street2;
+    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("king");
+    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("queen");
+    std::vector<unsigned> intersectionID, current_intersection;
+    for (int i = 0; i < streetID1.size() - 1; i++) {
+        for (int j = 0; j < streetID2.size() - 1; j++) {
+            current_intersection = find_intersection_ids_from_street_ids(streetID1[i], streetID2[j]);
+            intersectionID.insert(intersectionID.end(), current_intersection.begin(), current_intersection.end()); // Combine two vectors
+            //std::cout << getStreetName(streetID1[i]) << getStreetName(streetID2[j]) << std::endl;  
+        }
+        
+    }
+    MAP.state.intersection_search_result = intersectionID;
+    for (int i = 0; i < intersectionID.size(); i++) {
+        std::cout << getIntersectionName(intersectionID[i]) << std::endl;
+    }
+    MAP.state.last_selected_intersection = intersectionID[0];
 }
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     search_intersection();
+    auto ezgl_app = static_cast<ezgl::application *>(data);
+    ezgl_app->refresh_drawing();
 }
 
 
