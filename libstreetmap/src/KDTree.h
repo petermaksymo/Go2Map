@@ -17,11 +17,12 @@ class KD2Node {
         std::pair<double, double> point; // [x, y]
         KD2Node* left; // less than
         KD2Node* right; // greater than or equal
+        int zoom_level;
         
         
         KD2Node();
-        KD2Node(const std::pair<double, double> &pt);
-        KD2Node(const std::pair<double, double> &, KD2Node* &, KD2Node* &);
+        KD2Node(const std::pair<double, double> &pt, int zoom_level);
+        KD2Node(const std::pair<double, double> &, KD2Node* &, KD2Node* &, int zoom_level);
         ~KD2Node();
 };
 
@@ -30,23 +31,25 @@ class KD2Tree {
         KD2Node* root;
         
         KD2Tree();
-        KD2Tree(std::vector<std::pair<double, double>>);
+        KD2Tree(std::vector<std::pair<double, double>>, const int &zoom_level);
         ~KD2Tree();
         
         KD2Node* make_tree(std::vector<std::pair<double, double>>::iterator, // begin
                           std::vector<std::pair<double, double>>::iterator, // end
                           const std::size_t &, // depth
-                          const std::size_t &); // size of passed vector
+                          const std::size_t &, // size of passed vector
+                          const int &zoom_level);
         
-        void visualize_tree(KD2Node*, const std::size_t);
+        void visualize_tree(KD2Node*, const std::size_t, const int &zoom_level);
         
-        void insert_pair(KD2Node*, const std::pair<double, double> &, const std::size_t &);
+        void insert_pair(KD2Node*, const std::pair<double, double> &, const std::size_t &, const int &zoom_level);
         
         void insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
                           std::vector<std::pair<double, double>>::iterator, // end
                           KD2Node*, // root
                           const std::size_t &, // depth of insert
-                          const std::size_t &); // size of passed vector
+                          const std::size_t &, // size of passed vector
+                          const int &zoom_level); // zoom level flag
 };
 
 // Helper functions to sort vector by X and Y coordinates

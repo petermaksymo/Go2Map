@@ -68,9 +68,11 @@ int main(int argc, char** argv) {
     test_vector_make.push_back(std::make_pair(1,4));
     test_vector_make.push_back(std::make_pair(2,3));
 
-    KD2Tree* k2tree = new KD2Tree(test_vector_make);
+    KD2Tree* k2tree = new KD2Tree(test_vector_make, 0);
     
-    k2tree->visualize_tree(k2tree->root, 0);
+    k2tree->visualize_tree(k2tree->root, 0, 0);
+    
+    k2tree->visualize_tree(k2tree->root, 0, 1);
     
 //    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
 //    k2tree->insert_pair(k2tree->root, std::make_pair(5,1), 0);
@@ -86,9 +88,12 @@ int main(int argc, char** argv) {
                         test_vector_bulk_insert.end(), // end
                         k2tree->root, // root
                         0, // depth of insert
-                        test_vector_bulk_insert.size());
+                        test_vector_bulk_insert.size(),
+                        1);
     
-    k2tree->visualize_tree(k2tree->root, 0);
+    k2tree->visualize_tree(k2tree->root, 0, 0);
+    k2tree->visualize_tree(k2tree->root, 0, 1);
+    k2tree->visualize_tree(k2tree->root, 0, 2);
     
     delete k2tree;
     

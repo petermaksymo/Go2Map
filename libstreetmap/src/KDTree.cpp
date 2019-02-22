@@ -12,14 +12,16 @@
 KD2Node::KD2Node() = default;
 
 
-KD2Node::KD2Node(const std::pair<double, double> &pt, KD2Node* &left_, KD2Node* &right_) {
+KD2Node::KD2Node(const std::pair<double, double> &pt, KD2Node* &left_, KD2Node* &right_, int zoom_level_) {
     point = pt;
     left = left_;
     right = right_;
+    zoom_level = zoom_level_;
 }
 
-KD2Node::KD2Node(const std::pair<double, double> &pt) {
+KD2Node::KD2Node(const std::pair<double, double> &pt, int zoom_level_) {
     point = pt;
+    zoom_level = zoom_level_;
     left = NULL;
     right = NULL;
 }
@@ -31,7 +33,7 @@ KD2Node::~KD2Node() {
 
 KD2Tree::KD2Tree() = default;
 
-KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts) {
+KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts, const int &zoom_level) {
     
     auto begin = pts.begin();
     auto end = pts.end();
@@ -40,7 +42,7 @@ KD2Tree::KD2Tree(std::vector<std::pair<double, double>> pts) {
     
     std::size_t length = pts.size();
     
-    root = make_tree(begin, end, depth, length);
+    root = make_tree(begin, end, depth, length, zoom_level);
 }
 
 KD2Tree::~KD2Tree() {
@@ -55,7 +57,8 @@ KD2Tree::~KD2Tree() {
 KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator begin, // begin
                           std::vector<std::pair<double, double>>::iterator end, // end
                           const std::size_t &depth, // depth
-                          const std::size_t &vec_size) {
+                          const std::size_t &vec_size,
+                          const int &zoom_level) {
       
     
     // Vector passed is empty
@@ -102,17 +105,20 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
     
     KD2Node* new_node = new KD2Node();
     new_node->point = *middle;
-    new_node->left = make_tree(begin, middle, depth + 1, l_size);
-    new_node->right = make_tree(r_begin, end, depth + 1, r_size);
+    new_node->zoom_level = zoom_level;
+    new_node->left = make_tree(begin, middle, depth + 1, l_size, zoom_level);
+    new_node->right = make_tree(r_begin, end, depth + 1, r_size, zoom_level);
     
         
     return new_node;
 }
 
 // Recursively visualizes KD Tree horizontally
-void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth) {
+void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &zoom_level) {
     if(!ptr) return;
     
+    if(ptr->zoom_level > zoom_level) return;
+
     char dim = 'Y';
     if (depth % 2 == 0) {
         dim = 'X';
@@ -123,8 +129,8 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth) {
     }
     
     std::cout << dim << "(" << ptr->point.first << "," << ptr->point.second<< ")" << std::endl;
-    visualize_tree(ptr->left, depth + 1);
-    visualize_tree(ptr->right, depth + 1);
+    visualize_tree(ptr->left, depth + 1, zoom_level);
+    visualize_tree(ptr->right, depth + 1, zoom_level);
 
     return;
 }
@@ -133,18 +139,18 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth) {
 // Tries to insert left if less than middle point, or right if greater than or
 // equal to.
 // NOTE: Does not work on empty tree
-void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt, const std::size_t &depth) {
+void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt, const std::size_t &depth, const int &zoom_level) {
     if (!ptr) return;
 
     if(depthLessThan(depth, new_pt, ptr->point)) {
         
-        if(ptr->left) insert_pair(ptr->left, new_pt, depth + 1); 
-        else ptr->left = new KD2Node(new_pt);
+        if(ptr->left) insert_pair(ptr->left, new_pt, depth + 1, zoom_level); 
+        else ptr->left = new KD2Node(new_pt, zoom_level);
  
     } else {
         
-        if(ptr->right) insert_pair(ptr->right, new_pt, depth + 1); 
-        else ptr->right = new KD2Node(new_pt);
+        if(ptr->right) insert_pair(ptr->right, new_pt, depth + 1, zoom_level); 
+        else ptr->right = new KD2Node(new_pt, zoom_level);
     }
 }
 
@@ -155,7 +161,8 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
                           std::vector<std::pair<double, double>>::iterator end, // end
                           KD2Node* ptr, // root
                           const std::size_t &depth, // depth of insert
-                          const std::size_t &vec_size) { // size of passed vector
+                          const std::size_t &vec_size,
+                          const int &zoom_level) { // size of passed vector
     // Vector passed is empty
     if (begin == end) return;
     
@@ -170,7 +177,7 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
     
     // if only one pair, can use insert pair function
     if (vec_size == 1) {
-        insert_pair(ptr, *begin, depth);
+        insert_pair(ptr, *begin, depth, zoom_level);
         return;
     }
     
@@ -199,11 +206,11 @@ void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin
     
     // If there is another node, call insert bulk with that node as root,
     // otherwise make a new tree with the remainder of the points
-    if(ptr->left) insert_bulk(begin, middle, ptr->left, depth  + 1, l_size); 
-    else ptr->left = make_tree(begin, middle, depth + 1, l_size);
+    if(ptr->left) insert_bulk(begin, middle, ptr->left, depth  + 1, l_size, zoom_level); 
+    else ptr->left = make_tree(begin, middle, depth + 1, l_size, zoom_level);
     
-    if(ptr->right) insert_bulk(middle, end, ptr->right, depth  + 1, r_size); 
-    else ptr->right = make_tree(middle, end, depth + 1, r_size);
+    if(ptr->right) insert_bulk(middle, end, ptr->right, depth  + 1, r_size, zoom_level); 
+    else ptr->right = make_tree(middle, end, depth + 1, r_size, zoom_level);
 }
 
 // Helper functions for compairing pairs
