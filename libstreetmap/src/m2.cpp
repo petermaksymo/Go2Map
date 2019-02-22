@@ -21,6 +21,7 @@ void draw_street_name(ezgl::renderer &g);
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
+void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
 
 
 void draw_map () {
@@ -39,7 +40,8 @@ void draw_map () {
     application.add_canvas("MainCanvas", draw_main_canvas, initial_world);
     
     
-    application.run(nullptr, act_on_mouse_click, act_on_mouse_move, nullptr);
+    application.run(nullptr, act_on_mouse_click, 
+                    act_on_mouse_move, act_on_key_press);
 }
 
 
@@ -228,6 +230,28 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y) {        
   
+}
+
+//shortcut keys for easy navigation
+void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name) {
+    if(event->type == GDK_KEY_PRESS) {
+        std::string main_canvas_id = app->get_main_canvas_id();
+        auto canvas = app->get_canvas(main_canvas_id);
+        
+        switch(event->keyval) {
+            case GDK_KEY_Left:      ezgl::translate_left(canvas, 5.0);   break;
+            case GDK_KEY_Up:        ezgl::translate_up(canvas, 5.0);     break;
+            case GDK_KEY_Right:     ezgl::translate_right(canvas, 5.0);  break;
+            case GDK_KEY_Down:      ezgl::translate_down(canvas, 5.0);   break;
+            case GDK_KEY_Page_Up:   ezgl::zoom_in(canvas, 5.0/3.0);      break;
+            case GDK_KEY_Page_Down: ezgl::zoom_out(canvas, 5.0/3.0);     break;
+            case GDK_KEY_Home:      
+                ezgl::zoom_fit(canvas, canvas->get_camera().get_initial_world());
+                break;
+            case GDK_KEY_Escape:    app->quit();                         break;
+            default: break;
+        }
+    }
 }
 
 void search_intersection() {

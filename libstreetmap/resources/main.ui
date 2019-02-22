@@ -120,7 +120,7 @@
                   <object class="GtkButton" id="ZoomInButton">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
+                    <property name="receives_default">False</property>
                     <child>
                       <object class="GtkImage" id="ZoomIn">
                         <property name="visible">True</property>
