@@ -60,26 +60,40 @@ int main(int argc, char** argv) {
     std::cout << "Successfully loaded map '" << map_path << "'\n";
 
     // Testing KD2Tree
-    std::vector<std::pair<double, double>> test_vector;
-    test_vector.push_back(std::make_pair(1,1));
-    test_vector.push_back(std::make_pair(2,1));
-    test_vector.push_back(std::make_pair(4,1));
-    test_vector.push_back(std::make_pair(2,2));
-    test_vector.push_back(std::make_pair(1,4));
-    test_vector.push_back(std::make_pair(2,3));
+    std::vector<std::pair<double, double>> test_vector_make;
+    test_vector_make.push_back(std::make_pair(1,1));
+    test_vector_make.push_back(std::make_pair(2,1));
+    test_vector_make.push_back(std::make_pair(4,1));
+    test_vector_make.push_back(std::make_pair(2,2));
+    test_vector_make.push_back(std::make_pair(1,4));
+    test_vector_make.push_back(std::make_pair(2,3));
 
-    KD2Tree* k2tree = new KD2Tree(test_vector);
+    KD2Tree* k2tree = new KD2Tree(test_vector_make);
     
     k2tree->visualize_tree(k2tree->root, 0);
     
-    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
-    k2tree->insert_pair(k2tree->root, std::make_pair(5,1), 0);
+//    k2tree->insert_pair(k2tree->root, std::make_pair(3,1), 0);
+//    k2tree->insert_pair(k2tree->root, std::make_pair(5,1), 0);
+    
+    std::vector<std::pair<double, double>> test_vector_bulk_insert;
+    test_vector_bulk_insert.push_back(std::make_pair(3,1));
+    test_vector_bulk_insert.push_back(std::make_pair(5,1));
+    test_vector_bulk_insert.push_back(std::make_pair(6,1));
+    test_vector_bulk_insert.push_back(std::make_pair(0,0));
+    test_vector_bulk_insert.push_back(std::make_pair(10,10));
+    
+    k2tree->insert_bulk(test_vector_bulk_insert.begin(), // begin
+                        test_vector_bulk_insert.end(), // end
+                        k2tree->root, // root
+                        0, // depth of insert
+                        test_vector_bulk_insert.size());
     
     k2tree->visualize_tree(k2tree->root, 0);
     
+    delete k2tree;
     
     //You can now do something with the map data
-    // draw_map();
+    draw_map();
 
     //Clean-up the map data and related data structures
     std::cout << "Closing map\n";

@@ -42,11 +42,11 @@ class KD2Tree {
         
         void insert_pair(KD2Node*, const std::pair<double, double> &, const std::size_t &);
         
-//        void insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
-//                          std::vector<std::pair<double, double>>::iterator, // end
-//                          KD2Node*, // root
-//                          const std::size_t &, // depth of insert
-//                          const std::size_t &); // size of passed vector
+        void insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
+                          std::vector<std::pair<double, double>>::iterator, // end
+                          KD2Node*, // root
+                          const std::size_t &, // depth of insert
+                          const std::size_t &); // size of passed vector
 };
 
 // Helper functions to sort vector by X and Y coordinates
@@ -55,4 +55,6 @@ bool y_ALessThanB(const std::pair<double, double> &a, const std::pair<double, do
 
 bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b);
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b);
+
+bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b);
 

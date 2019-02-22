@@ -59,9 +59,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
       
     
     // Vector passed is empty
-    if (begin == end) {
-        return NULL;
-    }
+    if (begin == end) return NULL;
     
     // sort the array by X or Y depending on depth
     if (vec_size > 1) {
@@ -72,21 +70,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
         }  
     }
     
-    // Special cases for vector (size < 3)
-    if (vec_size == 1) {
-        return new KD2Node(*begin);
-        
-    } else if (vec_size == 2) {
-        KD2Node* new_node = new KD2Node();
-        
-        new_node->left = NULL;
-        new_node->point = *begin;
-        new_node->right = make_tree(std::next(begin, 1), end, depth + 1, vec_size - 1);
-        
-        return new_node;
-    }
-    
-    // Regular cases for vector
+    // Find middle and 
     auto middle = begin + vec_size / 2;
         
     // Sizes of vectors to left and right of middle
@@ -114,7 +98,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<double, double>>::iterator beg
         r_begin = end;
     } else {
         r_begin = middle + 1;
-    }   
+    }
     
     KD2Node* new_node = new KD2Node();
     new_node->point = *middle;
@@ -148,10 +132,11 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth) {
 // Recursive function to insert pair into KD2 Tree
 // Tries to insert left if less than middle point, or right if greater than or
 // equal to.
+// NOTE: Does not work on empty tree
 void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt, const std::size_t &depth) {
     if (!ptr) return;
 
-    if(((depth % 2 == 0) && x_ALessThanB(new_pt, ptr->point)) || ((depth % 2 == 1) && y_ALessThanB(new_pt, ptr->point))){
+    if(depthLessThan(depth, new_pt, ptr->point)) {
         
         if(ptr->left) insert_pair(ptr->left, new_pt, depth + 1); 
         else ptr->left = new KD2Node(new_pt);
@@ -163,11 +148,63 @@ void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<double, double> &new_pt,
     }
 }
 
-//void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator, // begin
-//                          std::vector<std::pair<double, double>>::iterator, // end
-//                          KD2Node*, // root
-//                          const std::size_t &, // depth of insert
-//                          const std::size_t &); // size of passed vector
+// Inserts an vector of points into an RTree by recursively splitting the array
+// to match the nodes in the RTree until places to insert the points are found.
+// Makes use of insert_pair and make_tree.
+void KD2Tree::insert_bulk(std::vector<std::pair<double, double>>::iterator begin, // begin
+                          std::vector<std::pair<double, double>>::iterator end, // end
+                          KD2Node* ptr, // root
+                          const std::size_t &depth, // depth of insert
+                          const std::size_t &vec_size) { // size of passed vector
+    // Vector passed is empty
+    if (begin == end) return;
+    
+    // sort the array by X or Y depending on depth
+    if (vec_size > 1) {
+        if (depth % 2 == 0) {
+            std::sort(begin, end, x_ALessThanB);
+        } else {
+            std::sort(begin, end, y_ALessThanB);
+        }  
+    }
+    
+    // if only one pair, can use insert pair function
+    if (vec_size == 1) {
+        insert_pair(ptr, *begin, depth);
+        return;
+    }
+    
+    // Find pick median 
+    auto middle = begin + vec_size / 2;
+        
+    // Sizes of vectors to left and right of middle
+    std::size_t l_size = (vec_size / 2);
+    std::size_t r_size = vec_size - l_size;
+    
+    // if middle is less than, move right until middle is greater than or end()
+    // if middle is greater than, move right until middle - 1 is less than point or begin()
+    if(depthLessThan(depth, *middle, ptr->point)) {
+        while(middle != end && depthLessThan(depth, *middle, ptr->point)) {
+            middle++;
+            l_size++;
+            r_size--;
+        }
+    } else {
+        while(middle != begin && !depthLessThan(depth, *(middle -1), ptr->point)) {
+            middle--;
+            l_size--;
+            r_size++;
+        }
+    }
+    
+    // If there is another node, call insert bulk with that node as root,
+    // otherwise make a new tree with the remainder of the points
+    if(ptr->left) insert_bulk(begin, middle, ptr->left, depth  + 1, l_size); 
+    else ptr->left = make_tree(begin, middle, depth + 1, l_size);
+    
+    if(ptr->right) insert_bulk(middle, end, ptr->right, depth  + 1, r_size); 
+    else ptr->right = make_tree(middle, end, depth + 1, r_size);
+}
 
 // Helper functions for compairing pairs
 bool x_ALessThanB(const std::pair<double, double> &a, const std::pair<double, double> &b) {
@@ -183,4 +220,8 @@ bool xAreEqual(const std::pair<double, double> &a, const std::pair<double, doubl
 
 bool yAreEqual(const std::pair<double, double> &a, const std::pair<double, double> &b) {
     return (a.second == b.second);
+}
+
+bool depthLessThan(const std::size_t &depth, const std::pair<double, double> &a, const std::pair<double, double> &b) {
+    return (((depth % 2 == 0) && (a.first < b.first)) || ((depth % 2 == 1) && (a.second < b.second)));
 }
