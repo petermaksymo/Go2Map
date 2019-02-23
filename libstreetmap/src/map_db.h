@@ -76,6 +76,7 @@ struct MapInfo {
     WorldValues world_values;                           //values about the world (e.g. max latitude))
     Map_State state;
     KD2Tree street_seg_k2tree;
+    KD2Tree poi_k2tree;
     OSMData OSM_data;
 };
 
@@ -91,3 +92,5 @@ void load_street_segments ();
 void load_intersections ();
 
 void load_streets ();
+
+void load_points_of_interst ();

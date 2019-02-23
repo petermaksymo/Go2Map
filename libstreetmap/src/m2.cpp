@@ -237,7 +237,7 @@ void draw_subway_data(ezgl::renderer &g){
     g.set_line_width(3);
     
     ezgl::surface *subway_png = g.load_png("./libstreetmap/resources/Icons/subway.png");
-    
+            
     for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
         //draw the tracks
         for(unsigned j = 0; j < MAP.OSM_data.subway_routes[i].path.size(); j++) {

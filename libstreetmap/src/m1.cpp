@@ -57,6 +57,8 @@ bool load_map(std::string map_path) {
 
     load_streets();
     
+    load_points_of_interst();
+    
     load_osm_data();
     
     return load_successful;

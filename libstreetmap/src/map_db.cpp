@@ -118,3 +118,20 @@ void load_streets () {
         MAP.street_name_id_map.insert(std::pair <std::string, int> (street_name, i));
     }
 }
+
+void load_points_of_interst () {
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> poi_zoom_2;
+    
+    for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
+        double x = x_from_lon(getPointOfInterestPosition(i).lon());
+        double y = y_from_lat(getPointOfInterestPosition(i).lat());
+        
+        std::pair<std::pair<double, double>, unsigned int> point = std::make_pair(std::make_pair(x, y), i);
+        
+        poi_zoom_2.push_back(point);
+        
+        MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_2.begin(), poi_zoom_2.end(), 0, poi_zoom_2.size(), 2);
+    }
+    
+    
+}
