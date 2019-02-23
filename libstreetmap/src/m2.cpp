@@ -99,20 +99,21 @@ void draw_selected_intersection (ezgl::renderer &g) {
 // segments that are current view. Then loops over the ids, drawing each curves
 void draw_street_segments (ezgl::renderer &g) {    
     
-    std::vector<std::pair<std::pair<double, double>, unsigned int>> results;
+    std::map<unsigned int, std::pair<double, double>> result_ids;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
     
     MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
                          0, // depth of query
                          std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
                          std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
-                         results, // results
+                         result_points, // results
+                         result_ids,
                          MAP.state.zoom_level); // zoom_level
     
-    std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator it = results.begin();
-    
-    while(it != results.end()) {
-        int id = it->second;
-    // for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
+    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+        
+        int id = it->first;
+        // for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
         g.set_color(ezgl::WHITE);
         
         //load all LatLon of points into a vector for the draw_curve helper function
@@ -134,13 +135,26 @@ void draw_street_segments (ezgl::renderer &g) {
         }
         
         draw_curve(g, points);
-        
-        it++;
     }
 }
 
 void draw_street_name(ezgl::renderer &g) {
-    for (unsigned int i = 0; i < unsigned(getNumStreetSegments()); i++) {
+    
+    std::map<unsigned int, std::pair<double, double>> result_ids;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
+    
+    MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         result_points, // results
+                         result_ids,
+                         MAP.state.zoom_level); // zoom_level
+    
+    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+
+        int i = it->first;
+        
         double x1 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).from].position.lon());
         double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
         double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());

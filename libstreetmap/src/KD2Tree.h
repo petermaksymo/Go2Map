@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <map>
 
 class KD2Node {
     public:
@@ -56,7 +57,8 @@ class KD2Tree {
                          const std::size_t &depth, // depth of query
                          const std::pair<double, double> &, // x-range (smaller, greater)
                          const std::pair<double, double> &, // y-range (smaller, greater)
-                         std::vector<std::pair<std::pair<double, double>, unsigned int>> &, // results
+                         std::vector<std::pair<std::pair<double, double>, unsigned int>> &, // results_points
+                         std::map<unsigned int, std::pair<double, double>> &, // results_unique_ids
                          const int &zoom_level);
  
         void nearest_neighbour(KD2Node* ptr, // root

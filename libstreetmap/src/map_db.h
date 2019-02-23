@@ -46,7 +46,7 @@ struct Map_State {
     std::vector<unsigned> intersection_search_result;
     std::pair<double, double> current_view_y;
     std::pair<double, double> current_view_x;
-    int zoom_level;
+    int zoom_level; // 0: ('scale' < 4) most zoomed out, 1: ('scale' > 4 & 'scale' < 10) middle, 2: ('scale > 10) most zoomed in
     bool is_transit_on = false;
     bool is_bikes_on = false;
 };

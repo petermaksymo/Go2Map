@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <map>
 
 KD2Node::KD2Node() = default;
 
@@ -242,8 +243,13 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
 
 // Recursively calls itself depending on if the point is in the range, to less than, or greater than the range.
 // It only pushes the point to the results vector if it is within the range.
-void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pair<double, double> &x_range, const std::pair<double, double> &y_range, // range from smallest to greatest
-                std::vector<std::pair<std::pair<double, double>, unsigned int>> &results, const int &zoom_level) {
+void KD2Tree::range_query(KD2Node* ptr,
+                         const std::size_t &depth,
+                         const std::pair<double, double> &x_range,
+                         const std::pair<double, double> &y_range, // range from smallest to greatest
+                         std::vector<std::pair<std::pair<double, double>, unsigned int>> &results_points,
+                         std::map<unsigned int, std::pair<double, double>> &results_unique_ids,
+                         const int &zoom_level) {
     
     if(!ptr) return;
     
@@ -252,20 +258,22 @@ void KD2Tree::range_query(KD2Node* ptr, const std::size_t &depth, const std::pai
     // if node is inside bounds, check both and push to results
     if(depthLessThanBounds(depth, ptr->point, x_range, y_range)) {
         // call range query on right node (greater than)
-        range_query(ptr->right, depth + 1, x_range, y_range, results, zoom_level);
+        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
     } else if(depthGreaterThanBounds(depth, ptr->point, x_range, y_range)) {
         // call range query on left node (less than)
-        range_query(ptr->left, depth + 1, x_range, y_range, results, zoom_level);
+        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
     } else {
         // must intersect the range
         // range query on the left
-        range_query(ptr->left, depth + 1, x_range, y_range, results, zoom_level);
+        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
         // store the point if is also in range in other dimension
         if(!depthGreaterThanBounds(depth + 1, ptr->point, x_range, y_range) && !depthLessThanBounds(depth + 1, ptr->point, x_range, y_range)) {
-            results.push_back(std::make_pair(ptr->point, ptr->data_id));
+            // will only insert into Map if data_id is unique
+            results_unique_ids.insert(std::make_pair(ptr->data_id, ptr->point));
+            results_points.push_back(std::make_pair(ptr->point, ptr->data_id));
         }
         // range query on the right
-        range_query(ptr->right, depth + 1, x_range, y_range, results, zoom_level);
+        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
     }
 }
 
