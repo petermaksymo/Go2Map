@@ -162,6 +162,9 @@ void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
 // React to clicked find button
 gboolean press_find(GtkWidget *widget, gpointer data);
 
+// React to when the transit checkbox is toggled
+gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data);
+
 // Callback function for search bar
 gboolean search_bar(GtkSearchEntry *entry, GdkEvent *event);
 }

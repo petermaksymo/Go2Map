@@ -337,7 +337,7 @@
                     <property name="app_paintable">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkCheckButton">
+                      <object class="GtkCheckButton" id="TransitToggle">
                         <property name="label" translatable="yes">Transit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>

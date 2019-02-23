@@ -23,6 +23,7 @@ void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
+void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 
 
 void draw_map () {
@@ -42,7 +43,8 @@ void draw_map () {
     
     
     application.run(nullptr, act_on_mouse_click, 
-                    act_on_mouse_move, act_on_key_press);
+                    act_on_mouse_move, act_on_key_press,
+                    act_on_transit_toggle);
 }
 
 
@@ -71,7 +73,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_selected_intersection(g);
     draw_street_name(g);
     
-    draw_subway_data(g);
+    if(MAP.state.is_transit_on) draw_subway_data(g);
 }
 
 
@@ -338,4 +340,8 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     ezgl_app->refresh_drawing();
 }
 
-
+void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
+    MAP.state.is_transit_on = isToggled;
+    
+    app->refresh_drawing();
+}

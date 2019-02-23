@@ -302,7 +302,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSearchEntry" id="Search_Bar">
+              <object class="GtkSearchEntry" id="SearchBar">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="halign">start</property>

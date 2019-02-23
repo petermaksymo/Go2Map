@@ -120,7 +120,8 @@ GObject *application::get_object(gchar const *name) const
 int application::run(setup_callback_fn initial_setup_user_callback,
     mouse_callback_fn mouse_press_user_callback,
     mouse_callback_fn mouse_move_user_callback,
-    key_callback_fn key_press_user_callback)
+    key_callback_fn key_press_user_callback,
+    checkbox_fn transit_toggled_user_callback)
 {
   if(disable_event_loop)
     return 0;
@@ -129,6 +130,7 @@ int application::run(setup_callback_fn initial_setup_user_callback,
   mouse_press_callback = mouse_press_user_callback;
   mouse_move_callback = mouse_move_user_callback;
   key_press_callback = key_press_user_callback;
+  transit_toggled_callback = transit_toggled_user_callback;
 
   // The result of calling g_application_run() again after it returns is unspecified.
   // So we have to destruct and reconstruct the GTKApplication
@@ -187,6 +189,10 @@ void application::register_default_events_callbacks(ezgl::application *applicati
 
   // Connect scroll_mouse function to the mouse scroll event (up, down, left and right)
   g_signal_connect(main_canvas, "scroll_event", G_CALLBACK(scroll_mouse), application);
+  
+  // Connect the transit_toggle to its callback
+  GObject *transit_toggle = application->get_object("TransitToggle");
+  g_signal_connect(transit_toggle, "toggled", G_CALLBACK(transit_toggled), application);
   
   //GtkWidget * search_bar = gtk_search_entry_new ();
   GObject *search_bar = application->get_object("SearchBar");

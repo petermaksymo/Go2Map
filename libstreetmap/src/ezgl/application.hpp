@@ -46,6 +46,11 @@ using mouse_callback_fn = void (*)(application *app, GdkEventButton *event, doub
 using key_callback_fn = void (*)(application *app, GdkEventKey *event, char *key_name);
 
 /**
+ * The signature of a user-defined callback function for toggled checkbox events
+ */
+using checkbox_fn = void (*)(application *app, bool isToggled);
+
+/**
  * The core application.
  *
  * The GUI of an application is created from an XML file. Widgets created in the XML file can be retrieved from an
@@ -186,7 +191,8 @@ public:
   int run(setup_callback_fn initial_setup_user_callback,
       mouse_callback_fn mouse_press_user_callback,
       mouse_callback_fn mouse_move_user_callback,
-      key_callback_fn key_press_user_callback);
+      key_callback_fn key_press_user_callback,
+      checkbox_fn transit_toggled_user_callback);
 
   /**
    * Destructor.
@@ -310,6 +316,9 @@ public:
 
   // The user-defined callback function for handling keyboard press
   key_callback_fn key_press_callback;
+  
+  // The user-defined callback function for handling the transit checkbox
+  checkbox_fn transit_toggled_callback;
 };
 }
 
