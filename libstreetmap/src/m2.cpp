@@ -176,7 +176,21 @@ void draw_street_name(ezgl::renderer &g) {
 }
 
 void draw_points_of_interest (ezgl::renderer &g) {
-    for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
+    std::map<unsigned int, std::pair<double, double>> result_ids;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
+    
+    MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         result_points, // results
+                         result_ids,
+                         MAP.state.zoom_level); // zoom_level
+    
+    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+
+        int i = it->first;
+        
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
         double y = y_from_lat(getPointOfInterestPosition(i).lat());
         
@@ -189,7 +203,21 @@ void draw_points_of_interest (ezgl::renderer &g) {
 
 
 void draw_features (ezgl::renderer &g) {
-    for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
+    std::map<unsigned int, std::pair<double, double>> result_ids;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
+    
+    MAP.feature_k2tree.range_query(MAP.feature_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         result_points, // results
+                         result_ids,
+                         MAP.state.zoom_level); // zoom_level
+    
+    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+
+        int i = it->first;
+        
         std::vector<ezgl::point2d> feature_points;
         
         //set feature colour:

@@ -119,7 +119,7 @@ void load_streets () {
     }
 }
 
-void load_points_of_interst () {
+void load_points_of_interest () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> poi_zoom_2;
     
     for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
@@ -134,4 +134,21 @@ void load_points_of_interst () {
     }
     
     
+}
+
+void load_features () {
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_0;
+    
+    for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
+        for (int j = 0; j < getFeaturePointCount(i); j++) {
+            double x = x_from_lon(getFeaturePoint(j, i).lon());
+            double y = y_from_lat(getFeaturePoint(j, i).lat());
+            
+            std::pair<std::pair<double, double>, unsigned int> point = std::make_pair(std::make_pair(x, y), i);
+            
+            feature_zoom_0.push_back(point);
+        }
+    }
+    
+    MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_0.begin(), feature_zoom_0.end(), 0, feature_zoom_0.size(), 0);
 }
