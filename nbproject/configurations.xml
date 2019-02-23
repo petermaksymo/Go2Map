@@ -99,6 +99,35 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/src/KDTree.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+          <incDir>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
       <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
