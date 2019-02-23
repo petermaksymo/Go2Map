@@ -219,7 +219,8 @@ void draw_features (ezgl::renderer &g) {
 
 
 void draw_subway_data(ezgl::renderer &g){
-    g.set_color(ezgl::PURPLE);       
+    g.set_color(ezgl::PURPLE); 
+    g.set_line_width(3);
     
     ezgl::surface *subway_png = g.load_png("./libstreetmap/resources/Icons/subway.png");
     
