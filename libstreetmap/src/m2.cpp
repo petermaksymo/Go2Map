@@ -90,7 +90,8 @@ void draw_selected_intersection (ezgl::renderer &g) {
     }
 }
 
-
+// Queries street_seg_k2tree for the given zoom level to get the ids of all the
+// segments that are current view. Then loops over the ids, drawing each curves
 void draw_street_segments (ezgl::renderer &g) {    
     
     std::vector<std::pair<std::pair<double, double>, unsigned int>> results;
