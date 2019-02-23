@@ -43,7 +43,7 @@ bool load_map(std::string map_path) {
     std::thread Streets_thread(load_streets_data, map_path, std::ref(load_Streets_success));
     
     //wait for both threads to finish
-    OSM_thread.detach();
+    OSM_thread.join();
     Streets_thread.join();
     
     bool load_successful = load_OSM_success && load_Streets_success;
@@ -65,7 +65,7 @@ void close_map() {
 //Loading helper functions:
 void load_streets_data(std::string map_path, bool &success) {
     success = loadStreetsDatabaseBIN(map_path);
-    
+
     //spool up threads for loading
     std::thread sub1(load_streets_and_intersections);
     std::thread sub2(load_points_of_interest);
