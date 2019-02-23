@@ -187,6 +187,10 @@ void application::register_default_events_callbacks(ezgl::application *applicati
 
   // Connect scroll_mouse function to the mouse scroll event (up, down, left and right)
   g_signal_connect(main_canvas, "scroll_event", G_CALLBACK(scroll_mouse), application);
+  
+  //GtkWidget * search_bar = gtk_search_entry_new ();
+  GObject *search_bar = application->get_object("SearchBar");
+  g_signal_connect(search_bar, "key_press_event", G_CALLBACK(search_bar), application);
 }
 
 void application::register_default_buttons_callbacks(ezgl::application *application)

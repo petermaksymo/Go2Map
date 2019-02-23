@@ -124,7 +124,7 @@ void draw_street_name(ezgl::renderer &g) {
         ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
         
         //std::cout << MAP.state.scale << std::endl;
-        if (MAP.state.scale > 58 && i % 3 == 0 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
+        if (MAP.state.scale > 58 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
             g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
         }
     }
@@ -256,6 +256,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
 
 void search_intersection() {
     // Manual input for now
+    std::string street1, street2;
     std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("bloor" );
     std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("bay");
     std::vector<unsigned> intersectionID, current_intersection;
@@ -277,17 +278,20 @@ void search_intersection() {
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     search_intersection();
-    double margin = 0.0001;
+    //Constant for reconstruct current view after zoom in after search
+    const double margin = 0.0001;
     auto ezgl_app = static_cast<ezgl::application *>(data);
     std::string main_canvas_id = ezgl_app->get_main_canvas_id();
     auto canvas = ezgl_app->get_canvas(main_canvas_id);
+    // Get location of the intersection and then apply margin to it
     LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[0]);
     ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
     ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
+    // Construct new view of the canvas
     rectangle view(origin, top_right);
     ezgl:zoom_fit(canvas, view);
-        //ezgl::zoom_in(canvas, zoom_point, 5.0/3.0);
-    
+    // Update detail information of intersection and refresh the canvas
+    ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[0]].name);
     ezgl_app->refresh_drawing();
 }
 

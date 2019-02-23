@@ -159,7 +159,11 @@ gboolean press_help(GtkWidget *widget, gpointer data);
 //destroys dialog on response
 void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data);
 
+// React to clicked find button
 gboolean press_find(GtkWidget *widget, gpointer data);
+
+// Callback function for search bar
+gboolean search_bar(GtkSearchEntry *entry, GdkEvent *event);
 }
 
 #endif //EZGL_CALLBACK_HPP
