@@ -387,6 +387,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
     }
 }
 
+// Search for common intersections among all possible street results
 void search_intersection(std::string street1, std::string street2) {
     std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name(street1);
     std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name(street2);
@@ -425,6 +426,7 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
         // Parse the search result
         ss >> street1;
         ss >> street2;
+        //if (ss == '@' || ss == NULL) std::cout << "Invalid input" << std::endl;
         std::cout << street1 << street2 << std::endl;
     
         search_intersection(street1, street2);
