@@ -4,26 +4,41 @@
 
 #include "OSMFetchers.h"
 #include "OSMDatabaseAPI.h"
+#include "map_db.h"
+#include "helper_functions.h"
 
 void load_osm_data() {
-    std::cout << "Number of nodes: " << getNumberOfNodes() << "\n"
-              << "Number of ways: " << getNumberOfWays() << "\n"
-              << "Number of relations " << getNumberOfRelations() <<"\n\n";
     
-    int num_entrances = 0;
     for(unsigned id = 0; id < getNumberOfNodes(); id ++) {
-        const OSMEntity* e = getNodeByIndex(id);
-        for(unsigned j=0; j < getTagCount(e); j++) {
+        const OSMNode* node = getNodeByIndex(id);
+        
+        for(unsigned i=0; i < getTagCount(node); i++) {
             std::string key, value;
-            std::tie(key, value) = getTagPair(e, j);
+            std::tie(key, value) = getTagPair(node, i);
 
-            if(value == "subway_entrance") {
-                //std::cout<< "found an entrance\n";
-                num_entrances ++;
+            if(value == "station") {
+                MAP.OSM_data.subway_entrances.push_back( point2d_from_LatLon(node->coords()) );
             }
 
         }
     }
     
-    //std::cout << "found " << num_entrances << " entrances in total!!\n\n";
+    for(unsigned id = 0; id < getNumberOfWays(); id ++) {
+        const OSMWay* way = getWayByIndex(id);
+        
+        for(unsigned i=0; i < getTagCount(way); i++) {
+            std::string key, value;
+            std::tie(key, value) = getTagPair(way, i);
+            
+            if(key == "railway" && value == "subway") {
+                for(unsigned j=0; j<way->ndrefs().size(); j++) {
+                    const OSMNode* node = getNodeByIndex(way->ndrefs()[j]);
+                    
+                    //MAP.OSM_data.subway_path[i].push_back( point2d_from_LatLon(way->ndrefs()[j]) );
+                }
+            }
+                                                       
+        }
+    }
+
 }

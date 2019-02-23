@@ -18,6 +18,7 @@ void draw_street_segments (ezgl::renderer &g);
 void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
 void draw_street_name(ezgl::renderer &g);
+void draw_subway_data(ezgl::renderer &g);
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
@@ -69,6 +70,14 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_points_of_interest(g);
     draw_selected_intersection(g);
     draw_street_name(g);
+    
+    draw_subway_data(g);
+    
+    // Calculate the scale every time main canvas is drawn
+    ezgl::rectangle current_view = g.get_visible_world();
+    MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
+        (current_view.right() - current_view.left());
+    
 }
 
 
@@ -158,7 +167,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
         float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
         
         g.set_color(ezgl::RED);       
-        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);;
+        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
     }
 }
 
@@ -204,6 +213,16 @@ void draw_features (ezgl::renderer &g) {
             draw_curve(g, points);
         }
     }  
+}
+
+
+void draw_subway_data(ezgl::renderer &g){
+    float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
+    
+    for(unsigned i = 0; i < MAP.OSM_data.subway_entrances.size(); i++) {        
+        g.set_color(ezgl::PURPLE);       
+        g.fill_arc(MAP.OSM_data.subway_entrances[i], radius, 0, 360);;
+    }
 }
 
 

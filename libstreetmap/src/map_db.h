@@ -9,6 +9,7 @@
 #include "StreetsDatabaseAPI.h"
 #include <map>
 #include "KD2Tree.h"
+#include <ezgl/point.hpp>
 
 //The definition of the global MAP object
 //used as the main database
@@ -47,6 +48,11 @@ struct Map_State {
     int zoom_level;
 };
 
+struct OSMData {
+    std::vector<ezgl::point2d> subway_entrances;
+    std::vector<std::vector<ezgl::point2d>> subway_path;
+};
+
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
@@ -56,6 +62,7 @@ struct MapInfo {
     WorldValues world_values;                           //values about the world (e.g. max latitude))
     Map_State state;
     KD2Tree street_seg_k2tree;
+    OSMData OSM_data;
 };
 
 

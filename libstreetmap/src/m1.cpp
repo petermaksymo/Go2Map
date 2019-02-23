@@ -49,7 +49,6 @@ bool load_map(std::string map_path) {
    
     if(not load_successful) return false;
     
-    load_osm_data();
     
     //Load our map related data structures here
     load_intersections();
@@ -57,6 +56,8 @@ bool load_map(std::string map_path) {
     load_street_segments();
 
     load_streets();
+    
+    load_osm_data();
     
     return load_successful;
 }

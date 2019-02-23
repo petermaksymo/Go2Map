@@ -6,6 +6,7 @@
 #include "map_db.h"
 #include "math.h"
 #include <algorithm>
+#include <ezgl/point.hpp>
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec) {
@@ -31,6 +32,12 @@ double lon_from_x (double x) {
     double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
     
     return (x / (cos(avg_lat) * DEG_TO_RAD));
+}
+
+ezgl::point2d point2d_from_LatLon (LatLon point) {
+    ezgl::point2d coord(x_from_lon(point.lon()), y_from_lat(point.lat()));
+    
+    return coord;
 }
 
 //Pre-compute length of street segment
