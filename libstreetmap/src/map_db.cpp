@@ -24,6 +24,7 @@ void load_street_segments () {
     
     std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_0;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_1;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_2;
     
     //Iterating through all street segments
     //Loads up street_db with all segments of a street, and calculate lengths
@@ -42,12 +43,15 @@ void load_street_segments () {
         std::pair<double, double> t_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.to].position.lon()), y_from_lat(MAP.intersection_db[segment.to].position.lat()));
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
-        if(segment.speedLimit >= 90) {
+        if(segment.speedLimit >= 60) {
             street_segs_zoom_0.push_back(from_pt);
             street_segs_zoom_0.push_back(to_pt);
-        } else {
+        } else if(segment.speedLimit >= 50) {
             street_segs_zoom_1.push_back(from_pt);
             street_segs_zoom_1.push_back(to_pt);
+        } else {
+            street_segs_zoom_2.push_back(from_pt);
+            street_segs_zoom_2.push_back(to_pt);
         }
     }
     
@@ -55,6 +59,7 @@ void load_street_segments () {
     // Load both zoom levels to tree
     MAP.street_seg_k2tree.root = MAP.street_seg_k2tree.make_tree(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), 0, street_segs_zoom_0.size(), 0);
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_1.begin(), street_segs_zoom_1.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_1.size(), 1);
+    MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_2.begin(), street_segs_zoom_2.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_2.size(), 2);
     
     street_segs_zoom_0.clear();
     street_segs_zoom_1.clear();

@@ -53,6 +53,10 @@ void draw_main_canvas (ezgl::renderer &g) {
     MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() -current_view.left());
     
+    if (MAP.state.scale < 4) MAP.state.zoom_level = 0;
+    else if (MAP.state.scale > 4 && MAP.state.scale < 10) MAP.state.zoom_level = 1;
+    else if (MAP.state.scale > 10) MAP.state.zoom_level = 2;
+    
     g.set_color(ezgl::BACKGROUND_GREY);
     
     g.fill_rectangle(
@@ -91,7 +95,7 @@ void draw_street_segments (ezgl::renderer &g) {
                          std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
                          std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
                          results, // results
-                         1); // zoom_level
+                         MAP.state.zoom_level); // zoom_level
     
     std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator it = results.begin();
     
@@ -117,9 +121,8 @@ void draw_street_segments (ezgl::renderer &g) {
         if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 90) {
             g.set_color(ezgl::ORANGE);
         }
-        if (MAP.state.scale < 4 && getInfoStreetSegment(id).speedLimit >= 60) draw_curve(g, points);
-        else if (MAP.state.scale > 4 && MAP.state.scale < 10 && getInfoStreetSegment(id).speedLimit >= 50) draw_curve(g, points);
-        else if (MAP.state.scale > 10) draw_curve(g, points);
+        
+        draw_curve(g, points);
         
         it++;
     }

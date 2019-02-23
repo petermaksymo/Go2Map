@@ -44,6 +44,7 @@ struct Map_State {
     std::vector<unsigned> intersection_search_result;
     std::pair<double, double> current_view_y;
     std::pair<double, double> current_view_x;
+    int zoom_level;
 };
 
 // The main structure for the globally defined MAP
