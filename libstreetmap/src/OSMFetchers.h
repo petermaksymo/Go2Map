@@ -13,4 +13,5 @@
 
 void load_osm_data();
 
+void add_subway_route(const OSMRelation* relation);
 

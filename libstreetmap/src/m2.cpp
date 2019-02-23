@@ -217,11 +217,21 @@ void draw_features (ezgl::renderer &g) {
 
 
 void draw_subway_data(ezgl::renderer &g){
-    float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
+    float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/500;
+    g.set_color(ezgl::PURPLE);       
     
-    for(unsigned i = 0; i < MAP.OSM_data.subway_entrances.size(); i++) {        
-        g.set_color(ezgl::PURPLE);       
-        g.fill_arc(MAP.OSM_data.subway_entrances[i], radius, 0, 360);;
+    for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
+        for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
+            g.fill_arc(MAP.OSM_data.subway_routes[i].stations[j], radius, 0, 360);
+        }
+        
+        for(unsigned j = 0; j < MAP.OSM_data.subway_routes[i].path.size(); j++) {
+            if(MAP.OSM_data.subway_routes[i].path.size() > 1)
+                
+            for(unsigned k = 0; k <  MAP.OSM_data.subway_routes[i].path[j].size() - 1; k++) {
+                g.draw_line(MAP.OSM_data.subway_routes[i].path[j][k], MAP.OSM_data.subway_routes[i].path[j][k+1]);
+            }
+        }
     }
 }
 

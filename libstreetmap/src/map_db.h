@@ -8,7 +8,11 @@
 
 #include "StreetsDatabaseAPI.h"
 #include <map>
+<<<<<<< HEAD
 #include "KD2Tree.h"
+=======
+#include <unordered_map>
+>>>>>>> aab7e84... Subways are partially implemented
 #include <ezgl/point.hpp>
 
 //The definition of the global MAP object
@@ -48,9 +52,16 @@ struct Map_State {
     int zoom_level;
 };
 
+struct SubwayRouteData {
+    std::string colour;
+    std::vector<ezgl::point2d> stations;
+    std::vector<std::vector<ezgl::point2d>> path;
+};
+
 struct OSMData {
-    std::vector<ezgl::point2d> subway_entrances;
-    std::vector<std::vector<ezgl::point2d>> subway_path;
+    std::unordered_map<OSMID, const OSMNode*> node_by_OSMID; //hash table for search by OSMID
+    std::unordered_map<OSMID, const OSMWay*> way_by_OSMID;   //hash table for search by OSMID
+    std::vector<SubwayRouteData> subway_routes;
 };
 
 // The main structure for the globally defined MAP
