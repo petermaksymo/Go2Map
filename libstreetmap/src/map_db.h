@@ -51,7 +51,6 @@ struct Map_State {
 };
 
 struct SubwayRouteData {
-    std::string colour;
     std::vector<ezgl::point2d> stations;
     std::vector<std::vector<ezgl::point2d>> path;
 };

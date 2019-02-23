@@ -67,6 +67,8 @@ void draw_main_canvas (ezgl::renderer &g) {
             {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
     );
     
+    g.set_line_cap(ezgl::line_cap::round);
+    
     draw_features(g);
     draw_street_segments(g);
     draw_points_of_interest(g);
@@ -214,14 +216,12 @@ void draw_features (ezgl::renderer &g) {
 
 
 void draw_subway_data(ezgl::renderer &g){
-    float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/500;
     g.set_color(ezgl::PURPLE);       
     
+    ezgl::surface *subway_png = g.load_png("./libstreetmap/resources/Icons/subway.png");
+    
     for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
-        for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
-            g.fill_arc(MAP.OSM_data.subway_routes[i].stations[j], radius, 0, 360);
-        }
-        
+        //draw the tracks
         for(unsigned j = 0; j < MAP.OSM_data.subway_routes[i].path.size(); j++) {
             if(MAP.OSM_data.subway_routes[i].path.size() > 1)
                 
@@ -229,7 +229,18 @@ void draw_subway_data(ezgl::renderer &g){
                 g.draw_line(MAP.OSM_data.subway_routes[i].path[j][k], MAP.OSM_data.subway_routes[i].path[j][k+1]);
             }
         }
+        
+        //draw stations if zoomed in enough
+        if(MAP.state.zoom_level >= 2) {
+            double adjust_factor((x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/(20*MAP.state.scale));
+            ezgl::point2d png_adjust(-0.8*adjust_factor, adjust_factor);
+            for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
+                g.draw_surface(subway_png, MAP.OSM_data.subway_routes[i].stations[j] + png_adjust);
+            }
+        }
     }
+    
+    g.free_surface(subway_png);
 }
 
 
