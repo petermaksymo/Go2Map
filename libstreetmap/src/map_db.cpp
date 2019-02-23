@@ -129,11 +129,9 @@ void load_points_of_interest () {
         std::pair<std::pair<double, double>, unsigned int> point = std::make_pair(std::make_pair(x, y), i);
         
         poi_zoom_2.push_back(point);
-        
-        MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_2.begin(), poi_zoom_2.end(), 0, poi_zoom_2.size(), 2);
     }
     
-    
+    MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_2.begin(), poi_zoom_2.end(), 0, poi_zoom_2.size(), 2);
 }
 
 void load_features () {
