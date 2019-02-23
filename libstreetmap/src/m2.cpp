@@ -21,6 +21,7 @@ void draw_street_name(ezgl::renderer &g);
 void draw_subway_data(ezgl::renderer &g);
 void draw_bike_data(ezgl::renderer &g);
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
+void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
@@ -270,11 +271,7 @@ void draw_subway_data(ezgl::renderer &g){
     for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
         //draw the tracks
         for(unsigned j = 0; j < MAP.OSM_data.subway_routes[i].path.size(); j++) {
-            if(MAP.OSM_data.subway_routes[i].path.size() > 1) {
-                for(unsigned k = 0; k <  MAP.OSM_data.subway_routes[i].path[j].size() - 1; k++) {
-                    g.draw_line(MAP.OSM_data.subway_routes[i].path[j][k], MAP.OSM_data.subway_routes[i].path[j][k+1]);
-                }
-            }
+            draw_curve(g, MAP.OSM_data.subway_routes[i].path[j]);
         }
         
         //draw stations if zoomed in enough
@@ -295,16 +292,12 @@ void draw_bike_data(ezgl::renderer &g) {
     g.set_line_width(1);
     
     for(unsigned i = 0; i < MAP.OSM_data.bike_routes.size(); i++) {
-        if(MAP.OSM_data.bike_routes[i].points.size() > 1) {
-            for(unsigned j = 0; j < MAP.OSM_data.bike_routes[i].points.size() - 1; j++) {
-                g.draw_line(MAP.OSM_data.bike_routes[i].points[j], MAP.OSM_data.bike_routes[i].points[j+1]);
-            }
-        }
+        draw_curve(g, MAP.OSM_data.bike_routes[i]);
     }
 }
 
 
-//helper function to draw curves
+//helper function to draw curves from LatLon point vector
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {
     for(unsigned int i = 0; i < points.size() - 1; i++) {
         double x1 = x_from_lon(points[i].lon());
@@ -316,6 +309,15 @@ void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {
         ezgl::point2d end(x2,y2);   
         
         g.draw_line(start, end);
+    }
+}
+
+//helper function to draw curves from a point2d vector
+void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points) {
+    if(points.size() < 2 ) return;
+    
+    for(unsigned int i = 0; i < points.size() - 1; i++) {
+        g.draw_line(points[i], points[i+1]);
     }
 }
 

@@ -9,6 +9,14 @@
 
 
 void load_osm_data() {
+    //builds OSMID lookup hash tables and populates MAP with needed extra data
+    go_through_OSM_nodes();
+    go_through_OSM_ways();
+    go_through_OSM_relations();
+}
+
+
+void go_through_OSM_nodes() {
     //should help with performance by reserving before hand
     MAP.OSM_data.node_by_OSMID.reserve(getNumberOfNodes());
     
@@ -31,7 +39,10 @@ void load_osm_data() {
             }
         }
     }
-    
+}
+
+
+void go_through_OSM_ways() {
     //should help with performance by reserving before hand
     MAP.OSM_data.way_by_OSMID.reserve(getNumberOfWays());
     
@@ -44,22 +55,22 @@ void load_osm_data() {
             std::string key, value;
             std::tie(key, value) = getTagPair(way, i);
             
+            //find bike routes using all applicable tags
             if((key == "route" && value == "bicycle") ||
                (key == "highway" && value == "cycleway") ||
+               (key == "bicycle_road" && value == "yes") ||
+               (key == "bicycle" && value == "yes") ||
                (key == "cycleway") ) {
-                BicycleWayPoints bike_way;
-
-                for(unsigned node_in_path=0; node_in_path < way->ndrefs().size(); node_in_path++) {
-                    const OSMNode* node = MAP.OSM_data.node_by_OSMID[way->ndrefs()[node_in_path]]; 
-                    bike_way.points.push_back( point2d_from_LatLon(node->coords()) );
-                }
-
-                MAP.OSM_data.bike_routes.push_back(bike_way);
+                
+                //add a vector of points in that way to bike_routes vector
+                MAP.OSM_data.bike_routes.push_back(point_vector_from_way(way));
             }
         }
     }
+}
 
-    //goes through the relations
+
+void go_through_OSM_relations() {
     for(unsigned id = 0; id < getNumberOfRelations(); id ++) {
         const OSMRelation* relation = getRelationByIndex(id);
         
@@ -74,6 +85,7 @@ void load_osm_data() {
         }
     }
 }
+
 
 void add_subway_route(const OSMRelation* relation) {
     //build the data in a placeholder, added to MAP at the end
@@ -93,18 +105,14 @@ void add_subway_route(const OSMRelation* relation) {
             const OSMWay* path = MAP.OSM_data.way_by_OSMID[relation->members()[member].tid];
             std::vector<ezgl::point2d> points;
 
-            for(unsigned node_in_path=0; node_in_path < path->ndrefs().size(); node_in_path++) {
-                const OSMNode* node = MAP.OSM_data.node_by_OSMID[path->ndrefs()[node_in_path]]; 
-                points.push_back( point2d_from_LatLon(node->coords()) );
-            }
-
-            route.path.push_back(points);
+            route.path.push_back(point_vector_from_way(path));
         }
 
     }
     //add the data
     MAP.OSM_data.subway_routes.push_back(route);
 }
+
 
 void add_ttc_station(const OSMNode* node, bool &found_ttc) {
     for(unsigned j=0; j < getTagCount(node); j++) {
@@ -121,4 +129,16 @@ void add_ttc_station(const OSMNode* node, bool &found_ttc) {
             MAP.OSM_data.subway_routes[0].stations.push_back(point2d_from_LatLon(node->coords()) );
         }
     }
+}
+
+
+std::vector<ezgl::point2d> point_vector_from_way(const OSMWay* way) {
+    std::vector<ezgl::point2d> points;
+
+    for(unsigned node_in_path=0; node_in_path < way->ndrefs().size(); node_in_path++) {
+        const OSMNode* node = MAP.OSM_data.node_by_OSMID[way->ndrefs()[node_in_path]]; 
+        points.push_back( point2d_from_LatLon(node->coords()) );
+    }
+
+    return points;
 }
