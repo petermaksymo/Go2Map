@@ -376,10 +376,13 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
             std::string text = gtk_entry_get_text(text_entry);
             std::vector<unsigned> result = find_street_ids_from_partial_street_name(text);
-            for (int i = 0; i < result.size(); i++) {
+            int num_result_shown = 5;
+            // Limit search results shown
+            if (result.size() < num_result_shown) num_result_shown = result.size();
+            for (int i = 0; i < num_result_shown; i++) {
                 std::cout << getStreetName(result[i]) << std::endl;
             }
-            std::cout << std::endl;
+            if (num_result_shown != 0) std::cout << std::endl;
         }
     }
 }
@@ -401,7 +404,7 @@ void search_intersection(std::string street1, std::string street2) {
     for (int i = 0; i < intersectionID.size(); i++) {
         std::cout << getIntersectionName(intersectionID[i]) << std::endl;
     }
-    MAP.state.last_selected_intersection = intersectionID[0];
+    //MAP.state.last_selected_intersection = intersectionID[0];
 }
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
@@ -413,29 +416,36 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     // Extract text from the search bar
     GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
     std::string text = gtk_entry_get_text(text_entry);
-    
-    
-    // Parse the search result
     std::stringstream ss(text);
     std::string street1, street2;
-    ss >> street1;
-    ss >> street2;
-    std::cout << street1 << street2 << std::endl;
+    if (MAP.state.search_word != text) {
+        MAP.state.search_word = text;
+        MAP.state.search_index = 0;
+        
+        // Parse the search result
+        ss >> street1;
+        ss >> street2;
+        std::cout << street1 << street2 << std::endl;
     
-    search_intersection(street1, street2);
+        search_intersection(street1, street2);
+    } else MAP.state.search_index += 1;
     
     //Constant for reconstruct current view after zoom in after search
     const double margin = 0.0001;
     
+   
+    if (MAP.state.search_index == MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
+    int index = MAP.state.search_index;
     // Get location of the intersection and then apply margin to it
-    LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[0]);
+    LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[index]);
     ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
     ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
     // Construct new view of the canvas
     rectangle view(origin, top_right);
     ezgl:zoom_fit(canvas, view);
+    MAP.state.last_selected_intersection = MAP.state.intersection_search_result[index];
     // Update detail information of intersection and refresh the canvas
-    ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[0]].name);
+    ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[index]].name);
     ezgl_app->refresh_drawing();
     
 }
