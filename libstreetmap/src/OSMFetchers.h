@@ -13,5 +13,6 @@
 
 void load_osm_data();
 
-void add_subway_route(const OSMRelation* relation);
+//temporary for hotfix
+//void add_subway_route(const OSMRelation* relation);
 

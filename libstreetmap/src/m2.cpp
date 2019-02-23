@@ -72,12 +72,6 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_street_name(g);
     
     draw_subway_data(g);
-    
-    // Calculate the scale every time main canvas is drawn
-    ezgl::rectangle current_view = g.get_visible_world();
-    MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
-        (current_view.right() - current_view.left());
-    
 }
 
 

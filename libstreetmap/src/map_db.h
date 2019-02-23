@@ -8,11 +8,8 @@
 
 #include "StreetsDatabaseAPI.h"
 #include <map>
-<<<<<<< HEAD
 #include "KD2Tree.h"
-=======
 #include <unordered_map>
->>>>>>> aab7e84... Subways are partially implemented
 #include <ezgl/point.hpp>
 
 //The definition of the global MAP object

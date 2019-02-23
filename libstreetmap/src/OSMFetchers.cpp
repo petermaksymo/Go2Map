@@ -7,6 +7,9 @@
 #include "map_db.h"
 #include "helper_functions.h"
 
+//temporary for hotfix
+void add_subway_route(const OSMRelation* relation);
+
 void load_osm_data() {
     //should help with performance by reserving before hand
     MAP.OSM_data.node_by_OSMID.reserve(getNumberOfNodes());
