@@ -15,7 +15,7 @@ void load_osm_data() {
     //flag needed for adding ttc stations
     bool found_ttc = false;
     
-    //build a hash table of the nodes for querying
+    //build a hash table of the nodes for querying and load node data at the same time
     for(unsigned id = 0; id < getNumberOfNodes(); id ++) {        
         const OSMNode* node = getNodeByIndex(id);
         MAP.OSM_data.node_by_OSMID.insert(std::make_pair(node->id(), node));
@@ -35,10 +35,28 @@ void load_osm_data() {
     //should help with performance by reserving before hand
     MAP.OSM_data.way_by_OSMID.reserve(getNumberOfWays());
     
-    //build a hash table of the ways for querying
+    //build a hash table of the ways for querying and load way data at the same time
     for(unsigned id = 0; id < getNumberOfWays(); id ++) {        
         const OSMWay* way = getWayByIndex(id);
         MAP.OSM_data.way_by_OSMID.insert(std::make_pair(way->id(), way));
+        
+        for(unsigned i=0; i < getTagCount(way); i++) {
+            std::string key, value;
+            std::tie(key, value) = getTagPair(way, i);
+            
+            if((key == "route" && value == "bicycle") ||
+               (key == "highway" && value == "cycleway") ||
+               (key == "cycleway") ) {
+                BicycleWayPoints bike_way;
+
+                for(unsigned node_in_path=0; node_in_path < way->ndrefs().size(); node_in_path++) {
+                    const OSMNode* node = MAP.OSM_data.node_by_OSMID[way->ndrefs()[node_in_path]]; 
+                    bike_way.points.push_back( point2d_from_LatLon(node->coords()) );
+                }
+
+                MAP.OSM_data.bike_routes.push_back(bike_way);
+            }
+        }
     }
 
     //goes through the relations

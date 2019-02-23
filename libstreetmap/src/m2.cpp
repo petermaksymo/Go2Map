@@ -19,6 +19,7 @@ void draw_points_of_interest (ezgl::renderer &g);
 void draw_features (ezgl::renderer &g);
 void draw_street_name(ezgl::renderer &g);
 void draw_subway_data(ezgl::renderer &g);
+void draw_bike_data(ezgl::renderer &g);
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
@@ -69,8 +70,9 @@ void draw_main_canvas (ezgl::renderer &g) {
     
     g.set_line_cap(ezgl::line_cap::round);
     
-    draw_features(g);
+    draw_features(g);    
     draw_street_segments(g);
+    draw_bike_data(g);
     draw_points_of_interest(g);
     draw_selected_intersection(g);
     draw_street_name(g);
@@ -223,10 +225,10 @@ void draw_subway_data(ezgl::renderer &g){
     for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
         //draw the tracks
         for(unsigned j = 0; j < MAP.OSM_data.subway_routes[i].path.size(); j++) {
-            if(MAP.OSM_data.subway_routes[i].path.size() > 1)
-                
-            for(unsigned k = 0; k <  MAP.OSM_data.subway_routes[i].path[j].size() - 1; k++) {
-                g.draw_line(MAP.OSM_data.subway_routes[i].path[j][k], MAP.OSM_data.subway_routes[i].path[j][k+1]);
+            if(MAP.OSM_data.subway_routes[i].path.size() > 1) {
+                for(unsigned k = 0; k <  MAP.OSM_data.subway_routes[i].path[j].size() - 1; k++) {
+                    g.draw_line(MAP.OSM_data.subway_routes[i].path[j][k], MAP.OSM_data.subway_routes[i].path[j][k+1]);
+                }
             }
         }
         
@@ -241,6 +243,19 @@ void draw_subway_data(ezgl::renderer &g){
     }
     
     g.free_surface(subway_png);
+}
+
+void draw_bike_data(ezgl::renderer &g) {
+    g.set_color(ezgl::BLACK);
+    g.set_line_width(1);
+    
+    for(unsigned i = 0; i < MAP.OSM_data.bike_routes.size(); i++) {
+        if(MAP.OSM_data.bike_routes[i].points.size() > 1) {
+            for(unsigned j = 0; j < MAP.OSM_data.bike_routes[i].points.size() - 1; j++) {
+                g.draw_line(MAP.OSM_data.bike_routes[i].points[j], MAP.OSM_data.bike_routes[i].points[j+1]);
+            }
+        }
+    }
 }
 
 

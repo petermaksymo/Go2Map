@@ -55,10 +55,15 @@ struct SubwayRouteData {
     std::vector<std::vector<ezgl::point2d>> path;
 };
 
+struct BicycleWayPoints {
+    std::vector<ezgl::point2d> points;
+};
+
 struct OSMData {
     std::unordered_map<OSMID, const OSMNode*> node_by_OSMID; //hash table for search by OSMID
     std::unordered_map<OSMID, const OSMWay*> way_by_OSMID;   //hash table for search by OSMID
     std::vector<SubwayRouteData> subway_routes;
+    std::vector<BicycleWayPoints> bike_routes;
 };
 
 // The main structure for the globally defined MAP
