@@ -13,7 +13,6 @@
             <in>graphics.cpp</in>
           </df>
           <in>KD2Tree.cpp</in>
-          <in>KD2Tree.h</in>
           <in>OSMFetchers.cpp</in>
           <in>helper_functions.cpp</in>
           <in>helper_functions.h</in>
@@ -63,7 +62,7 @@
           <buildCommand>${MAKE} -f Makefile CONF=release</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>mapper</executablePath>
-          <ccTool flags="-O3 -std=c++11 -fopenmp">
+          <ccTool flags="0">
             <incDir>
               <pElem>libstreetmap/src</pElem>
               <pElem>libstreetmap</pElem>
@@ -96,9 +95,9 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
+      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
       <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
@@ -204,10 +203,6 @@
           </preprocessorList>
         </ccTool>
       </folder>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -272,10 +267,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -368,10 +359,6 @@
           </incDir>
         </ccTool>
       </folder>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -447,10 +434,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -525,10 +508,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
@@ -595,10 +574,6 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="libstreetmap/src/KD2Tree.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
