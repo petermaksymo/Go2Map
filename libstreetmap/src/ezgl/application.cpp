@@ -194,9 +194,9 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   GObject *transit_toggle = application->get_object("TransitToggle");
   g_signal_connect(transit_toggle, "toggled", G_CALLBACK(transit_toggled), application);
   
-  //GtkWidget * search_bar = gtk_search_entry_new ();
   GObject *search_bar = application->get_object("SearchBar");
-  g_signal_connect(search_bar, "key_press_event", G_CALLBACK(search_bar), application);
+  g_signal_connect(search_bar, "search-changed", G_CALLBACK(gtk_search_entry_handle_event), application);
+  
 }
 
 void application::register_default_buttons_callbacks(ezgl::application *application)

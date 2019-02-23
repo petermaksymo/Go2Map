@@ -166,7 +166,7 @@ gboolean press_find(GtkWidget *widget, gpointer data);
 gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data);
 
 // Callback function for search bar
-gboolean search_bar(GtkSearchEntry *entry, GdkEvent *event);
+gboolean gtk_search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event);
 }
 
 #endif //EZGL_CALLBACK_HPP

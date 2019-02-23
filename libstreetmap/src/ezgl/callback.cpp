@@ -325,8 +325,8 @@ void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
     gtk_widget_destroy(GTK_WIDGET (dialog));
 }
 
-gboolean search_bar(GtkSearchEntry *entry, GdkEvent *event) {
-    std::cout << "Test for search bar" << std::endl;
+gboolean gtk_search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
+    std::cout << "let's try this shit";
 }
 
 }

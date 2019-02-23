@@ -300,11 +300,9 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
     }
 }
 
-void search_intersection() {
-    // Manual input for now
-    std::string street1, street2;
-    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name("bloor" );
-    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name("bay");
+void search_intersection(std::string street1, std::string street2) {
+    std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name(street1);
+    std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name(street2);
     std::vector<unsigned> intersectionID, current_intersection;
     // Check for all possible intersections
     for (int i = 0; i < streetID1.size() - 1; i++) {
@@ -323,12 +321,28 @@ void search_intersection() {
 }
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
-    search_intersection();
-    //Constant for reconstruct current view after zoom in after search
-    const double margin = 0.0001;
+    // Pre declaration of the parameter of application
     auto ezgl_app = static_cast<ezgl::application *>(data);
     std::string main_canvas_id = ezgl_app->get_main_canvas_id();
     auto canvas = ezgl_app->get_canvas(main_canvas_id);
+    
+    // Extract text from the search bar
+    GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
+    std::string text = gtk_entry_get_text(text_entry);
+    
+    
+    // Parse the search result
+    std::stringstream ss(text);
+    std::string street1, street2;
+    ss >> street1;
+    ss >> street2;
+    std::cout << street1 << street2 << std::endl;
+    
+    search_intersection(street1, street2);
+    
+    //Constant for reconstruct current view after zoom in after search
+    const double margin = 0.0001;
+    
     // Get location of the intersection and then apply margin to it
     LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[0]);
     ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
@@ -339,6 +353,7 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     // Update detail information of intersection and refresh the canvas
     ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[0]].name);
     ezgl_app->refresh_drawing();
+    
 }
 
 void act_on_transit_toggle(ezgl::application *app, bool isToggled) {

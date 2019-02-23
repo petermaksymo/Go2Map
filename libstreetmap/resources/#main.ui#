@@ -3,7 +3,6 @@
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkIconFactory"/>
-  <object class="GtkEntryBuffer" id="entrybuffer1"/>
   <object class="GtkEntryCompletion" id="entrycompletion1">
     <property name="inline_completion">True</property>
   </object>
@@ -310,7 +309,6 @@
                 <property name="margin_left">25</property>
                 <property name="margin_top">25</property>
                 <property name="hexpand">True</property>
-                <property name="buffer">entrybuffer1</property>
                 <property name="shadow_type">none</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="primary_icon_sensitive">False</property>
@@ -432,14 +430,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="testBar">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
