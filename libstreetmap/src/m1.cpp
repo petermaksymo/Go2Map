@@ -30,39 +30,24 @@
 #include "helper_functions.h"
 #include <thread>
 
-//helper functions for multi threading loading of the two DBs
-void loadStreetsDatabaseBIN_helper(std::string map_path, bool &success);
-void loadOSMDatabaseBIN_helper(std::string map_path, bool &success);
+//helper functions for multi threading loading of all the data
+void load_streets_data(std::string map_path, bool &success);
+void load_streets_and_intersections();
+void load_OSM_data(std::string map_path, bool &success);
 
 bool load_map(std::string map_path) {
     bool load_OSM_success, load_Streets_success;
     
     //spool up a thread to load the OSM data and Streets data in parallel
-    std::thread OSM_thread(loadOSMDatabaseBIN_helper, map_path, std::ref(load_OSM_success));
-    std::thread Streets_thread(loadStreetsDatabaseBIN_helper, map_path, std::ref(load_Streets_success));
+    std::thread OSM_thread(load_OSM_data, map_path, std::ref(load_OSM_success));
+    std::thread Streets_thread(load_streets_data, map_path, std::ref(load_Streets_success));
     
     //wait for both threads to finish
-    OSM_thread.join();
+    OSM_thread.detach();
     Streets_thread.join();
     
     bool load_successful = load_OSM_success && load_Streets_success;
-   
-    if(not load_successful) return false;
-    
-    
-    //Load our map related data structures here
-    load_intersections();
-    
-    load_street_segments();
 
-    load_streets();
-    
-    load_points_of_interest();
-    
-    load_features();
-    
-    load_osm_data();
-    
     return load_successful;
 }
 
@@ -78,18 +63,37 @@ void close_map() {
 }
 
 //Loading helper functions:
-void loadStreetsDatabaseBIN_helper(std::string map_path, bool &success) {
+void load_streets_data(std::string map_path, bool &success) {
     success = loadStreetsDatabaseBIN(map_path);
+    
+    //spool up threads for loading
+    std::thread sub1(load_streets_and_intersections);
+    std::thread sub2(load_points_of_interest);
+    std::thread sub3(load_features);
+    
+    sub1.join();
+    sub2.join();
+    sub3.join();
+    
     return;
 }
 
-void loadOSMDatabaseBIN_helper(std::string map_path, bool &success) {
+void load_streets_and_intersections() {
+    load_intersections();
+    load_street_segments();
+    load_streets();
+}
+
+void load_OSM_data(std::string map_path, bool &success) {
     //get the path to the osm.bin file by replacing the extension of map_path
     std::string OSM_map_path = map_path;
     std::string to_replace = "streets.bin";
     OSM_map_path.replace(OSM_map_path.rfind(to_replace), to_replace.length(), "osm.bin");
     
     success = loadOSMDatabaseBIN(OSM_map_path);
+    
+    load_osm_data();
+     
     return;
 }
 
