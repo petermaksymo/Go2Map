@@ -42,6 +42,8 @@ struct Map_State {
     int last_selected_intersection;  //last selected intersection to wipe selected
     double scale; // Scale showing how zoomed the map is
     std::vector<unsigned> intersection_search_result;
+    std::pair<double, double> current_view_y;
+    std::pair<double, double> current_view_x;
 };
 
 // The main structure for the globally defined MAP

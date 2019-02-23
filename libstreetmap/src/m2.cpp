@@ -46,7 +46,15 @@ void draw_map () {
 
 
 void draw_main_canvas (ezgl::renderer &g) {    
+    // Calculate the scale every time main canvas is drawn
+    ezgl::rectangle current_view = g.get_visible_world();
+    MAP.state.current_view_x = std::make_pair(current_view.left(), current_view.right());
+    MAP.state.current_view_y = std::make_pair(current_view.bottom(), current_view.top());
+    MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
+        (current_view.right() -current_view.left());
+    
     g.set_color(ezgl::BACKGROUND_GREY);
+    
     g.fill_rectangle(
             {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
             {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
@@ -57,12 +65,6 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_points_of_interest(g);
     draw_selected_intersection(g);
     draw_street_name(g);
-    
-    // Calculate the scale every time main canvas is drawn
-    ezgl::rectangle current_view = g.get_visible_world();
-    MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
-        (current_view.right() - current_view.left());
-    
 }
 
 
@@ -86,8 +88,8 @@ void draw_street_segments (ezgl::renderer &g) {
     
     MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
                          0, // depth of query
-                         std::make_pair(-1.00485, -1.00264), // x-range (smaller, greater)
-                         std::make_pair(0.762811, 0.764161), // y-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
                          results, // results
                          1); // zoom_level
     
