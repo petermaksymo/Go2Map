@@ -320,6 +320,17 @@ gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data){
     }
 }
 
+gboolean bikes_toggled(GtkToggleButton *toggle_button, gpointer data){
+    auto application = static_cast<ezgl::application *>(data);
+    
+    // Call the user-defined bikes toggle callback if defined
+    if(application->bikes_toggled_callback != nullptr) {
+      bool isToggled = gtk_toggle_button_get_active(toggle_button);
+
+      application->bikes_toggled_callback(application, isToggled);
+    }
+}
+
 void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
 {
     gtk_widget_destroy(GTK_WIDGET (dialog));

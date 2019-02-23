@@ -192,7 +192,8 @@ public:
       mouse_callback_fn mouse_press_user_callback,
       mouse_callback_fn mouse_move_user_callback,
       key_callback_fn key_press_user_callback,
-      checkbox_fn transit_toggled_user_callback);
+      checkbox_fn transit_toggled_user_callback,
+      checkbox_fn bikes_toggled_user_callback);
 
   /**
    * Destructor.
@@ -319,6 +320,9 @@ public:
   
   // The user-defined callback function for handling the transit checkbox
   checkbox_fn transit_toggled_callback;
+  
+  // The user-defined callback function for handling the bikes checkbox
+  checkbox_fn bikes_toggled_callback;
 };
 }
 

@@ -351,7 +351,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton">
+                      <object class="GtkCheckButton" id="BikesToggle">
                         <property name="label" translatable="yes">BikeLanes</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>

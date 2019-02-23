@@ -121,7 +121,8 @@ int application::run(setup_callback_fn initial_setup_user_callback,
     mouse_callback_fn mouse_press_user_callback,
     mouse_callback_fn mouse_move_user_callback,
     key_callback_fn key_press_user_callback,
-    checkbox_fn transit_toggled_user_callback)
+    checkbox_fn transit_toggled_user_callback,
+    checkbox_fn bikes_toggled_user_callback)
 {
   if(disable_event_loop)
     return 0;
@@ -131,6 +132,7 @@ int application::run(setup_callback_fn initial_setup_user_callback,
   mouse_move_callback = mouse_move_user_callback;
   key_press_callback = key_press_user_callback;
   transit_toggled_callback = transit_toggled_user_callback;
+  bikes_toggled_callback = bikes_toggled_user_callback;
 
   // The result of calling g_application_run() again after it returns is unspecified.
   // So we have to destruct and reconstruct the GTKApplication
@@ -193,6 +195,10 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   // Connect the transit_toggle to its callback
   GObject *transit_toggle = application->get_object("TransitToggle");
   g_signal_connect(transit_toggle, "toggled", G_CALLBACK(transit_toggled), application);
+  
+  // Connect the bikes_toggle to its callback
+  GObject *bikes_toggle = application->get_object("BikesToggle");
+  g_signal_connect(bikes_toggle, "toggled", G_CALLBACK(bikes_toggled), application);
   
   GObject *search_bar = application->get_object("SearchBar");
   g_signal_connect(search_bar, "search-changed", G_CALLBACK(gtk_search_entry_handle_event), application);

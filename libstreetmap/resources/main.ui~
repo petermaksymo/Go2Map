@@ -432,14 +432,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="testBar">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

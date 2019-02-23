@@ -48,6 +48,7 @@ struct Map_State {
     std::pair<double, double> current_view_x;
     int zoom_level;
     bool is_transit_on = false;
+    bool is_bikes_on = false;
 };
 
 struct SubwayRouteData {
