@@ -49,6 +49,7 @@ struct Map_State {
     int zoom_level; // 0: ('scale' < 4) most zoomed out, 1: ('scale' > 4 & 'scale' < 10) middle, 2: ('scale > 10) most zoomed in
     bool is_transit_on = false;
     bool is_bikes_on = false;
+    bool search_changed = false;
 };
 
 struct SubwayRouteData {

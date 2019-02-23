@@ -26,6 +26,7 @@ void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, 
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
 void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
+void show_search_result();
 
 
 void draw_map () {
@@ -367,6 +368,17 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             case GDK_KEY_Escape:    app->quit();                         break;
             default: break;
         }
+        
+        // Predict searching as user types
+        if (MAP.state.search_changed) {
+            GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
+            std::string text = gtk_entry_get_text(text_entry);
+            std::vector<unsigned> result = find_street_ids_from_partial_street_name(text);
+            for (int i = 0; i < result.size(); i++) {
+                std::cout << getStreetName(result[i]) << std::endl;
+            }
+            std::cout << std::endl;
+        }
     }
 }
 
@@ -432,6 +444,8 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
     app->refresh_drawing();
 }
 
+void show_search_result() {
+    std::cout << "Dman bro" << std::endl;
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_bikes_on = isToggled;
     
