@@ -81,7 +81,21 @@ void draw_selected_intersection (ezgl::renderer &g) {
 
 
 void draw_street_segments (ezgl::renderer &g) {    
-    for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
+    
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> results;
+    
+    MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(-1.00485, -1.00264), // x-range (smaller, greater)
+                         std::make_pair(0.762811, 0.764161), // y-range (smaller, greater)
+                         results, // results
+                         1); // zoom_level
+    
+    std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator it = results.begin();
+    
+    while(it != results.end()) {
+        int id = it->second;
+    // for (unsigned int id = 0; id < unsigned(getNumStreetSegments()); id++) {
         g.set_color(ezgl::WHITE);
         
         //load all LatLon of points into a vector for the draw_curve helper function
@@ -105,6 +119,7 @@ void draw_street_segments (ezgl::renderer &g) {
         else if (MAP.state.scale > 4 && MAP.state.scale < 10 && getInfoStreetSegment(id).speedLimit >= 50) draw_curve(g, points);
         else if (MAP.state.scale > 10) draw_curve(g, points);
         
+        it++;
     }
 }
 
