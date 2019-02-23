@@ -5,6 +5,7 @@
  */
 
 #include "map_db.h"
+#include "KD2Tree.h"
 #include "StreetsDatabaseAPI.h"
 #include <map>
 #include <boost/algorithm/string.hpp>
@@ -21,6 +22,9 @@ void load_street_segments () {
    // Resize for tiny performance benefit
     MAP.street_db.resize(getNumStreets());
     
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_0;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_1;
+    
     //Iterating through all street segments
     //Loads up street_db with all segments of a street, and calculate lengths
     for(int i = 0; i < getNumStreetSegments(); i++) {
@@ -30,7 +34,30 @@ void load_street_segments () {
         
         MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
         MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
-    } 
+        
+        // Add to/from positions to street segs vector for appropriate zoom level in KD2Tree
+        std::pair<double, double> f_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.from].position.lon()), y_from_lat(MAP.intersection_db[segment.from].position.lat()));
+        std::pair<std::pair<double, double>, unsigned int> from_pt = std::make_pair(f_point, i);
+        
+        std::pair<double, double> t_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.to].position.lon()), y_from_lat(MAP.intersection_db[segment.to].position.lat()));
+        std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
+        
+        if(segment.speedLimit >= 90) {
+            street_segs_zoom_0.push_back(from_pt);
+            street_segs_zoom_0.push_back(to_pt);
+        } else {
+            street_segs_zoom_1.push_back(from_pt);
+            street_segs_zoom_1.push_back(to_pt);
+        }
+    }
+    
+    
+    // Load both zoom levels to tree
+    MAP.street_seg_k2tree.root = MAP.street_seg_k2tree.make_tree(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), 0, street_segs_zoom_0.size(), 0);
+    MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_1.begin(), street_segs_zoom_1.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_1.size(), 1);
+    
+    street_segs_zoom_0.clear();
+    street_segs_zoom_1.clear();
 }
 
 // load extra intersection info into MAP

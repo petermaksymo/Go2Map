@@ -41,13 +41,13 @@ class KD2Tree {
                           const std::size_t &, // size of passed vector
                           const int &zoom_level);
         
-        void visualize_tree(KD2Node*, const std::size_t, const int &zoom_level);
+        void visualize_tree(KD2Node* ptr, const std::size_t depth, const int &zoom_level);
         
         void insert_pair(KD2Node*, const std::pair<std::pair<double, double>, unsigned int> &, const std::size_t &, const int &zoom_level);
         
         void insert_bulk(std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator, // begin
                          std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator, // end
-                         KD2Node*, // root
+                         KD2Node* &, // root
                          const std::size_t &, // depth of insert
                          const std::size_t &, // size of passed vector
                          const int &zoom_level); // zoom level flag

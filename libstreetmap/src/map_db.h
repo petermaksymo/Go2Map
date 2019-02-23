@@ -8,6 +8,7 @@
 
 #include "StreetsDatabaseAPI.h"
 #include <map>
+#include "KD2Tree.h"
 
 //The definition of the global MAP object
 //used as the main database
@@ -51,6 +52,7 @@ struct MapInfo {
     InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments
     WorldValues world_values;                           //values about the world (e.g. max latitude))
     Map_State state;
+    KD2Tree street_seg_k2tree;
 };
 
 

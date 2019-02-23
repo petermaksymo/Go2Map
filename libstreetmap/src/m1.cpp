@@ -52,9 +52,9 @@ bool load_map(std::string map_path) {
     load_osm_data();
     
     //Load our map related data structures here
-    load_street_segments();
-    
     load_intersections();
+    
+    load_street_segments();
 
     load_streets();
     
@@ -68,6 +68,7 @@ void close_map() {
     MAP.street_db.clear();
     
     closeOSMDatabase();
+
     closeStreetDatabase();
 }
 

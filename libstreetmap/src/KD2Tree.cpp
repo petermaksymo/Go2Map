@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-#include "KDTree.h"
+#include "KD2Tree.h"
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -66,10 +66,21 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<std::pair<double, double>, uns
                             const std::size_t &depth, // depth
                             const std::size_t &vec_size,
                             const int &zoom_level) {
-      
+    
+    // std::cout << "make_tree: " << vec_size << std::endl;
     
     // Vector passed is empty
-    if (begin == end) return NULL;
+    if (begin == end || vec_size == 0) return NULL;
+    
+    if (vec_size == 1) {
+        KD2Node* new_node = new KD2Node();
+        new_node->point = (*begin).first;
+        new_node->data_id = (*begin).second;
+        new_node->zoom_level = zoom_level;
+        new_node->left = NULL;
+        new_node->right = NULL;
+        return new_node;
+    }
     
     // sort the array by X or Y depending on depth
     if (vec_size > 1) {
@@ -115,8 +126,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<std::pair<double, double>, uns
     new_node->zoom_level = zoom_level;
     new_node->left = make_tree(begin, middle, depth + 1, l_size, zoom_level);
     new_node->right = make_tree(r_begin, end, depth + 1, r_size, zoom_level);
-    
-        
+     
     return new_node;
 }
 
@@ -147,6 +157,7 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &z
 // equal to.
 // NOTE: Does not work on empty tree
 void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<std::pair<double, double>, unsigned int> &new_pt, const std::size_t &depth, const int &zoom_level) {
+    
     if (!ptr) return;
 
     if(depthLessThan(depth, new_pt.first, ptr->point)) {
@@ -166,13 +177,16 @@ void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<std::pair<double, double
 // Makes use of insert_pair and make_tree.
 void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator begin, // begin
                           std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator end, // end
-                          KD2Node* ptr, // root
+                          KD2Node* &ptr, // root
                           const std::size_t &depth, // depth of insert
                           const std::size_t &vec_size,
                           const int &zoom_level) { // size of passed vector
     
     // Vector passed is empty
     if (begin == end) return;
+    
+    // Only happens when trying to insert on an empty tree
+    if (!ptr) return;
     
     // sort the array by X or Y depending on depth
     if (vec_size > 1) {
@@ -198,6 +212,7 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
     
     // if middle is less than, move right until middle is greater than or end()
     // if middle is greater than, move right until middle - 1 is less than point or begin()
+    
     if(depthLessThan(depth, (*middle).first, ptr->point)) {
         while(middle != end && depthLessThan(depth, (*middle).first, ptr->point)) {
             middle++;
@@ -205,20 +220,23 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
             r_size--;
         }
     } else {
-        while(middle != begin && !depthLessThan(depth, (*(middle -1)).first, ptr->point)) {
+        while (middle != begin && !depthLessThan(depth, (*(middle -1)).first, ptr->point)) {
             middle--;
             l_size--;
             r_size++;
         }
     }
     
+    
     // If there is another node, call insert bulk with that node as root,
     // otherwise make a new tree with the remainder of the points
+    
     if(ptr->left) insert_bulk(begin, middle, ptr->left, depth  + 1, l_size, zoom_level); 
     else ptr->left = make_tree(begin, middle, depth + 1, l_size, zoom_level);
     
     if(ptr->right) insert_bulk(middle, end, ptr->right, depth  + 1, r_size, zoom_level); 
     else ptr->right = make_tree(middle, end, depth + 1, r_size, zoom_level);
+
 }
 
 
