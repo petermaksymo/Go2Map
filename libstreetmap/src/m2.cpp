@@ -442,12 +442,10 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_transit_on = isToggled;
     
     app->refresh_drawing();
-}
-
-void show_search_result() {
-    std::cout << "Dman bro" << std::endl;
+}  
+    
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_bikes_on = isToggled;
-    
+  
     app->refresh_drawing();
 }
