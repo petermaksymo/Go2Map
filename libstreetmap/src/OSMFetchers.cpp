@@ -36,6 +36,8 @@ void go_through_OSM_nodes() {
             //they aren't listed in relations
             if(key == "operator" && value == "Toronto Transit Commission") {
                 add_ttc_station(node, found_ttc);
+            } else if(key == "amenity" && value == "bicycle_parking") {
+                MAP.OSM_data.bike_parking.push_back( point2d_from_LatLon(node->coords()) );
             }
         }
     }

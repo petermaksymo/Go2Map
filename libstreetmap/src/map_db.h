@@ -69,6 +69,7 @@ struct OSMData {
     std::unordered_map<OSMID, const OSMWay*> way_by_OSMID;   //hash table for search by OSMID
     std::vector<SubwayRouteData> subway_routes;
     std::vector<std::vector<ezgl::point2d>> bike_routes;
+    std::vector<ezgl::point2d> bike_parking;
 };
 
 // The main structure for the globally defined MAP

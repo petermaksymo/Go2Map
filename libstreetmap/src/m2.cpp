@@ -70,9 +70,11 @@ void draw_main_canvas (ezgl::renderer &g) {
     MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() -current_view.left());
     
-    if (MAP.state.scale < 4) MAP.state.zoom_level = 0;
-    else if (MAP.state.scale > 4 && MAP.state.scale < 10) MAP.state.zoom_level = 1;
-    else if (MAP.state.scale > 10) MAP.state.zoom_level = 2;
+    if (MAP.state.scale < 4)                               MAP.state.zoom_level = 0;
+    else if (MAP.state.scale > 4  && MAP.state.scale < 10) MAP.state.zoom_level = 1;
+    else if (MAP.state.scale > 10 && MAP.state.scale < 25) MAP.state.zoom_level = 2;
+    else if (MAP.state.scale > 25 && MAP.state.scale < 40) MAP.state.zoom_level = 3;
+    else if (MAP.state.scale > 40)                         MAP.state.zoom_level = 4;
         
     g.set_color(ezgl::BACKGROUND_GREY);
     
@@ -213,7 +215,7 @@ void draw_street_name(ezgl::renderer &g) {
         }
         points.push_back(MAP.intersection_db[getInfoStreetSegment(i).to].position);
         
-        if (MAP.state.scale > 40 && (getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>")) {
+        if (MAP.state.zoom_level > 3 && (getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>")) {
             for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
                 double x1 = x_from_lon(it_p->lon());
                 double y1 = y_from_lat(it_p->lat());
@@ -365,7 +367,7 @@ void draw_subway_data(ezgl::renderer &g){
         }
         
         //draw stations if zoomed in enough
-        if(MAP.state.zoom_level >= 2) {            
+        if(MAP.state.zoom_level > 2) {            
             for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
                 g.draw_surface(subway_png, png_draw_center_point(g, MAP.OSM_data.subway_routes[i].stations[j], 48));
             }
@@ -376,12 +378,32 @@ void draw_subway_data(ezgl::renderer &g){
 }
 
 void draw_bike_data(ezgl::renderer &g) {
-    g.set_color(ezgl::BLACK);
+    g.set_color(ezgl::BIKE_GREEN);
     g.set_line_width(1);
     
+    ezgl::surface *parking_png = g.load_png("./libstreetmap/resources/Icons/bike_parking.png");
+    
+    //draw bike paths
     for(unsigned i = 0; i < MAP.OSM_data.bike_routes.size(); i++) {
         draw_curve(g, MAP.OSM_data.bike_routes[i]);
     }
+    
+    //skip over some bike parking depending on zoom level to prevent overcrowding
+    int skip_factor;
+    switch(MAP.state.zoom_level) {
+        case 0: skip_factor = MAP.OSM_data.bike_parking.size() / 25 ; break;
+        case 1: skip_factor = MAP.OSM_data.bike_parking.size() / 100; break;
+        case 2: skip_factor = MAP.OSM_data.bike_parking.size() / 250; break;
+        case 3: skip_factor = MAP.OSM_data.bike_parking.size() / 1000; break;
+        default: skip_factor = 1;
+    }
+    if(skip_factor < 1) skip_factor = 1;
+    //draw bike parking
+    for(unsigned i = 0; i < MAP.OSM_data.bike_parking.size(); i+= skip_factor) {       
+        g.draw_surface(parking_png, png_draw_center_point(g, MAP.OSM_data.bike_parking[i], 16));
+    }
+    
+    g.free_surface(parking_png);
 }
 
 

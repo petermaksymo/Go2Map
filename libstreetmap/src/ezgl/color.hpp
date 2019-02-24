@@ -71,6 +71,7 @@ static constexpr color WATER_BLUE(117, 207, 241);
 static constexpr color PARK_GREEN(182, 229, 158);
 static constexpr color BUILDING_GREY(215, 215, 215);
 static constexpr color BEACH_YELLOW(249, 242, 200);
+static constexpr color BIKE_GREEN(5, 80, 5);
 
 //given colors
 static constexpr color WHITE(0xFF, 0xFF, 0xFF);
