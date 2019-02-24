@@ -167,9 +167,8 @@ void draw_street_segments (ezgl::renderer &g) {
                 else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
                 else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
 
-                //keep orientation of text the same
+                //keep flip one way street symbol if should be pointing left
                 if (x2 < x1) angle = angle - 180;
-                // else if (angle < -90) angle = angle - 180;
                 
                 g.set_color(ezgl::ORANGE);
 
