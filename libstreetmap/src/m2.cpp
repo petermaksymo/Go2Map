@@ -67,14 +67,20 @@ void draw_main_canvas (ezgl::renderer &g) {
     MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
     MAP.state.current_view_y_buffered = std::make_pair(current_view.bottom() - y_buffer, current_view.top() + y_buffer);
     
+    LatLon top_left(lon_from_x(current_view.left()), lat_from_y(current_view.top()));
+    LatLon top_right(lon_from_x(current_view.right()), lat_from_y(current_view.top()));
+    
+    
     MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() -current_view.left());
     
-    if (MAP.state.scale < 4)                               MAP.state.zoom_level = 0;
-    else if (MAP.state.scale > 4  && MAP.state.scale < 10) MAP.state.zoom_level = 1;
-    else if (MAP.state.scale > 10 && MAP.state.scale < 25) MAP.state.zoom_level = 2;
-    else if (MAP.state.scale > 25 && MAP.state.scale < 40) MAP.state.zoom_level = 3;
-    else if (MAP.state.scale > 40)                         MAP.state.zoom_level = 4;
+    MAP.state.current_width = find_distance_between_two_points(top_left, top_right);
+    
+    if (MAP.state.current_width >= 25000)       MAP.state.zoom_level = 0;
+    else if (MAP.state.current_width  >= 7500)  MAP.state.zoom_level = 1;
+    else if (MAP.state.current_width >= 3000)   MAP.state.zoom_level = 2;
+    else if (MAP.state.current_width >= 2000)   MAP.state.zoom_level = 3;
+    else                                        MAP.state.zoom_level = 4;
         
     g.set_color(ezgl::BACKGROUND_GREY);
     
@@ -141,7 +147,7 @@ void draw_street_segments (ezgl::renderer &g) {
         points.push_back(MAP.intersection_db[getInfoStreetSegment(id).to].position);
         
         //set width before drawing
-        if (MAP.state.scale > 40) {
+        if (MAP.state.zoom_level >= 3) {
             g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 10);
         } else {
             g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
@@ -155,7 +161,7 @@ void draw_street_segments (ezgl::renderer &g) {
         draw_curve(g, points);
         
         // draw one way symbols on curve points
-        if (getInfoStreetSegment(id).oneWay) {
+        if (getInfoStreetSegment(id).oneWay && MAP.state.zoom_level >= 4) {
             for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
                 double x1 = x_from_lon(it_p->lon());
                 double y1 = y_from_lat(it_p->lat());
@@ -174,10 +180,8 @@ void draw_street_segments (ezgl::renderer &g) {
 
                 ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
 
-                if (MAP.state.scale > 40) {
-                    g.set_text_rotation(angle);
-                    g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
-                }
+                g.set_text_rotation(angle);
+                g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
             }
         }
     }
@@ -214,7 +218,7 @@ void draw_street_name(ezgl::renderer &g) {
         }
         points.push_back(MAP.intersection_db[getInfoStreetSegment(i).to].position);
         
-        if (MAP.state.zoom_level > 3 && (getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>")) {
+        if (MAP.state.zoom_level >= 3 && (getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>")) {
             for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
                 double x1 = x_from_lon(it_p->lon());
                 double y1 = y_from_lat(it_p->lat());
@@ -249,26 +253,27 @@ void draw_street_name(ezgl::renderer &g) {
 void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
-    
-    MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
-                         0, // depth of query
-                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
-                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
-                         result_points, // results
-                         result_ids,
-                         MAP.state.zoom_level); // zoom_level
-    
-    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+    if(MAP.state.zoom_level >= 2) {
+        MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
+                             0, // depth of query
+                             std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                             std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
+                             result_points, // results
+                             result_ids,
+                             MAP.state.zoom_level); // zoom_level
 
-        int i = it->first;
-        
-        double x = x_from_lon(getPointOfInterestPosition(i).lon());
-        double y = y_from_lat(getPointOfInterestPosition(i).lat());
-        
-        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
-        
-        g.set_color(ezgl::RED);       
-        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+
+            int i = it->first;
+
+            double x = x_from_lon(getPointOfInterestPosition(i).lon());
+            double y = y_from_lat(getPointOfInterestPosition(i).lat());
+
+            float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
+
+            g.set_color(ezgl::RED);       
+            g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        }
     }
     
     result_ids.clear();
@@ -366,7 +371,7 @@ void draw_subway_data(ezgl::renderer &g){
         }
         
         //draw stations if zoomed in enough
-        if(MAP.state.zoom_level > 2) {            
+        if(MAP.state.zoom_level >= 2) {            
             for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
                 g.draw_surface(subway_png, png_draw_center_point(g, MAP.OSM_data.subway_routes[i].stations[j], 48));
             }
