@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "constants.hpp"
 
 void draw_main_canvas (ezgl::renderer &g);
 void draw_selected_intersection (ezgl::renderer &g);
@@ -27,6 +28,7 @@ void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, 
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
 void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
+void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 void show_search_result();
 
 
@@ -48,7 +50,8 @@ void draw_map () {
     
     application.run(nullptr, act_on_mouse_click, 
                     act_on_mouse_move, act_on_key_press,
-                    act_on_transit_toggle, act_on_bikes_toggle);
+                    act_on_transit_toggle, act_on_bikes_toggle,
+                    act_on_suggested_clicked);
 }
 
 
@@ -397,9 +400,10 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             ss >> entry2;
             if (entry2 == "@") ss >> entry1;
             std::vector<unsigned> result = find_street_ids_from_partial_street_name(entry1);
-            int num_result_shown = 5;
+            
+            int num_result_shown = MAX_SUGGESTIONS;
             // Limit search results shown
-            if (result.size() < num_result_shown) num_result_shown = result.size();
+            if (result.size() < MAX_SUGGESTIONS) num_result_shown = result.size();
             
             if (num_result_shown != 0) { 
                 std::cout<< std::endl;
@@ -511,4 +515,9 @@ void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_bikes_on = isToggled;
   
     app->refresh_drawing();
+}
+
+void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
+    GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
+    gtk_entry_set_text(text_entry, suggestion.c_str());
 }

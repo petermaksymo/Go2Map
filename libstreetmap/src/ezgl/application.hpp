@@ -51,6 +51,10 @@ using key_callback_fn = void (*)(application *app, GdkEventKey *event, char *key
 using checkbox_fn = void (*)(application *app, bool isToggled);
 
 /**
+ * The signature of a user-defined callback function for selected suggestion
+ */
+using suggestion_fn = void (*)(application *app, std::string suggestion);
+/**
  * The core application.
  *
  * The GUI of an application is created from an XML file. Widgets created in the XML file can be retrieved from an
@@ -193,7 +197,8 @@ public:
       mouse_callback_fn mouse_move_user_callback,
       key_callback_fn key_press_user_callback,
       checkbox_fn transit_toggled_user_callback,
-      checkbox_fn bikes_toggled_user_callback);
+      checkbox_fn bikes_toggled_user_callback,
+      suggestion_fn search_suggestion_user_callback);
 
   /**
    * Destructor.
@@ -323,6 +328,9 @@ public:
   
   // The user-defined callback function for handling the bikes checkbox
   checkbox_fn bikes_toggled_callback;
+  
+  //the user-defined callback function for handline when a search suggestion is clicked
+  suggestion_fn search_suggestion_callback;
 };
 }
 

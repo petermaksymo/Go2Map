@@ -170,6 +170,9 @@ gboolean bikes_toggled(GtkToggleButton *toggle_button, gpointer data);
 
 // Callback function for search bar
 gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event);
+
+//Callback function for each search suggestion
+gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data);
 }
 
 #endif //EZGL_CALLBACK_HPP

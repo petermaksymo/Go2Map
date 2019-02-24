@@ -119,7 +119,7 @@ void add_ttc_station(const OSMNode* node, bool &found_ttc) {
         std::string key2, value2;
         std::tie(key2, value2) = getTagPair(node, j);
 
-        if(key2 == "next_train") {
+        if(key2 == "railway" && value2 == "station") {
             if(!found_ttc) {
                 SubwayRouteData placeholder;
                 MAP.OSM_data.subway_routes.push_back(placeholder);

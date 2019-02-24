@@ -1,4 +1,5 @@
 #include "ezgl/application.hpp"
+#include "../constants.hpp"
 
 // A flag to disable event loop (default is false)
 bool disable_event_loop = false;
@@ -122,7 +123,8 @@ int application::run(setup_callback_fn initial_setup_user_callback,
     mouse_callback_fn mouse_move_user_callback,
     key_callback_fn key_press_user_callback,
     checkbox_fn transit_toggled_user_callback,
-    checkbox_fn bikes_toggled_user_callback)
+    checkbox_fn bikes_toggled_user_callback,
+    suggestion_fn search_suggestion_user_callback)
 {
   if(disable_event_loop)
     return 0;
@@ -132,7 +134,8 @@ int application::run(setup_callback_fn initial_setup_user_callback,
   mouse_move_callback = mouse_move_user_callback;
   key_press_callback = key_press_user_callback;
   transit_toggled_callback = transit_toggled_user_callback;
-  bikes_toggled_callback = bikes_toggled_user_callback;
+  bikes_toggled_callback = bikes_toggled_user_callback,
+  search_suggestion_callback = search_suggestion_user_callback;
 
   // The result of calling g_application_run() again after it returns is unspecified.
   // So we have to destruct and reconstruct the GTKApplication
@@ -202,6 +205,15 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   
   GObject *search_bar = application->get_object("SearchBar");
   g_signal_connect(search_bar, "search-changed", G_CALLBACK(search_entry_handle_event), application);
+  
+  //Loop through suggestions to connect each, can use the same callback function
+  for(int i = 0; i < MAX_SUGGESTIONS; i ++) {
+    std::string menu_item_id = "suggestion";
+    menu_item_id += std::to_string(i);
+
+    GObject *suggestion = application->get_object(menu_item_id.c_str());
+    g_signal_connect(suggestion, "activate", G_CALLBACK(handle_search_suggestion), application);
+  }
   
 }
 

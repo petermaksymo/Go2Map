@@ -341,5 +341,14 @@ gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
     MAP.state.search_changed = true;
 }
 
+gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data) {
+    auto application = static_cast<ezgl::application *>(data);
+    
+    if(application->search_suggestion_callback != nullptr) {
+        std::string suggestion = gtk_menu_item_get_label(menu_item);
+    
+        application->search_suggestion_callback(application, suggestion);
+    }
 }
 
+}
