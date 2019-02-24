@@ -29,3 +29,6 @@ ezgl::point2d point2d_from_LatLon (LatLon point);
 //Pre-compute length of street 
 double street_segment_length_helper(unsigned street_segment_id);
 
+// calculate length between two points
+double distance_from_points(double x1, double y1, double x2, double y2);
+

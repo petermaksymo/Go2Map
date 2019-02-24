@@ -172,12 +172,11 @@ void draw_street_name(ezgl::renderer &g) {
         else if (angle < -90) angle = angle + 180;
         
         g.set_color(ezgl::BLACK);
-        ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
-        
+        ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
         //std::cout << MAP.state.scale << std::endl;
         if (MAP.state.scale > 40 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
             g.set_text_rotation(angle);
-            g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
+            g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID), distance_from_points(x1, y1, x2, y2), 100);
         }
     }
 }
