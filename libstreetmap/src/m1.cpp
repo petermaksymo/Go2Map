@@ -68,10 +68,11 @@ void load_streets_data(std::string map_path, bool &success) {
 
     //spool up threads for loading
     std::thread sub1(load_streets_and_intersections);
+    sub1.join();
+
     std::thread sub2(load_points_of_interest);
     std::thread sub3(load_features);
     
-    sub1.join();
     sub2.join();
     sub3.join();
     

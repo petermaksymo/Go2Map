@@ -123,6 +123,7 @@ void load_points_of_interest () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> poi_zoom_2;
     
     for (unsigned int i = 0; i < unsigned(getNumPointsOfInterest()); i++) {
+        
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
         double y = y_from_lat(getPointOfInterestPosition(i).lat());
         
@@ -132,6 +133,8 @@ void load_points_of_interest () {
     }
     
     MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_2.begin(), poi_zoom_2.end(), 0, poi_zoom_2.size(), 2);
+    
+    poi_zoom_2.clear();
 }
 
 void load_features () {
@@ -149,4 +152,6 @@ void load_features () {
     }
     
     MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_0.begin(), feature_zoom_0.end(), 0, feature_zoom_0.size(), 0);
+    
+    feature_zoom_0.clear();
 }

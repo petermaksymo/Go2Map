@@ -63,7 +63,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     if (MAP.state.scale < 4) MAP.state.zoom_level = 0;
     else if (MAP.state.scale > 4 && MAP.state.scale < 10) MAP.state.zoom_level = 1;
     else if (MAP.state.scale > 10) MAP.state.zoom_level = 2;
-    
+        
     g.set_color(ezgl::BACKGROUND_GREY);
     
     g.fill_rectangle(
@@ -138,6 +138,9 @@ void draw_street_segments (ezgl::renderer &g) {
         
         draw_curve(g, points);
     }
+    
+    result_ids.clear();
+    result_points.clear();
 }
 
 void draw_street_name(ezgl::renderer &g) {
@@ -179,6 +182,9 @@ void draw_street_name(ezgl::renderer &g) {
             g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID), distance_from_points(x1, y1, x2, y2), 100);
         }
     }
+    
+    result_ids.clear();
+    result_points.clear();
 }
 
 void draw_points_of_interest (ezgl::renderer &g) {
@@ -205,6 +211,9 @@ void draw_points_of_interest (ezgl::renderer &g) {
         g.set_color(ezgl::RED);       
         g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
     }
+    
+    result_ids.clear();
+    result_points.clear();
 }
 
 
@@ -262,7 +271,10 @@ void draw_features (ezgl::renderer &g) {
             }
             draw_curve(g, points);
         }
-    }  
+    }
+    
+    result_ids.clear();
+    result_points.clear();
 }
 
 
