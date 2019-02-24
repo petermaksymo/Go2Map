@@ -469,8 +469,11 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             std::string entry1, entry2;
             ss >> entry1;
             ss >> entry2;
+            std::cout << entry1 << " " << entry2 << std::endl;
+            while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
             if (entry2 == "@") ss >> entry1;
-            std::vector<unsigned> result = find_street_ids_from_partial_street_name(entry1);
+            std::vector<unsigned> result;
+            if (!entry1.empty()) result = find_street_ids_from_partial_street_name(entry1);
             
             int num_result_shown = MAX_SUGGESTIONS;
             // Limit search results shown
@@ -590,5 +593,6 @@ void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
 
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
+    suggestion = suggestion + " @ ";
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
