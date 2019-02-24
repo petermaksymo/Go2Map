@@ -20,6 +20,7 @@
  */
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #include "map_db.h"
 #include "m1.h"

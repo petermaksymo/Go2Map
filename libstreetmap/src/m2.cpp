@@ -161,23 +161,23 @@ void draw_street_name(ezgl::renderer &g) {
         double y1 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).from].position.lat());
         double x2 = x_from_lon(MAP.intersection_db[getInfoStreetSegment(i).to].position.lon());
         double y2 = y_from_lat(MAP.intersection_db[getInfoStreetSegment(i).to].position.lat());
+
         double angle;
-        angle = (tan((fabs(y2-y1)/fabs(x2-x1)) ) )/ DEG_TO_RAD;
-        if ((y2 > y1 && x2 > x1) || (y1 > y2 && x1 > x2)) angle = angle;
-        else if ((y2 > y1 && x1 > x2) || (y1 > y2 && x1 < x2)) angle = 0;     
-          
-     
+        if(x2 == x1 && y2 > y1) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
+        else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
+        else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
         
         //keep orientation of text the same
-        //angle = (y2-y1)/(x2-x1) > 0 ? angle : -angle;
+        if (angle > 90) angle = angle - 180;
+        else if (angle < -90) angle = angle + 180;
         
         g.set_color(ezgl::BLACK);
         ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);     
         
         //std::cout << MAP.state.scale << std::endl;
         if (MAP.state.scale > 40 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
-            g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
             g.set_text_rotation(angle);
+            g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID));
         }
     }
 }
