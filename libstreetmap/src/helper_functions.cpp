@@ -7,6 +7,7 @@
 #include "math.h"
 #include <algorithm>
 #include <ezgl/point.hpp>
+#include "ezgl/graphics.hpp"
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec) {
@@ -80,4 +81,12 @@ double street_segment_length_helper(unsigned street_segment_id) {
 
 double distance_from_points(double x1, double y1, double x2, double y2) {
     return sqrt(pow((x2-x1), 2) + pow((y2-y1), 2));
+}
+
+ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, int png_size) {
+    ezgl::point2d png_adjust = g.get_camera()->get_world_scale_factor();
+    png_adjust.x = png_adjust.x * -png_size/2;
+    png_adjust.y = png_adjust.y * png_size/2;
+    
+    return(original + png_adjust);
 }

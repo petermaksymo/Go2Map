@@ -400,6 +400,9 @@ public:
    * @param surface The surface to destroy
    */
   static void free_surface(surface *surface);
+  
+  //accessor for camera
+  camera* get_camera() {return m_camera ;}
 
   /**
    * Destructor.

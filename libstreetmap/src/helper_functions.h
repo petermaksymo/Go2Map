@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <ezgl/point.hpp>
+#include "ezgl/graphics.hpp"
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec);
@@ -32,3 +33,5 @@ double street_segment_length_helper(unsigned street_segment_id);
 // calculate length between two points
 double distance_from_points(double x1, double y1, double x2, double y2);
 
+//returns a point to draw the png with
+ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, int png_size);

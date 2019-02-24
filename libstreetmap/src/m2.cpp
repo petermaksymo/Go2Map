@@ -365,11 +365,9 @@ void draw_subway_data(ezgl::renderer &g){
         }
         
         //draw stations if zoomed in enough
-        if(MAP.state.zoom_level >= 2) {
-            double adjust_factor((x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/(20*MAP.state.scale));
-            ezgl::point2d png_adjust(-0.8*adjust_factor, adjust_factor);
+        if(MAP.state.zoom_level >= 2) {            
             for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
-                g.draw_surface(subway_png, MAP.OSM_data.subway_routes[i].stations[j] + png_adjust);
+                g.draw_surface(subway_png, png_draw_center_point(g, MAP.OSM_data.subway_routes[i].stations[j], 48));
             }
         }
     }
