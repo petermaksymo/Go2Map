@@ -60,6 +60,12 @@ void draw_main_canvas (ezgl::renderer &g) {
     ezgl::rectangle current_view = g.get_visible_world();
     MAP.state.current_view_x = std::make_pair(current_view.left(), current_view.right());
     MAP.state.current_view_y = std::make_pair(current_view.bottom(), current_view.top());
+    
+    double x_buffer = (current_view.right() - current_view.left()) * 0.2;
+    double y_buffer = (current_view.top() - current_view.bottom()) * 0.2;
+    MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
+    MAP.state.current_view_y_buffered = std::make_pair(current_view.bottom() - y_buffer, current_view.top() + y_buffer);
+    
     MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() -current_view.left());
     
@@ -109,8 +115,8 @@ void draw_street_segments (ezgl::renderer &g) {
     
     MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
                          0, // depth of query
-                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
-                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level); // zoom_level
@@ -153,8 +159,8 @@ void draw_street_name(ezgl::renderer &g) {
     
     MAP.street_seg_k2tree.range_query(MAP.street_seg_k2tree.root, // root
                          0, // depth of query
-                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
-                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level); // zoom_level
@@ -196,8 +202,8 @@ void draw_points_of_interest (ezgl::renderer &g) {
     
     MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
                          0, // depth of query
-                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
-                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level); // zoom_level
@@ -226,8 +232,8 @@ void draw_features (ezgl::renderer &g) {
     
     MAP.feature_k2tree.range_query(MAP.feature_k2tree.root, // root
                          0, // depth of query
-                         std::make_pair(MAP.state.current_view_x.first, MAP.state.current_view_x.second), // x-range (smaller, greater)
-                         std::make_pair(MAP.state.current_view_y.first, MAP.state.current_view_y.second), // y-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level); // zoom_level

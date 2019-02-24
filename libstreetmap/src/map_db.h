@@ -46,6 +46,8 @@ struct Map_State {
     std::vector<unsigned> intersection_search_result;
     std::pair<double, double> current_view_y;
     std::pair<double, double> current_view_x;
+    std::pair<double, double> current_view_y_buffered;
+    std::pair<double, double> current_view_x_buffered;
     int zoom_level; // 0: ('scale' < 4) most zoomed out, 1: ('scale' > 4 & 'scale' < 10) middle, 2: ('scale > 10) most zoomed in
     std::string search_word;
     int search_index = 0;
