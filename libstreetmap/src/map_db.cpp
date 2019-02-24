@@ -36,17 +36,27 @@ void load_street_segments () {
         MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
         MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
         
-        // Add to/from positions to street segs vector for appropriate zoom level in KD2Tree
+        //  Calculate length of street and average speed limit
+        MAP.street_db[segment.streetID].length += MAP.LocalStreetSegments.street_segment_length[i];
+        MAP.street_db[segment.streetID].average_speed = (MAP.street_db[segment.streetID].average_speed*MAP.street_db[segment.streetID].segments.size()
+                                                        +MAP.LocalStreetSegments.street_segment_speed_limit[i])/(MAP.street_db[segment.streetID].segments.size() + 1);
+        
+    }
+    
+    // Add to/from positions to street segs vector for appropriate zoom level in KD2Tree
+    for(int i = 0; i < getNumStreetSegments(); i++) {    
+        InfoStreetSegment segment = getInfoStreetSegment(i);
+        
         std::pair<double, double> f_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.from].position.lon()), y_from_lat(MAP.intersection_db[segment.from].position.lat()));
         std::pair<std::pair<double, double>, unsigned int> from_pt = std::make_pair(f_point, i);
         
         std::pair<double, double> t_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.to].position.lon()), y_from_lat(MAP.intersection_db[segment.to].position.lat()));
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
-        if(segment.speedLimit >= 60) {
+        if(MAP.street_db[segment.streetID].average_speed >= 60 || (MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000)) {
             street_segs_zoom_0.push_back(from_pt);
             street_segs_zoom_0.push_back(to_pt);
-        } else if(segment.speedLimit >= 50) {
+        } else if(MAP.street_db[segment.streetID].average_speed >= 30 && (MAP.street_db[segment.streetID].length > 200 && MAP.street_db[segment.streetID].length < 100000) || (MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000)) {
             street_segs_zoom_1.push_back(from_pt);
             street_segs_zoom_1.push_back(to_pt);
         } else {
@@ -54,7 +64,6 @@ void load_street_segments () {
             street_segs_zoom_2.push_back(to_pt);
         }
     }
-    
     
     // Load both zoom levels to tree
     MAP.street_seg_k2tree.root = MAP.street_seg_k2tree.make_tree(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), 0, street_segs_zoom_0.size(), 0);
@@ -139,6 +148,7 @@ void load_points_of_interest () {
 
 void load_features () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_0;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_2;
     
     for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
         for (int j = 0; j < getFeaturePointCount(i); j++) {
@@ -147,11 +157,20 @@ void load_features () {
             
             std::pair<std::pair<double, double>, unsigned int> point = std::make_pair(std::make_pair(x, y), i);
             
-            feature_zoom_0.push_back(point);
+            // Differentiate zoom level for features
+            FeatureType feature_type = getFeatureType(i);
+            switch(feature_type) {
+                case Beach: feature_zoom_2.push_back(point); break;
+                case Building: feature_zoom_2.push_back(point); break;
+                case Stream: feature_zoom_2.push_back(point); break;
+                default: feature_zoom_0.push_back(point); break;
+            }
         }
     }
     
     MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_0.begin(), feature_zoom_0.end(), 0, feature_zoom_0.size(), 0);
+    MAP.feature_k2tree.insert_bulk(feature_zoom_2.begin(), feature_zoom_2.end(), MAP.feature_k2tree.root, 0, feature_zoom_2.size(), 2);
     
+    feature_zoom_0.clear();
     feature_zoom_0.clear();
 }

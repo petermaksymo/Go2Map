@@ -25,6 +25,8 @@ struct InfoIntersections {
 struct InfoStreets {
     std::vector<unsigned> segments;
     std::vector<unsigned> intersections;
+    double length;
+    double average_speed;
 };
 
 struct InfoStreetSegmentsLocal {
