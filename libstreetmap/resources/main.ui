@@ -7,7 +7,42 @@
     <property name="width_request">160</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="menu_type_hint">dropdown-menu</property>
+    <property name="menu_type_hint">menu</property>
+    <child>
+      <object class="GtkMenuItem" id="suggestion0">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="suggestion1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="suggestion2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="suggestion3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="suggestion4">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
   </object>
   <object class="GtkEntryBuffer" id="entrybuffer1"/>
   <object class="GtkEntryCompletion" id="entrycompletion1">
@@ -31,6 +66,7 @@
               <object class="GtkDrawingArea" id="MainCanvas">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="events">GDK_STRUCTURE_MASK | GDK_SMOOTH_SCROLL_MASK</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
               </object>

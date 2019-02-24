@@ -7,7 +7,47 @@
     <property name="width_request">160</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="menu_type_hint">dropdown-menu</property>
+    <property name="menu_type_hint">menu</property>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">__glade_unnamed_9</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">__glade_unnamed_10</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">__glade_unnamed_11</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">__glade_unnamed_12</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">__glade_unnamed_13</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
   </object>
   <object class="GtkEntryBuffer" id="entrybuffer1"/>
   <object class="GtkEntryCompletion" id="entrycompletion1">
@@ -31,6 +71,7 @@
               <object class="GtkDrawingArea" id="MainCanvas">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="events">GDK_STRUCTURE_MASK | GDK_SMOOTH_SCROLL_MASK</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
               </object>
@@ -374,8 +415,6 @@
                 <property name="width_request">150</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="is_focus">True</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="margin_left">25</property>

@@ -400,19 +400,31 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             int num_result_shown = 5;
             // Limit search results shown
             if (result.size() < num_result_shown) num_result_shown = result.size();
-            for (int i = 0; i < num_result_shown; i++) {
-                std::cout << getStreetName(result[i]) << std::endl;
+            
+            if (num_result_shown != 0) { 
+                std::cout<< std::endl;
+                
+                //loads the popup menu
+                GtkMenu *popup = (GtkMenu *)app->get_object("SearchPopUp");
+                GtkWidget *search_bar = (GtkWidget *)app->get_object("SearchBar");
+
+                //creates the popup menu under the search bar
+                gtk_menu_popup_at_widget(popup, search_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
+                
+                //populate the menu with suggestions
+                for (int i = 0; i < num_result_shown; i++) {
+                    std::cout << getStreetName(result[i]) << std::endl;
+
+                    std::string menu_item_id = "suggestion";
+                    menu_item_id += std::to_string(i);
+                    
+                    GtkWidget *suggestion = (GtkWidget *)app->get_object(menu_item_id.c_str());
+                    
+                    gtk_menu_item_set_label((GtkMenuItem *)suggestion, getStreetName(result[i]).c_str());
+                }
+
+                gtk_entry_grab_focus_without_selecting(text_entry);
             }
-            if (num_result_shown != 0) std::cout << std::endl;
-            
-            //loads the popup menu
-            GtkMenu *popup = (GtkMenu *)app->get_object("SearchPopUp");
-            GtkWidget *search_bar = (GtkWidget *)app->get_object("SearchBar");
-            
-            //creates the popup menu under the search bar
-            gtk_menu_popup_at_widget(popup, search_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
-            
-            gtk_entry_grab_focus_without_selecting(text_entry);
         }
     }
 }
