@@ -201,7 +201,7 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   g_signal_connect(bikes_toggle, "toggled", G_CALLBACK(bikes_toggled), application);
   
   GObject *search_bar = application->get_object("SearchBar");
-  g_signal_connect(search_bar, "search-changed", G_CALLBACK(gtk_search_entry_handle_event), application);
+  g_signal_connect(search_bar, "search-changed", G_CALLBACK(search_entry_handle_event), application);
   
 }
 

@@ -337,7 +337,7 @@ void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
     gtk_widget_destroy(GTK_WIDGET (dialog));
 }
 
-gboolean gtk_search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
+gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
     MAP.state.search_changed = true;
 }
 
