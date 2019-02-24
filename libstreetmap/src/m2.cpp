@@ -240,7 +240,7 @@ void draw_features (ezgl::renderer &g) {
                          MAP.state.zoom_level);
     
     // fix for very viewing inside very large features
-    if (result_ids.size() < 5) {
+    if (result_ids.size() < 1) {
         
         result_ids.clear();
         result_points.clear();
