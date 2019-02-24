@@ -185,7 +185,20 @@ void draw_street_name(ezgl::renderer &g) {
         else if (angle < -90) angle = angle + 180;
         
         g.set_color(ezgl::BLACK);
-        ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
+        //
+        double mid_x, mid_y;
+        if(getInfoStreetSegment(i).curvePointCount > 2) {
+            int middle_index = getInfoStreetSegment(i).curvePointCount / 2;
+            ezgl::point2d mid = point2d_from_LatLon(getStreetSegmentCurvePoint(middle_index, i));
+            mid_x = mid.x;
+            mid_y = mid.y;
+        } else {
+            mid_x = (x2 + x1) / 2.0;
+            mid_y = (y2 + y1) / 2.0;
+        }
+        
+        ezgl::point2d mid(mid_x, mid_y);
+        
         //std::cout << MAP.state.scale << std::endl;
         if (MAP.state.scale > 40 && getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>") {
             g.set_text_rotation(angle);
