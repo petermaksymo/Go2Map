@@ -60,7 +60,8 @@ void draw_main_canvas (ezgl::renderer &g) {
     ezgl::rectangle current_view = g.get_visible_world();
     MAP.state.current_view_x = std::make_pair(current_view.left(), current_view.right());
     MAP.state.current_view_y = std::make_pair(current_view.bottom(), current_view.top());
-    
+ 
+    // Used for map range queries to avoid corners being cut off
     double x_buffer = (current_view.right() - current_view.left()) * 0.2;
     double y_buffer = (current_view.top() - current_view.bottom()) * 0.2;
     MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
@@ -236,7 +237,23 @@ void draw_features (ezgl::renderer &g) {
                          std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
+                         MAP.state.zoom_level);
+    
+    // fix for very viewing inside very large features
+    if (result_ids.size() < 5) {
+        
+        result_ids.clear();
+        result_points.clear();
+
+        MAP.feature_k2tree.range_query(MAP.feature_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(x_from_lon(MAP.world_values.min_lon), x_from_lon(MAP.world_values.max_lon)), // x-range (smaller, greater)
+                         std::make_pair( y_from_lat(MAP.world_values.min_lat), y_from_lat(MAP.world_values.max_lat)), // y-range (smaller, greater)
+                         result_points, // results
+                         result_ids,
                          MAP.state.zoom_level); // zoom_level
+        
+    }
     
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
