@@ -139,7 +139,11 @@ void draw_street_segments (ezgl::renderer &g) {
         points.push_back(MAP.intersection_db[getInfoStreetSegment(id).to].position);
         
         //set width before drawing
-        g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
+        if (MAP.state.scale > 40) {
+            g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 10);
+        } else {
+            g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
+        }
         
         //make highways orange
         if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 80) {
@@ -147,6 +151,30 @@ void draw_street_segments (ezgl::renderer &g) {
         }
         
         draw_curve(g, points);
+        
+        // draw one way symbols on curve points
+        for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
+            double x1 = x_from_lon(it_p->lon());
+            double y1 = y_from_lat(it_p->lat());
+            double x2 = x_from_lon((it_p + 1)->lon());
+            double y2 = y_from_lat((it_p + 1)->lat());
+            
+            double angle;
+            if(x2 == x1 && y2 > y1) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
+            else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
+            else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
+            
+            g.set_color(ezgl::ORANGE);
+            
+            ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
+            
+            if (MAP.state.scale > 40) {
+                g.set_text_rotation(angle);
+                g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
+            }
+            
+        }
+        
     }
     
     result_ids.clear();
@@ -185,7 +213,8 @@ void draw_street_name(ezgl::renderer &g) {
         else if (angle < -90) angle = angle + 180;
         
         g.set_color(ezgl::BLACK);
-        //
+        
+        // Set middle of text, accounting for potential curve points
         double mid_x, mid_y;
         if(getInfoStreetSegment(i).curvePointCount > 2) {
             int middle_index = getInfoStreetSegment(i).curvePointCount / 2;
