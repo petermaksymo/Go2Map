@@ -153,28 +153,32 @@ void draw_street_segments (ezgl::renderer &g) {
         draw_curve(g, points);
         
         // draw one way symbols on curve points
-        for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
-            double x1 = x_from_lon(it_p->lon());
-            double y1 = y_from_lat(it_p->lat());
-            double x2 = x_from_lon((it_p + 1)->lon());
-            double y2 = y_from_lat((it_p + 1)->lat());
-            
-            double angle;
-            if(x2 == x1 && y2 > y1) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
-            else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
-            else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
-            
-            g.set_color(ezgl::ORANGE);
-            
-            ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
-            
-            if (MAP.state.scale > 40) {
-                g.set_text_rotation(angle);
-                g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
+        if (getInfoStreetSegment(id).oneWay) {
+            for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
+                double x1 = x_from_lon(it_p->lon());
+                double y1 = y_from_lat(it_p->lat());
+                double x2 = x_from_lon((it_p + 1)->lon());
+                double y2 = y_from_lat((it_p + 1)->lat());
+
+                double angle;
+                if(x2 == x1 && y2 > y1) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
+                else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
+                else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
+
+                //keep orientation of text the same
+                if (x2 < x1) angle = angle - 180;
+                // else if (angle < -90) angle = angle - 180;
+                
+                g.set_color(ezgl::ORANGE);
+
+                ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
+
+                if (MAP.state.scale > 40) {
+                    g.set_text_rotation(angle);
+                    g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
+                }
             }
-            
         }
-        
     }
     
     result_ids.clear();
