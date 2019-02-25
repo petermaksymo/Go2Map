@@ -272,13 +272,16 @@ void draw_points_of_interest (ezgl::renderer &g) {
         
         float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
         
+        // Reduce size of red dot as user zooms in to reduce clutter
         if (MAP.state.scale > 70) radius /= 2;
         if (MAP.state.scale > 130) radius /= 2;
         if (MAP.state.scale > 260) radius /= 2;
         
+        // Draw the red dot representing POI
         g.set_color(ezgl::RED);   
         g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
         
+        // Display text differently at different scale level
         if (MAP.state.scale > 130 && (i % 3  == 0)) {
             g.set_color(ezgl::SADDLE_BROWN);
             g.set_text_rotation(0);
@@ -292,8 +295,8 @@ void draw_points_of_interest (ezgl::renderer &g) {
         }
     }
     
-    result_ids.clear();
-    result_points.clear();
+        result_ids.clear();
+        result_points.clear();
        }
     }
 
