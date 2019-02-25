@@ -32,8 +32,8 @@ KD2Node::KD2Node(const std::pair<double, double> &pt, unsigned int data_id_, KD2
 
 
 KD2Node::~KD2Node() {
-    delete left;
-    delete right;
+    if(left != nullptr) delete left;
+    if(right != nullptr) delete right;
 }
 
 
@@ -54,7 +54,7 @@ KD2Tree::KD2Tree(std::vector<std::pair<std::pair<double, double>, unsigned int>>
 
 
 KD2Tree::~KD2Tree() {
-    delete root;
+    if(root != nullptr) delete root;
 }
 
 

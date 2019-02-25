@@ -53,14 +53,7 @@ bool load_map(std::string map_path) {
 
 
 void close_map() {
-    MAP.street_name_id_map.clear();
-    MAP.intersection_db.clear();
-    MAP.street_db.clear();
-    MAP.OSM_data.subway_routes.clear();
-    MAP.OSM_data.bike_parking.clear();
-    MAP.OSM_data.bike_routes.clear();
-    MAP.OSM_data.node_by_OSMID.clear();
-    MAP.OSM_data.way_by_OSMID.clear();
+    clear_map_data();
     
     closeOSMDatabase();
 
@@ -71,15 +64,14 @@ void close_map() {
 void load_streets_data(std::string map_path, bool &success) {
     success = loadStreetsDatabaseBIN(map_path);
 
-    //spool up threads for loading
-    std::thread sub1(load_streets_and_intersections);
-    sub1.join();
-
-    std::thread sub2(load_points_of_interest);
-    std::thread sub3(load_features);
+    load_streets_and_intersections();
     
+    //spool up threads for loading
+    std::thread sub1(load_points_of_interest);
+    std::thread sub2(load_features);
+    
+    sub1.join();
     sub2.join();
-    sub3.join();
     
     return;
 }

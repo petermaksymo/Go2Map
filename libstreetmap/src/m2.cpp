@@ -655,7 +655,8 @@ void close_dialog(ezgl::application *app) {
       
     while(!is_valid_command) {
         std::cout << "If you would like to re-load a different map, type: \"reload\"\n"
-                  << "If you are done, type: \"done\"\n";
+                  << "If you are done, type: \"done\"\n"
+                  << "If this was accidental, type: \"back\"\n";
         std::cin >> command;
 
         if(command == "done") {
@@ -704,11 +705,8 @@ void close_dialog(ezgl::application *app) {
                     }
                 }
             }
-
-        } else {
-            std::cout << "Invalid input, please try again...\n";
+        } else if(command == "back") {
+            is_valid_command = true;
         }
     }
-    
-    std::cout << "exiting function";
 }

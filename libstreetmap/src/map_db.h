@@ -103,3 +103,6 @@ void load_streets ();
 void load_points_of_interest ();
 
 void load_features ();
+
+//clears all data for reloading maps
+void clear_map_data();

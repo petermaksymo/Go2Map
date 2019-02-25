@@ -175,3 +175,30 @@ void load_features () {
     feature_zoom_0.clear();
     feature_zoom_0.clear();
 }
+
+void clear_map_data() {
+    MAP.intersection_db.clear();
+    
+    MAP.street_db.clear();
+    
+    MAP.street_name_id_map.clear();
+    
+    MAP.LocalStreetSegments.street_segment_length.clear();
+    MAP.LocalStreetSegments.street_segment_speed_limit.clear();
+    
+    MAP.state.last_selected_intersection = 10000000;
+    
+    //clear KD trees and set root pointers to null
+    if(MAP.street_seg_k2tree.root != nullptr) delete MAP.street_seg_k2tree.root;
+        MAP.street_seg_k2tree.root = nullptr;
+    if(MAP.poi_k2tree.root != nullptr) delete MAP.poi_k2tree.root;
+        MAP.poi_k2tree.root = nullptr;
+    if(MAP.feature_k2tree.root != nullptr) delete MAP.feature_k2tree.root;
+        MAP.feature_k2tree.root = nullptr;
+    
+    MAP.OSM_data.bike_parking.clear();
+    MAP.OSM_data.bike_routes.clear();
+    MAP.OSM_data.node_by_OSMID.clear();
+    MAP.OSM_data.subway_routes.clear();
+    MAP.OSM_data.way_by_OSMID.clear();
+}
