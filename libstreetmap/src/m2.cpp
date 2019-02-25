@@ -700,6 +700,9 @@ bool check_and_switch_map(ezgl::application *app, std::string choice) {
 
         app->update_message("Successfully loaded  " + map_choice->first);
         app->refresh_drawing();
+        
+        return true;
     }
     
+    return false;
 }

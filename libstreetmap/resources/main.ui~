@@ -69,6 +69,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Pan up</property>
                     <child>
                       <object class="GtkImage" id="ArrowUp">
                         <property name="visible">True</property>
@@ -88,6 +89,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Pan down</property>
                     <child>
                       <object class="GtkImage" id="ArrowDown">
                         <property name="visible">True</property>
@@ -107,6 +109,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Pan left</property>
                     <child>
                       <object class="GtkImage" id="ArrowLeft">
                         <property name="visible">True</property>
@@ -126,6 +129,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Pan right</property>
                     <child>
                       <object class="GtkImage" id="ArrowRight">
                         <property name="visible">True</property>
@@ -144,6 +148,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
+                    <property name="tooltip_text" translatable="yes">Zoom in</property>
                     <child>
                       <object class="GtkImage" id="ZoomIn">
                         <property name="visible">True</property>
@@ -163,6 +168,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Zoom to fit</property>
                     <child>
                       <object class="GtkImage" id="ZoomFit">
                         <property name="visible">True</property>
@@ -181,6 +187,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Zoom out</property>
                     <child>
                       <object class="GtkImage" id="ZoomOut">
                         <property name="visible">True</property>
@@ -213,6 +220,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Help</property>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
@@ -230,11 +238,13 @@
                   <object class="GtkExpander">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes">Click to expand layering options</property>
                     <property name="halign">start</property>
                     <property name="valign">start</property>
                     <property name="margin_top">20</property>
                     <property name="hexpand">True</property>
                     <property name="vexpand">True</property>
+                    <property name="expanded">True</property>
                     <child>
                       <object class="GtkGrid">
                         <property name="visible">True</property>
@@ -246,6 +256,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="tooltip_text" translatable="yes">Show subways</property>
                             <property name="margin_top">5</property>
                             <property name="draw_indicator">True</property>
                           </object>
@@ -260,6 +271,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="tooltip_text" translatable="yes">Show bike routes and parking</property>
                             <property name="margin_top">5</property>
                             <property name="draw_indicator">True</property>
                           </object>
@@ -274,6 +286,7 @@
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Expand for Layering options</property>
                         <property name="label" translatable="yes">Layers</property>
                       </object>
                     </child>
@@ -362,7 +375,7 @@
             </child>
             <child>
               <object class="GtkSearchEntry" id="SearchBar">
-                <property name="width_request">150</property>
+                <property name="width_request">200</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_focus">True</property>
@@ -370,6 +383,8 @@
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Search for an intersection or input the name of a new map to reload.
+Press &lt;enter&gt; to get suggestions, when ready to search, press the Find button.</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="margin_left">25</property>
@@ -404,6 +419,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Close the map</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -416,6 +432,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Click after filling the search box</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -464,7 +481,7 @@
     </child>
   </object>
   <object class="GtkMenu" id="SearchPopUp">
-    <property name="width_request">160</property>
+    <property name="width_request">200</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="take_focus">False</property>
