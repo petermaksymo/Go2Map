@@ -500,10 +500,6 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
         auto canvas = app->get_canvas(main_canvas_id);
         
         switch(event->keyval) {
-            case GDK_KEY_Left:      ezgl::translate_left(canvas, 5.0);   break;
-            case GDK_KEY_Up:        ezgl::translate_up(canvas, 5.0);     break;
-            case GDK_KEY_Right:     ezgl::translate_right(canvas, 5.0);  break;
-            case GDK_KEY_Down:      ezgl::translate_down(canvas, 5.0);   break;
             case GDK_KEY_Page_Up:   ezgl::zoom_in(canvas, 5.0/3.0);      break;
             case GDK_KEY_Page_Down: ezgl::zoom_out(canvas, 5.0/3.0);     break;
             case GDK_KEY_Home:      
@@ -514,7 +510,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
         }
         
         // Predict searching as user types
-        if (MAP.state.search_changed) {
+        if (MAP.state.search_changed && event->keyval == GDK_KEY_Return) {
             GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
             std::string text = gtk_entry_get_text(text_entry);
             std::stringstream ss(text);
@@ -522,7 +518,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             ss >> entry1;
             ss >> entry2;
             std::cout << entry1 << " " << entry2 << std::endl;
-            while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
+            //while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
             if (entry2 == "@") ss >> entry1;
             std::vector<unsigned> result;
             if (!entry1.empty()) result = find_street_ids_from_partial_street_name(entry1);
@@ -542,15 +538,20 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
                 gtk_menu_popup_at_widget(popup, search_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
                 
                 //populate the menu with suggestions
-                for (int i = 0; i < num_result_shown; i++) {
-                    std::cout << getStreetName(result[i]) << std::endl;
-
+                for (int i = 0; i < MAX_SUGGESTIONS; i++) {
                     std::string menu_item_id = "suggestion";
                     menu_item_id += std::to_string(i);
-                    
+
                     GtkWidget *suggestion = (GtkWidget *)app->get_object(menu_item_id.c_str());
                     
-                    gtk_menu_item_set_label((GtkMenuItem *)suggestion, getStreetName(result[i]).c_str());
+                    if(i >= result.size()) {
+                        //if no result, populate menu with a blank
+                        gtk_menu_item_set_label((GtkMenuItem *)suggestion, "");
+                    } else {
+                        std::cout << getStreetName(result[i]) << std::endl;
+
+                        gtk_menu_item_set_label((GtkMenuItem *)suggestion, getStreetName(result[i]).c_str());
+                    }
                 }
 
                 gtk_entry_grab_focus_without_selecting(text_entry);
