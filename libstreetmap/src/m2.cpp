@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 #include "constants.hpp"
+#include <boost/algorithm/string.hpp>
 
 void draw_main_canvas (ezgl::renderer &g);
 void draw_selected_intersection (ezgl::renderer &g);
@@ -29,7 +30,6 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 void show_search_result();
-void close_dialog(ezgl::application *app);
 bool check_and_switch_map(ezgl::application *app, std::string choice);
 
 
@@ -510,7 +510,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             case GDK_KEY_Home:      
                 ezgl::zoom_fit(canvas, canvas->get_camera().get_initial_world());
                 break;
-            case GDK_KEY_Escape:    close_dialog(app);                   break;
+            case GDK_KEY_Escape:    app->quit();                         break;
             default: break;
         }
         
@@ -518,6 +518,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
         if (MAP.state.search_changed && event->keyval == GDK_KEY_Return) {
             GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
             std::string text = gtk_entry_get_text(text_entry);
+            boost::algorithm::to_lower(text);
             std::stringstream ss(text);
             std::string entry1, entry2;
             ss >> entry1;
@@ -672,47 +673,6 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
-void close_dialog(ezgl::application *app) {
-    std::string command;
-    bool is_valid_command = false;
-      
-    while(!is_valid_command) {
-        std::cout << "If you would like to re-load a different map, type: \"reload\"\n"
-                  << "If you are done, type: \"done\"\n"
-                  << "If this was accidental, type: \"back\"\n";
-        std::cin >> command;
-
-        if(command == "done") {
-            is_valid_command = true;
-            app->quit();
-        } else if (command == "reload") {  
-            is_valid_command = true;
-            
-            std::string choice;
-            bool is_map_selected = false;
-            
-            while(!is_map_selected) {
-                std::cout << "please input the new location: (invalid input lists the maps)\n";
-                std::cin >> choice;
-
-                auto map_choice = valid_map_paths.find(choice);
-                if (map_choice != valid_map_paths.end()) {
-                    is_map_selected = true;
-
-                    std::cout << "Loading " + map_choice->first + " (it may take several seconds)\n";
-                    
-                    check_and_switch_map(app, choice);
-                } else{
-                    for(auto it = valid_map_paths.begin(); it != valid_map_paths.end(); it++) {
-                        std::cout << it->first << "\n";
-                    }
-                }
-            }
-        } else if(command == "back") {
-            is_valid_command = true;
-        }
-    }
-}
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {
     auto map_choice = valid_map_paths.find(choice);

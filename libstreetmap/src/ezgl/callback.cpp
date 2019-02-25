@@ -275,7 +275,7 @@ gboolean press_help(GtkWidget *, gpointer data)
 {
     GObject *window;
     GtkWidget *content_area;
-    GtkWidget *label;
+    GtkLabel *label;
     GtkWidget *dialog;
     auto application = static_cast<ezgl::application *>(data);
     
@@ -294,8 +294,9 @@ gboolean press_help(GtkWidget *, gpointer data)
     
     // Create a label and attach it to the content area of the dialog
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    label = gtk_label_new("This is where we will have a tutorial, hopefully we can include images");
-    gtk_container_add(GTK_CONTAINER(content_area), label);
+    label = (GtkLabel *)gtk_label_new("hi");
+    gtk_label_set_markup(label, "<span size=\"x-large\"> TEST </span>");
+    gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)label);
     
     //show the dialog
     gtk_widget_show_all(dialog);
