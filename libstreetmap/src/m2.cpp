@@ -519,6 +519,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
             std::string text = gtk_entry_get_text(text_entry);
             boost::algorithm::to_lower(text);
+            /*
             std::stringstream ss(text);
             std::string entry1, entry2;
             ss >> entry1;
@@ -526,12 +527,19 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             std::cout << entry1 << " " << entry2 << std::endl;
             //while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
             if (entry2 == "&") ss >> entry1;
+            */ 
+            std::string entry;
+            if (text.find('&') == std::string::npos) {
+                entry = text;
+            } else {
+                entry = text.substr(0, text.find('&') - 1);
+            }
             std::vector<unsigned> result;
-            if (!entry1.empty()) {
+            if (!entry.empty()) {
                 if(check_and_switch_map(app, text)) {
                    return; 
                 } else {
-                    result = find_street_ids_from_partial_street_name(entry1);
+                    result = find_street_ids_from_partial_street_name(entry);
                 }
             }
             
@@ -666,9 +674,9 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
     std::string text = gtk_entry_get_text(text_entry);
     // Place in different formats depending whether it is the first or second street-
-    if (text.find('&') == std::string::npos) suggestion = suggestion + " & ";
+    if (text.find('&') == std::string::npos) suggestion = " & " + suggestion;
     else {
-        suggestion = text.substr(0,text.find('&')) + "& " + suggestion;
+        suggestion = suggestion + " " + text.substr(text.find('&'));
     }
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
