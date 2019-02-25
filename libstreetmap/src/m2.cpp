@@ -157,7 +157,7 @@ void draw_street_segments (ezgl::renderer &g) {
         points.push_back(MAP.intersection_db[getInfoStreetSegment(id).to].position);
         
         //set width before drawing
-        if (MAP.state.zoom_level >= 3) {
+        if (MAP.state.zoom_level > 3) {
             g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 10);
         } else {
             g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
