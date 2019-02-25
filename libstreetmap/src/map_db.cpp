@@ -145,6 +145,8 @@ void load_points_of_interest () {
     MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_2.begin(), poi_zoom_2.end(), 0, poi_zoom_2.size(), 2);
     
     poi_zoom_2.clear();
+    
+    MAP.poi_k2tree.visualize_tree(MAP.poi_k2tree.root, 0, 6);
 }
 
 void load_features () {

@@ -249,23 +249,26 @@ void KD2Tree::range_query(KD2Node* ptr,
                          const std::pair<double, double> &y_range, // range from smallest to greatest
                          std::vector<std::pair<std::pair<double, double>, unsigned int>> &results_points,
                          std::map<unsigned int, std::pair<double, double>> &results_unique_ids,
-                         const int &zoom_level) {
+                         const int &zoom_level,
+                         const std::size_t &search_depth) {
     
     if(!ptr) return;
     
     if (ptr->zoom_level > zoom_level) return;
     
+    if (search_depth != 0 && depth > search_depth) return;
+    
     // if node is inside bounds, check both and push to results
     if(depthLessThanBounds(depth, ptr->point, x_range, y_range)) {
         // call range query on right node (greater than)
-        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
+        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
     } else if(depthGreaterThanBounds(depth, ptr->point, x_range, y_range)) {
         // call range query on left node (less than)
-        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
+        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
     } else {
         // must intersect the range
         // range query on the left
-        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
+        range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
         // store the point if is also in range in other dimension
         if(!depthGreaterThanBounds(depth + 1, ptr->point, x_range, y_range) && !depthLessThanBounds(depth + 1, ptr->point, x_range, y_range)) {
             // will only insert into Map if data_id is unique
@@ -273,7 +276,7 @@ void KD2Tree::range_query(KD2Node* ptr,
             results_points.push_back(std::make_pair(ptr->point, ptr->data_id));
         }
         // range query on the right
-        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level);
+        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
     }
 }
 

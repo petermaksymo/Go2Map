@@ -139,7 +139,7 @@ void draw_street_segments (ezgl::renderer &g) {
                          std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
-                         MAP.state.zoom_level); // zoom_level
+                         MAP.state.zoom_level, 0); // zoom_level
     
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
         
@@ -214,7 +214,7 @@ void draw_street_name(ezgl::renderer &g) {
                          std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
-                         MAP.state.zoom_level); // zoom_level
+                         MAP.state.zoom_level, 0); // zoom_level
     
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
@@ -273,7 +273,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
                              std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                              result_points, // results
                              result_ids,
-                             MAP.state.zoom_level); // zoom_level
+                             MAP.state.zoom_level, 0); // zoom_level
 
         for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
@@ -324,7 +324,7 @@ void draw_features (ezgl::renderer &g) {
                          std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
-                         MAP.state.zoom_level);
+                         MAP.state.zoom_level, 0);
     
     // fix for very viewing inside very large features
     if (result_ids.size() < 1) {
@@ -338,7 +338,7 @@ void draw_features (ezgl::renderer &g) {
                          std::make_pair( y_from_lat(MAP.world_values.min_lat), y_from_lat(MAP.world_values.max_lat)), // y-range (smaller, greater)
                          result_points, // results
                          result_ids,
-                         MAP.state.zoom_level); // zoom_level
+                         MAP.state.zoom_level, 0); // zoom_level
         
     }
     
