@@ -264,21 +264,38 @@ void draw_points_of_interest (ezgl::renderer &g) {
 
         for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
-            int i = it->first;
-
-            double x = x_from_lon(getPointOfInterestPosition(i).lon());
-            double y = y_from_lat(getPointOfInterestPosition(i).lat());
-
-            float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
-
-            g.set_color(ezgl::RED);       
-            g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        int i = it->first;
+        
+        double x = x_from_lon(getPointOfInterestPosition(i).lon());
+        double y = y_from_lat(getPointOfInterestPosition(i).lat());
+        std::string poi_name = getPointOfInterestName(i);
+        
+        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
+        
+        if (MAP.state.scale > 70) radius /= 2;
+        if (MAP.state.scale > 130) radius /= 2;
+        if (MAP.state.scale > 260) radius /= 2;
+        
+        g.set_color(ezgl::RED);   
+        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        
+        if (MAP.state.scale > 130 && (i % 3  == 0)) {
+            g.set_color(ezgl::SADDLE_BROWN);
+            g.set_text_rotation(0);
+            if (i % 2 == 0) g.draw_text(ezgl::point2d(x,y-0.000001),poi_name, 100, 100); 
+            else g.draw_text(ezgl::point2d(x,y+0.000001),poi_name, 100, 100); 
+        } else if (MAP.state.scale > 300) {
+            g.set_color(ezgl::SADDLE_BROWN);
+            g.set_text_rotation(0);
+            if (i % 2 == 0) g.draw_text(ezgl::point2d(x,y-0.0000005),poi_name, 100, 100); 
+            else g.draw_text(ezgl::point2d(x,y+0.0000005),poi_name, 100, 100);
         }
     }
     
     result_ids.clear();
     result_points.clear();
-}
+       }
+    }
 
 
 void draw_features (ezgl::renderer &g) {
