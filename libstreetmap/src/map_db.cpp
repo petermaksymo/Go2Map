@@ -54,7 +54,7 @@ void load_street_segments () {
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
         
-        if(MAP.street_db[segment.streetID].average_speed >= 60 || (MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000)) {
+        if(MAP.street_db[segment.streetID].average_speed >= 60 || (MAP.street_db[segment.streetID].length > 1000 && MAP.street_db[segment.streetID].length < 100000)) {
             street_segs_zoom_0.push_back(from_pt);
             street_segs_zoom_0.push_back(to_pt);
         } else if(MAP.street_db[segment.streetID].average_speed >= 30 && (MAP.street_db[segment.streetID].length > 200 && MAP.street_db[segment.streetID].length < 100000) || (MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000)) {
