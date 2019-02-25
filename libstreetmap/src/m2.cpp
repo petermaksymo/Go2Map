@@ -523,7 +523,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             ss >> entry2;
             std::cout << entry1 << " " << entry2 << std::endl;
             //while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
-            if (entry2 == "@") ss >> entry1;
+            if (entry2 == "&") ss >> entry1;
             std::vector<unsigned> result;
             if (!entry1.empty()) result = find_street_ids_from_partial_street_name(entry1);
             
@@ -594,22 +594,26 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     // Extract text from the search bar
     GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
     std::string text = gtk_entry_get_text(text_entry);
-    std::stringstream ss(text);
     std::string street1, street2;
     if (MAP.state.search_word != text) {
         MAP.state.search_word = text;
         MAP.state.search_index = 0;
         
         // Parse the search result
-         if (text.find('@') != std::string::npos) {
-             if (text.find('@') == text.length() + 2 ||text.find('@') == text.size() + 1) ezgl_app->update_message("Second street needed");
+         if (text.find('&') != std::string::npos) {
+             std::stringstream ss(text.substr(text.find('&')));
+             std::string second_street;
+             ss >> second_street;
+             ss >> second_street;
+             if (text.find('&') == text.size() - 1 || text.find('&') == text.size() - 2) ezgl_app->update_message("Second street needed");
+             //if (second_street == NULL) ezgl_app->update_message("Second street needed");
              else {
-                 street1 = text.substr(0, text.find('@') - 1);
-                 street2 = text.substr(text.find('@') + 2);
+                 street1 = text.substr(0, text.find('&') - 1);
+                 street2 = text.substr(text.find('&') + 2);
+                 search_intersection(street1, street2);
              }
              
         }
-        search_intersection(street1, street2);
     } else MAP.state.search_index += 1;
     
     //Constant for reconstruct current view after zoom in after search
@@ -654,9 +658,9 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
     std::string text = gtk_entry_get_text(text_entry);
     // Place in different formats depending whether it is the first or second street-
-    if (text.find('@') == std::string::npos) suggestion = suggestion + " @ ";
+    if (text.find('&') == std::string::npos) suggestion = suggestion + " & ";
     else {
-        suggestion = text.substr(0,text.find('@')) + "@ " + suggestion;
+        suggestion = text.substr(0,text.find('&')) + "& " + suggestion;
     }
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
