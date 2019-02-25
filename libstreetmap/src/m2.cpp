@@ -60,21 +60,31 @@ void draw_main_canvas (ezgl::renderer &g) {
     ezgl::rectangle current_view = g.get_visible_world();
     MAP.state.current_view_x = std::make_pair(current_view.left(), current_view.right());
     MAP.state.current_view_y = std::make_pair(current_view.bottom(), current_view.top());
- 
-    // Used for map range queries to avoid corners being cut off
-    double x_buffer = (current_view.right() - current_view.left()) * 0.2;
-    double y_buffer = (current_view.top() - current_view.bottom()) * 0.2;
-    MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
-    MAP.state.current_view_y_buffered = std::make_pair(current_view.bottom() - y_buffer, current_view.top() + y_buffer);
-    
-    LatLon top_left(lon_from_x(current_view.left()), lat_from_y(current_view.top()));
-    LatLon top_right(lon_from_x(current_view.right()), lat_from_y(current_view.top()));
-    
-    
+   
     MAP.state.scale = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon)) / 
         (current_view.right() -current_view.left());
     
+    // Set current width of view
+    LatLon top_left(lon_from_x(current_view.left()), lat_from_y(current_view.top()));
+    LatLon top_right(lon_from_x(current_view.right()), lat_from_y(current_view.top()));
+
     MAP.state.current_width = find_distance_between_two_points(top_left, top_right);
+
+    // add a buffered current view to ensure the range prevent the zoom level
+    // from creating too small a range and losing features
+    double x_buffer;
+    double y_buffer;
+    if(MAP.state.current_width > 500) {
+        // Used for map range queries to avoid corners being cut off
+        x_buffer = (current_view.right() - current_view.left()) * 0.2;
+        y_buffer = (current_view.top() - current_view.bottom()) * 0.2;
+    } else {
+        x_buffer = ((MAP.state.current_view_x_buffered.second - MAP.state.current_view_x_buffered.first) - (current_view.right() - current_view.left()))/2;
+        y_buffer = ((MAP.state.current_view_y_buffered.second - MAP.state.current_view_y_buffered.first) - (current_view.top() - current_view.bottom()))/2;
+    }
+    
+    MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
+    MAP.state.current_view_y_buffered = std::make_pair(current_view.bottom() - y_buffer, current_view.top() + y_buffer);
     
     if (MAP.state.current_width >= 25000)       MAP.state.zoom_level = 0;
     else if (MAP.state.current_width  >= 7500)  MAP.state.zoom_level = 1;
