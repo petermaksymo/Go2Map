@@ -152,10 +152,18 @@ void load_features () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_2;
     
     for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
+        // Loops through feature points, counting how many intersect with limits of map, if it's
+        // 4 or more, the map may be surrounded by an ocean or other feature, so must always be drawn
+        int intersect_count = 0;
         for (int j = 0; j < getFeaturePointCount(i); j++) {
             double x = x_from_lon(getFeaturePoint(j, i).lon());
             double y = y_from_lat(getFeaturePoint(j, i).lat());
             
+            if (x <= x_from_lon(MAP.world_values.min_lon) || x >= x_from_lon(MAP.world_values.max_lon)
+                || y <= y_from_lat(MAP.world_values.min_lat) || y >= y_from_lat(MAP.world_values.max_lat)) {
+                intersect_count++;
+            }
+
             std::pair<std::pair<double, double>, unsigned int> point = std::make_pair(std::make_pair(x, y), i);
             
             // Differentiate zoom level for features
@@ -167,6 +175,7 @@ void load_features () {
                 default: feature_zoom_0.push_back(point); break;
             }
         }
+        if(intersect_count >= 4) MAP.permanent_features.push_back(i);
     }
     
     MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_0.begin(), feature_zoom_0.end(), 0, feature_zoom_0.size(), 0);
@@ -182,6 +191,8 @@ void clear_map_data() {
     MAP.street_db.clear();
     
     MAP.street_name_id_map.clear();
+    
+    MAP.permanent_features.clear();
     
     MAP.LocalStreetSegments.street_segment_length.clear();
     MAP.LocalStreetSegments.street_segment_speed_limit.clear();

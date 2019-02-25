@@ -341,6 +341,10 @@ void draw_features (ezgl::renderer &g) {
         
     }
     
+    for(std::vector<unsigned int>::iterator it = MAP.permanent_features.begin(); it != MAP.permanent_features.end(); it++) {
+        result_ids.insert(std::make_pair((*it), std::make_pair(0.0, 0.0)));
+    }
+    
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
         int i = it->first;
