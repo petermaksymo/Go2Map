@@ -596,12 +596,14 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
         MAP.state.search_index = 0;
         
         // Parse the search result
-        ss >> street1;
-        ss >> street2;
-        // In case user prefers to use @ between two streets
-        if (street2 == "@") ss >> street2;
-        std::cout << street1 << street2 << std::endl;
-    
+         if (text.find('@') != std::string::npos) {
+             if (text.find('@') == text.length() + 2 ||text.find('@') == text.size() + 1) ezgl_app->update_message("Second street needed");
+             else {
+                 street1 = text.substr(0, text.find('@') - 1);
+                 street2 = text.substr(text.find('@') + 2);
+             }
+             
+        }
         search_intersection(street1, street2);
     } else MAP.state.search_index += 1;
     
@@ -645,7 +647,12 @@ void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
 
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
-    suggestion = suggestion + " @ ";
+    std::string text = gtk_entry_get_text(text_entry);
+    // Place in different formats depending whether it is the first or second street-
+    if (text.find('@') == std::string::npos) suggestion = suggestion + " @ ";
+    else {
+        suggestion = text.substr(0,text.find('@')) + "@ " + suggestion;
+    }
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
