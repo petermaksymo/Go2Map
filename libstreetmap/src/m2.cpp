@@ -30,6 +30,7 @@ void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 void show_search_result();
 void close_dialog(ezgl::application *app);
+bool check_and_switch_map(ezgl::application *app, std::string choice);
 
 
 void draw_map () {
@@ -525,7 +526,13 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             //while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
             if (entry2 == "&") ss >> entry1;
             std::vector<unsigned> result;
-            if (!entry1.empty()) result = find_street_ids_from_partial_street_name(entry1);
+            if (!entry1.empty()) {
+                if(check_and_switch_map(app, text)) {
+                   return; 
+                } else {
+                    result = find_street_ids_from_partial_street_name(entry1);
+                }
+            }
             
             int num_result_shown = MAX_SUGGESTIONS;
             // Limit search results shown
@@ -693,28 +700,8 @@ void close_dialog(ezgl::application *app) {
                     is_map_selected = true;
 
                     std::cout << "Loading " + map_choice->first + " (it may take several seconds)\n";
-                    app->update_message("Loading " + map_choice->first + " (it may take several seconds)");
-                    app->refresh_drawing();
                     
-                    close_map();
-
-                    load_map(map_choice->second);
-
-                    std::string main_canvas_id = app->get_main_canvas_id();
-                    auto canvas = app->get_canvas(main_canvas_id);
-
-                    ezgl::rectangle initial_world(
-                        {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
-                        {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
-                    );
-
-                    //reset the initial_world and the world
-                    canvas->get_camera().set_initial_world(initial_world);
-                    canvas->get_camera().set_world(initial_world);
-
-                    app->update_message("Successfully loaded  " + map_choice->first);
-                    app->refresh_drawing();
-                    std::cout << "exiting function";
+                    check_and_switch_map(app, choice);
                 } else{
                     for(auto it = valid_map_paths.begin(); it != valid_map_paths.end(); it++) {
                         std::cout << it->first << "\n";
@@ -725,4 +712,34 @@ void close_dialog(ezgl::application *app) {
             is_valid_command = true;
         }
     }
+}
+
+bool check_and_switch_map(ezgl::application *app, std::string choice) {
+    auto map_choice = valid_map_paths.find(choice);
+    if (map_choice != valid_map_paths.end()) {
+        std::cout << "Loading " + map_choice->first + " (it may take several seconds)\n";
+
+        app->update_message("Loading " + map_choice->first + " (it may take several seconds)");
+        app->refresh_drawing();
+
+        close_map();
+
+        load_map(map_choice->second);
+
+        std::string main_canvas_id = app->get_main_canvas_id();
+        auto canvas = app->get_canvas(main_canvas_id);
+
+        ezgl::rectangle initial_world(
+            {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
+            {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
+        );
+
+        //reset the initial_world and the world
+        canvas->get_camera().set_initial_world(initial_world);
+        canvas->get_camera().set_world(initial_world);
+
+        app->update_message("Successfully loaded  " + map_choice->first);
+        app->refresh_drawing();
+    }
+    
 }
