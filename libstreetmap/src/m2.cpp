@@ -24,12 +24,12 @@ void draw_bike_data(ezgl::renderer &g);
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
-void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y);
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
 void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 void show_search_result();
+void close_dialog(ezgl::application *app);
 
 
 void draw_map () {
@@ -49,7 +49,7 @@ void draw_map () {
     
     
     application.run(nullptr, act_on_mouse_click, 
-                    act_on_mouse_move, act_on_key_press,
+                    nullptr, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
                     act_on_suggested_clicked);
 }
@@ -491,10 +491,6 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
     } 
 }
 
-void act_on_mouse_move(ezgl::application *app, GdkEventButton *event, double x, double y) {        
-  
-}
-
 //shortcut keys for easy navigation
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name) {
     if(event->type == GDK_KEY_PRESS) {
@@ -511,7 +507,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             case GDK_KEY_Home:      
                 ezgl::zoom_fit(canvas, canvas->get_camera().get_initial_world());
                 break;
-            case GDK_KEY_Escape:    app->quit();                         break;
+            case GDK_KEY_Escape:    close_dialog(app);                   break;
             default: break;
         }
         
@@ -649,4 +645,68 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
     suggestion = suggestion + " @ ";
     gtk_entry_set_text(text_entry, suggestion.c_str());
+}
+
+void close_dialog(ezgl::application *app) {
+    std::string command;
+    bool is_valid_command = false;
+      
+    while(!is_valid_command) {
+        std::cout << "If you would like to re-load a different map, type: \"reload\"\n"
+                  << "If you are done, type: \"done\"\n";
+        std::cin >> command;
+
+        if(command == "done") {
+            is_valid_command = true;
+            app->quit();
+        } else if (command == "reload") {  
+            is_valid_command = true;
+            
+            std::string choice;
+            bool is_map_selected = false;
+            
+            while(!is_map_selected) {
+                std::cout << "please input the new location: (invalid input lists the maps)\n";
+                std::cin >> choice;
+
+                auto map_choice = valid_map_paths.find(choice);
+                if (map_choice != valid_map_paths.end()) {
+                    is_map_selected = true;
+
+                    std::cout << "Loading " + map_choice->first + " (it may take several seconds)\n";
+                    app->update_message("Loading " + map_choice->first + " (it may take several seconds)");
+                    app->refresh_drawing();
+                    
+                    close_map();
+
+                    load_map(map_choice->second);
+
+                    std::string main_canvas_id = app->get_main_canvas_id();
+                    auto canvas = app->get_canvas(main_canvas_id);
+
+                    ezgl::rectangle initial_world(
+                        {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
+                        {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
+                    );
+
+                    //reset the initial_world and the world
+                    canvas->get_camera().set_initial_world(initial_world);
+                    canvas->get_camera().set_world(initial_world);
+
+                    app->update_message("Successfully loaded  " + map_choice->first);
+                    app->refresh_drawing();
+                    std::cout << "exiting function";
+                } else{
+                    for(auto it = valid_map_paths.begin(); it != valid_map_paths.end(); it++) {
+                        std::cout << it->first << "\n";
+                    }
+                }
+            }
+
+        } else {
+            std::cout << "Invalid input, please try again...\n";
+        }
+    }
+    
+    std::cout << "exiting function";
 }

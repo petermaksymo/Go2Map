@@ -56,6 +56,11 @@ void close_map() {
     MAP.street_name_id_map.clear();
     MAP.intersection_db.clear();
     MAP.street_db.clear();
+    MAP.OSM_data.subway_routes.clear();
+    MAP.OSM_data.bike_parking.clear();
+    MAP.OSM_data.bike_routes.clear();
+    MAP.OSM_data.node_by_OSMID.clear();
+    MAP.OSM_data.way_by_OSMID.clear();
     
     closeOSMDatabase();
 

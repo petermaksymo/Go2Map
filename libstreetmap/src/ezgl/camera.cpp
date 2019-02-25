@@ -100,6 +100,13 @@ void camera::set_world(rectangle new_world)
   update_scale_factors();
 }
 
+void camera::set_initial_world(rectangle new_world)
+{
+  m_initial_world = new_world;
+
+  update_scale_factors();
+}
+
 void camera::update_widget(int width, int height)
 {
   m_widget = rectangle{{0, 0}, static_cast<double>(width), static_cast<double>(height)};

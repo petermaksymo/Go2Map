@@ -64,6 +64,11 @@ public:
    * Update the bounds of the world.
    */
   void set_world(rectangle new_world);
+  
+  /**
+   * Update the bounds of the initial world.
+   */
+  void set_initial_world(rectangle new_world);
 
   /**
    * Get the screen to world scaling factor.
@@ -110,7 +115,7 @@ private:
   rectangle m_screen;
 
   // The dimensions of the initial world (user-defined bounding box). Needed for zoom_fit
-  const rectangle m_initial_world;
+  rectangle m_initial_world;
 
   // The x and y scaling factors.
   point2d m_world_to_widget = {1.0, 1.0};
