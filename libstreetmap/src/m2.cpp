@@ -31,6 +31,7 @@ void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 void show_search_result();
 bool check_and_switch_map(ezgl::application *app, std::string choice);
+void search_intersection(std::string street1, std::string street2);
 
 
 void draw_map () {
@@ -581,7 +582,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
 
                     GtkWidget *suggestion = (GtkWidget *)app->get_object(menu_item_id.c_str());
                     
-                    if(i >= result.size()) {
+                    if(i >= (int)result.size()) {
                         //if no result, populate menu with a blank
                         gtk_menu_item_set_label((GtkMenuItem *)suggestion, "");
                     } else {
@@ -603,8 +604,8 @@ void search_intersection(std::string street1, std::string street2) {
     std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name(street2);
     std::vector<unsigned> intersectionID, current_intersection;
     // Check for all possible intersections
-    for (int i = 0; i < streetID1.size() - 1; i++) {
-        for (int j = 0; j < streetID2.size() - 1; j++) {
+    for (unsigned int i = 0; i < streetID1.size() - 1; i++) {
+        for (unsigned int j = 0; j < streetID2.size() - 1; j++) {
             current_intersection = find_intersection_ids_from_street_ids(streetID1[i], streetID2[j]);
             intersectionID.insert(intersectionID.end(), current_intersection.begin(), current_intersection.end()); // Combine two vectors
             //std::cout << getStreetName(streetID1[i]) << getStreetName(streetID2[j]) << std::endl;  
@@ -612,7 +613,7 @@ void search_intersection(std::string street1, std::string street2) {
         
     }
     MAP.state.intersection_search_result = intersectionID;
-    for (int i = 0; i < intersectionID.size(); i++) {
+    for (unsigned int i = 0; i < intersectionID.size(); i++) {
         std::cout << getIntersectionName(intersectionID[i]) << std::endl;
     }
     //MAP.state.last_selected_intersection = intersectionID[0];
@@ -653,7 +654,7 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
     const double margin = 0.0001;
     
    
-    if (MAP.state.search_index == MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
+    if (MAP.state.search_index == (int)MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
     int index = MAP.state.search_index;
     // Get location of the intersection and then apply margin to it
     if (MAP.state.intersection_search_result.empty()) {
@@ -666,13 +667,13 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
         ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
         // Construct new view of the canvas
         rectangle view(origin, top_right);
-        ezgl:zoom_fit(canvas, view);
+        ezgl::zoom_fit(canvas, view);
         MAP.state.last_selected_intersection = MAP.state.intersection_search_result[index];
         // Update detail information of intersection and refresh the canvas
         ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[index]].name);
         ezgl_app->refresh_drawing();
     }
-    
+    return True;
 }
 
 void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
