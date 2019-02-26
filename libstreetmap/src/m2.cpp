@@ -5,7 +5,7 @@
 #include "map_db.h"
 #include "helper_functions.h"
 #include "m1.h"
-#include "m2.h"
+//#include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include <iostream>
@@ -14,6 +14,7 @@
 #include "constants.hpp"
 #include <boost/algorithm/string.hpp>
 
+void draw_map();
 void draw_main_canvas (ezgl::renderer &g);
 void draw_selected_intersection (ezgl::renderer &g);
 void draw_street_segments (ezgl::renderer &g);
@@ -29,7 +30,6 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
 void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
-void show_search_result();
 bool check_and_switch_map(ezgl::application *app, std::string choice);
 void search_intersection(std::string street1, std::string street2);
 
@@ -42,6 +42,7 @@ void draw_map () {
     
     ezgl::application application(settings);
     
+    //Convert latitude and longitude into x and y coordinates 
     ezgl::rectangle initial_world(
             {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
             {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
@@ -208,6 +209,7 @@ void draw_street_segments (ezgl::renderer &g) {
     result_points.clear();
 }
 
+// Loop through name of each name segment and display them selectively so it doesn't clutter the screen
 void draw_street_name(ezgl::renderer &g) {
     
     std::map<unsigned int, std::pair<double, double>> result_ids;
