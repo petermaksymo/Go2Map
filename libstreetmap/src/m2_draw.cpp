@@ -25,6 +25,7 @@ void draw_selected_intersection (ezgl::renderer &g) {
     }
 }
 
+
 // Queries street_seg_k2tree for the given zoom level to get the ids of all the
 // segments that are current view. Then loops over the ids, drawing each curves
 void draw_street_segments (ezgl::renderer &g) {    
@@ -105,6 +106,7 @@ void draw_street_segments (ezgl::renderer &g) {
     result_points.clear();
 }
 
+
 // Uses a range query based on the current view and zoom level to find all the 
 // street segments for this view and draw them
 void draw_street_name(ezgl::renderer &g) {
@@ -166,6 +168,7 @@ void draw_street_name(ezgl::renderer &g) {
     result_ids.clear();
     result_points.clear();
 }
+
 
 // Uses a range query based on the current view and zoom level to find
 // the POIs only up to a calculated search_depth, which declusters the POIs
@@ -312,6 +315,7 @@ void draw_features (ezgl::renderer &g) {
     result_points.clear();
 }
 
+
 // Draws subway data for all of the routes and  subway stops. Subways stops
 // are only drawn above zoom level 2. This does not use KD Trees as subway routes
 // are generally smaller data sets and stops are only drawn above zoom level 2.
@@ -385,6 +389,7 @@ void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {
         g.draw_line(start, end);
     }
 }
+
 
 //helper function to draw curves from a point2d vector
 void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points) {
