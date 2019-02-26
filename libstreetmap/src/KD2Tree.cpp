@@ -269,14 +269,14 @@ void KD2Tree::range_query(KD2Node* ptr,
         // must intersect the range
         // range query on the left
         range_query(ptr->left, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
+        // range query on the right
+        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
         // store the point if is also in range in other dimension
         if(!depthGreaterThanBounds(depth + 1, ptr->point, x_range, y_range) && !depthLessThanBounds(depth + 1, ptr->point, x_range, y_range)) {
             // will only insert into Map if data_id is unique
             results_unique_ids.insert(std::make_pair(ptr->data_id, ptr->point));
             results_points.push_back(std::make_pair(ptr->point, ptr->data_id));
         }
-        // range query on the right
-        range_query(ptr->right, depth + 1, x_range, y_range, results_points, results_unique_ids, zoom_level, search_depth);
     }
 }
 

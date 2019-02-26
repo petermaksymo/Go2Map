@@ -96,8 +96,8 @@ void draw_main_canvas (ezgl::renderer &g) {
     g.set_color(ezgl::BACKGROUND_GREY);
     
     g.fill_rectangle(
-            {x_from_lon(MAP.world_values.min_lon), y_from_lat(MAP.world_values.min_lat)}, 
-            {x_from_lon(MAP.world_values.max_lon), y_from_lat(MAP.world_values.max_lat)}
+            {MAP.state.current_view_x.first, MAP.state.current_view_y.first}, 
+            {MAP.state.current_view_x.second, MAP.state.current_view_y.second}
     );
     
     g.set_line_cap(ezgl::line_cap::round);
@@ -194,6 +194,9 @@ void draw_street_segments (ezgl::renderer &g) {
                 ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
 
                 g.set_text_rotation(angle);
+                g.draw_text(mid, ">                                                                              >", distance_from_points(x1, y1, x2, y2) / 2, 100);
+                g.draw_text(mid, ">                                                         >", distance_from_points(x1, y1, x2, y2) / 2, 100);
+                g.draw_text(mid, ">                               >", distance_from_points(x1, y1, x2, y2) / 2, 100);
                 g.draw_text(mid, ">", distance_from_points(x1, y1, x2, y2) / 2, 100);
             }
         }
@@ -267,13 +270,25 @@ void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
     if(MAP.state.zoom_level >= 2) {
+        std::size_t search_depth = 0;
+        if(MAP.state.zoom_level > 3) {
+            if(MAP.state.current_width >= 1000) search_depth = 11;
+            else search_depth = 0;
+        } else if(MAP.state.scale > 2) {
+            search_depth = 10;
+        }  else if(MAP.state.zoom_level > 1) {
+            search_depth = 8;
+        } else {
+            search_depth = 4;
+        }
+        
         MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
                              0, // depth of query
                              std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
                              std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
                              result_points, // results
                              result_ids,
-                             MAP.state.zoom_level, 0); // zoom_level
+                             MAP.state.zoom_level, search_depth); // zoom_level
         ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/place.png");
         for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
@@ -287,7 +302,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
         
         // Reduce size of red dot as user zooms in to reduce clutter
         if (MAP.state.scale > 70) radius /= 2;
-        if (MAP.state.scale > 130) radius /= 2;
+        if (MAP.state.scale > 130) radius /= 4;
         if (MAP.state.scale > 260) radius /= 2;
         
         // Draw the red dot representing POI
