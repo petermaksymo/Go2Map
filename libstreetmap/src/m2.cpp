@@ -291,7 +291,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
     } else {
         search_depth = 1;
     }
-        
+    
     MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
                          0, // depth of query
                          std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
@@ -299,8 +299,9 @@ void draw_points_of_interest (ezgl::renderer &g) {
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level, search_depth); // zoom_level
+        
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
-
+        
         int i = it->first;
 
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
