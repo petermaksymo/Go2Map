@@ -43,15 +43,10 @@ void load_street_segments () {
         
         //  Calculate length of street and average speed limit
         MAP.street_db[segment.streetID].length += MAP.LocalStreetSegments[i].street_segment_length;
-        MAP.street_db[segment.streetID].average_speed = (MAP.street_db[segment.streetID].average_speed*MAP.street_db[segment.streetID].segments.size()
-                                                        +MAP.LocalStreetSegments[i].street_segment_speed_limit)/(MAP.street_db[segment.streetID].segments.size() + 1);
-        
-    }
-    
-    // Add to/from positions to street segs vector for appropriate zoom level in KD2Tree
-    for(int i = 0; i < getNumStreetSegments(); i++) {    
-        InfoStreetSegment segment = getInfoStreetSegment(i);
-        
+        MAP.street_db[segment.streetID].average_speed = (MAP.street_db[segment.streetID].average_speed*MAP.street_db[segment.streetID].segments.size() +
+                                                           + MAP.LocalStreetSegments[i].street_segment_speed_limit)/(MAP.street_db[segment.streetID].segments.size() + 1);
+
+        // Add to/from positions to street segs vector for appropriate zoom level in KD2Tree
         std::pair<double, double> f_point = std::make_pair(x_from_lon(MAP.intersection_db[segment.from].position.lon()), y_from_lat(MAP.intersection_db[segment.from].position.lat()));
         std::pair<std::pair<double, double>, unsigned int> from_pt = std::make_pair(f_point, i);
         
@@ -79,7 +74,7 @@ void load_street_segments () {
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_0.size(), 0);
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_1.begin(), street_segs_zoom_1.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_1.size(), 1);
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_2.begin(), street_segs_zoom_2.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_2.size(), 2);
-    
+         
     street_segs_zoom_m1.clear();
     street_segs_zoom_0.clear();
     street_segs_zoom_1.clear();

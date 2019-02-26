@@ -191,7 +191,9 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
     if (begin == end) return;
     
     // Only happens when trying to insert on an empty tree
-    if (!ptr) return;
+    if (!ptr) {
+        ptr = make_tree(begin, end, depth, vec_size, zoom_level);
+    }
     
     // sort the array by X or Y depending on depth
     if (vec_size > 1) {
