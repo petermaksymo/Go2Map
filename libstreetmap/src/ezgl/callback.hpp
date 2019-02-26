@@ -168,6 +168,9 @@ gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data);
 // React to when the bikes checkbox is toggled
 gboolean bikes_toggled(GtkToggleButton *toggle_button, gpointer data);
 
+// React to when the poi checkbox is toggled
+gboolean poi_toggled(GtkToggleButton *toggle_button, gpointer data);
+
 // Callback function for search bar
 gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event);
 

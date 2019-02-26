@@ -2,7 +2,6 @@
 <!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkIconFactory"/>
   <object class="GtkWindow" id="MainWindow">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -244,7 +243,6 @@
                     <property name="margin_top">20</property>
                     <property name="hexpand">True</property>
                     <property name="vexpand">True</property>
-                    <property name="expanded">True</property>
                     <child>
                       <object class="GtkGrid">
                         <property name="visible">True</property>
@@ -262,7 +260,7 @@
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
+                            <property name="top_attach">1</property>
                           </packing>
                         </child>
                         <child>
@@ -277,7 +275,21 @@
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">1</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="POIToggle">
+                            <property name="label" translatable="yes">POI</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="margin_top">5</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
                           </packing>
                         </child>
                       </object>

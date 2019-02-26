@@ -54,7 +54,7 @@ void draw_map () {
     application.run(nullptr, act_on_mouse_click, 
                     nullptr, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
-                    act_on_suggested_clicked);
+                    act_on_poi_toggle, act_on_suggested_clicked);
 }
 
 
@@ -108,7 +108,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_features(g);    
     draw_street_segments(g);
     if(MAP.state.is_bikes_on) draw_bike_data(g);
-    draw_points_of_interest(g);
+    if(MAP.state.is_poi_on) draw_points_of_interest(g);
     draw_selected_intersection(g);
     draw_street_name(g);
     
@@ -688,6 +688,12 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
     
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_bikes_on = isToggled;
+  
+    app->refresh_drawing();
+}
+
+void act_on_poi_toggle(ezgl::application *app, bool isToggled) {
+    MAP.state.is_poi_on = isToggled;
   
     app->refresh_drawing();
 }

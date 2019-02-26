@@ -61,6 +61,9 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled);
 //
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
 
+//
+void act_on_poi_toggle(ezgl::application *app, bool isToggled);
+
 // 
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 

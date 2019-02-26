@@ -56,6 +56,7 @@ struct Map_State {
     int search_index = 0;
     bool is_transit_on = false;
     bool is_bikes_on = false;
+    bool is_poi_on = false;
     bool search_changed = false;
     double current_width;
 };
