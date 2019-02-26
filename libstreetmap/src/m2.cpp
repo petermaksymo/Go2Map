@@ -118,7 +118,7 @@ void draw_main_canvas (ezgl::renderer &g) {
 void draw_selected_intersection (ezgl::renderer &g) {
     int id = MAP.state.last_selected_intersection;
     if (id <= getNumIntersections()) {
-        ezgl::surface *search_png = g.load_png("./libstreetmap/resources/Icons/search.png");
+        ezgl::surface *search_png = g.load_png("./libstreetmap/resources/search.png");
         
         float x = x_from_lon(MAP.intersection_db[id].position.lon());
         float y = y_from_lat(MAP.intersection_db[id].position.lat());
@@ -279,7 +279,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
     
-    ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/IntersectionIcon.png");
+    ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/IntersectionIcon.png");
     // Decide what level of POI detail to show based on zoom level
     std::size_t search_depth = 0;
     if(MAP.state.zoom_level > 3) {
@@ -421,7 +421,7 @@ void draw_subway_data(ezgl::renderer &g){
     g.set_color(ezgl::PURPLE); 
     g.set_line_width(3);
     
-    ezgl::surface *subway_png = g.load_png("./libstreetmap/resources/Icons/subway.png");
+    ezgl::surface *subway_png = g.load_png("./libstreetmap/resources/subway.png");
             
     for(unsigned i = 0; i < MAP.OSM_data.subway_routes.size(); i++) {
         //draw the tracks
@@ -444,7 +444,7 @@ void draw_bike_data(ezgl::renderer &g) {
     g.set_color(ezgl::BIKE_GREEN);
     g.set_line_width(1);
     
-    ezgl::surface *parking_png = g.load_png("./libstreetmap/resources/Icons/bike_parking.png");
+    ezgl::surface *parking_png = g.load_png("./libstreetmap/resources/bike_parking.png");
     
     //draw bike paths
     for(unsigned i = 0; i < MAP.OSM_data.bike_routes.size(); i++) {

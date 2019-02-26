@@ -73,7 +73,7 @@
                       <object class="GtkImage" id="ArrowUp">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-up-symbolic.symbolic</property>
+                        <property name="pixbuf">arrow_up_1.png</property>
                       </object>
                     </child>
                   </object>
@@ -93,7 +93,7 @@
                       <object class="GtkImage" id="ArrowDown">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-down-symbolic.symbolic</property>
+                        <property name="pixbuf">arrow_down_1.png</property>
                       </object>
                     </child>
                   </object>
@@ -113,7 +113,7 @@
                       <object class="GtkImage" id="ArrowLeft">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-previous-symbolic.symbolic</property>
+                        <property name="pixbuf">arrow_left_1.png</property>
                       </object>
                     </child>
                   </object>
@@ -133,7 +133,7 @@
                       <object class="GtkImage" id="ArrowRight">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-next-symbolic.symbolic</property>
+                        <property name="pixbuf">arrow_right_1.png</property>
                       </object>
                     </child>
                   </object>
@@ -152,7 +152,7 @@
                       <object class="GtkImage" id="ZoomIn">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">zoom-in-symbolic</property>
+                        <property name="pixbuf">zoom_in.png</property>
                       </object>
                     </child>
                   </object>
@@ -172,7 +172,7 @@
                       <object class="GtkImage" id="ZoomFit">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">zoom-best-fit</property>
+                        <property name="pixbuf">zoom_fit.png</property>
                       </object>
                     </child>
                   </object>
@@ -191,7 +191,7 @@
                       <object class="GtkImage" id="ZoomOut">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">zoom-out-symbolic</property>
+                        <property name="pixbuf">zoom_out.png</property>
                       </object>
                     </child>
                   </object>
@@ -224,7 +224,7 @@
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">gtk-dialog-info</property>
+                        <property name="pixbuf">help.png</property>
                       </object>
                     </child>
                   </object>

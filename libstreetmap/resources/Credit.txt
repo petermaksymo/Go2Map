@@ -1,4 +1,4 @@
-All black icons in this file were taken from: https://material.io/tools/icons/?icon=remove&style=baseline on Feb. 21, 2019.
+All non-specified icons were taken from: https://material.io/tools/icons/?icon=remove&style=baseline on Feb. 21, 2019.
 
 LocationMarker.png and IntersectionIcon.png were custom made.
 
