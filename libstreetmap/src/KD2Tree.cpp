@@ -182,7 +182,7 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
                           const std::size_t &depth, // depth of insert
                           const std::size_t &vec_size,
                           const int &zoom_level) { // size of passed vector
-    
+
     // Vector passed is empty
     if (begin == end) return;
     

@@ -23,6 +23,7 @@ void load_street_segments () {
    // Resize for tiny performance benefit
     MAP.street_db.resize(getNumStreets());
     
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_m1;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_0;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_1;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> street_segs_zoom_2;
@@ -58,7 +59,10 @@ void load_street_segments () {
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
         
-        if(MAP.street_db[segment.streetID].average_speed >= 60 || (MAP.street_db[segment.streetID].length > 1000 && MAP.street_db[segment.streetID].length < 100000)) {
+        if(MAP.street_db[segment.streetID].average_speed >= 80) {
+            street_segs_zoom_m1.push_back(from_pt);
+            street_segs_zoom_m1.push_back(to_pt);
+        } else if(MAP.street_db[segment.streetID].average_speed >= 60 || (MAP.street_db[segment.streetID].length > 1000 && MAP.street_db[segment.streetID].length < 100000)) {
             street_segs_zoom_0.push_back(from_pt);
             street_segs_zoom_0.push_back(to_pt);
         } else if(MAP.street_db[segment.streetID].average_speed >= 30 && (MAP.street_db[segment.streetID].length > 200 && MAP.street_db[segment.streetID].length < 100000) || (MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000)) {
@@ -71,12 +75,15 @@ void load_street_segments () {
     }
     
     // Load both zoom levels to tree
-    MAP.street_seg_k2tree.root = MAP.street_seg_k2tree.make_tree(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), 0, street_segs_zoom_0.size(), 0);
+    MAP.street_seg_k2tree.root = MAP.street_seg_k2tree.make_tree(street_segs_zoom_m1.begin(), street_segs_zoom_m1.end(), 0, street_segs_zoom_m1.size(), -1);
+    MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_0.begin(), street_segs_zoom_0.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_0.size(), 0);
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_1.begin(), street_segs_zoom_1.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_1.size(), 1);
     MAP.street_seg_k2tree.insert_bulk(street_segs_zoom_2.begin(), street_segs_zoom_2.end(), MAP.street_seg_k2tree.root, 0, street_segs_zoom_2.size(), 2);
     
+    street_segs_zoom_m1.clear();
     street_segs_zoom_0.clear();
     street_segs_zoom_1.clear();
+    street_segs_zoom_2.clear();
 }
 
 
@@ -156,7 +163,7 @@ void load_points_of_interest () {
 
 
 void load_features () {
-    std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_0;
+    std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_m1;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_2;
     
     for (unsigned int i = 0; i < unsigned(getNumFeatures()); i++) {
@@ -180,17 +187,17 @@ void load_features () {
                 case Beach: feature_zoom_2.push_back(point); break;
                 case Building: feature_zoom_2.push_back(point); break;
                 case Stream: feature_zoom_2.push_back(point); break;
-                default: feature_zoom_0.push_back(point); break;
+                default: feature_zoom_m1.push_back(point); break;
             }
         }
         if(intersect_count >= 4) MAP.permanent_features.push_back(i);
     }
     
-    MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_0.begin(), feature_zoom_0.end(), 0, feature_zoom_0.size(), 0);
+    MAP.feature_k2tree.root = MAP.feature_k2tree.make_tree(feature_zoom_m1.begin(), feature_zoom_m1.end(), 0, feature_zoom_m1.size(), -1);
     MAP.feature_k2tree.insert_bulk(feature_zoom_2.begin(), feature_zoom_2.end(), MAP.feature_k2tree.root, 0, feature_zoom_2.size(), 2);
     
-    feature_zoom_0.clear();
-    feature_zoom_0.clear();
+    feature_zoom_2.clear();
+    feature_zoom_m1.clear();
 }
 
 

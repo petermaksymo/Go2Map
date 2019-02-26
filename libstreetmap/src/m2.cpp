@@ -87,11 +87,12 @@ void draw_main_canvas (ezgl::renderer &g) {
     MAP.state.current_view_x_buffered = std::make_pair(current_view.left() - x_buffer, current_view.right() + x_buffer);
     MAP.state.current_view_y_buffered = std::make_pair(current_view.bottom() - y_buffer, current_view.top() + y_buffer);
     
-    if (MAP.state.current_width >= 25000)       MAP.state.zoom_level = 0;
-    else if (MAP.state.current_width  >= 7500)  MAP.state.zoom_level = 1;
-    else if (MAP.state.current_width >= 3000)   MAP.state.zoom_level = 2;
-    else if (MAP.state.current_width >= 2000)   MAP.state.zoom_level = 3;
-    else                                        MAP.state.zoom_level = 4;
+    if (MAP.state.current_width >= 50000)       MAP.state.zoom_level = -1;
+    else if (MAP.state.current_width >= 20000)  MAP.state.zoom_level =  0;
+    else if (MAP.state.current_width  >= 7500)  MAP.state.zoom_level =  1;
+    else if (MAP.state.current_width >= 3000)   MAP.state.zoom_level =  2;
+    else if (MAP.state.current_width >= 2000)   MAP.state.zoom_level =  3;
+    else                                        MAP.state.zoom_level =  4;
         
     g.set_color(ezgl::BACKGROUND_GREY);
     

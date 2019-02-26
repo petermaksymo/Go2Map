@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
         std::cerr << "  If no map_file_path is provided a default map is loaded.\n";
         return BAD_ARGUMENTS_EXIT_CODE;
     }
-
+        
     //Load the map and related data structures
     bool load_success = load_map(map_path);
     if(!load_success) {
