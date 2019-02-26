@@ -325,7 +325,6 @@ void draw_points_of_interest (ezgl::renderer &g) {
             else g.draw_text(ezgl::point2d(x,y+0.0000005),poi_name, 100, 100);
         }
     }
-    
     result_ids.clear();
     result_points.clear();
     
