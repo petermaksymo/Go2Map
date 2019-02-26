@@ -178,7 +178,8 @@ void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<std::pair<double, double
 
 // Inserts an vector of points into an RTree by recursively splitting the array
 // to match the nodes in the RTree until places to insert the points are found.
-// Makes use of insert_pair and make_tree.
+// Makes use of insert_pair and make_tree. Will store the zoom_level flag passed
+// for every node that is inseeted.
 void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator begin, // begin
                           std::vector<std::pair<std::pair<double, double>, unsigned int>>::iterator end, // end
                           KD2Node* &ptr, // root
@@ -244,8 +245,20 @@ void KD2Tree::insert_bulk(std::vector<std::pair<std::pair<double, double>, unsig
 }
 
 
-// Recursively calls itself depending on if the point is in the range, to less than, or greater than the range.
-// It only pushes the point to the results vector if it is within the range.
+// Overview: Recursively calls itself depending on if the point is in the range, to less than, or greater than the range.
+// It only pushes points from nodes that are in the range, but traverses nodes that could contain
+// children in the range.
+//
+// Results: The results are returned by reference in a vector and a map. The unique_ids map contains
+// a pair of the id and pair that are encountered by the range query. Ids in
+// unique_ids are are all unique. The results_points vector contains all the points
+// returned in the range query.
+//
+// Parameters: It can be passed a *zoom_level*, where it will stop traversing
+// a subtree when it hits a zoom_level that is greater than the passed zoom level.
+// It can also be passed a *search_depth*, where it will only traverse up to that
+// depth in the tree. This search_depth returns an intelligent less detailed
+// results that will contain fewer clusters (as the tree is balanced).
 void KD2Tree::range_query(KD2Node* ptr,
                          const std::size_t &depth,
                          const std::pair<double, double> &x_range,

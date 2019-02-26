@@ -1,9 +1,11 @@
 /* 
  * File:   KDTree.h
  *
- * KD Tree is a custom implementation of a classic KD Tree where k=2 with the added
- * feature of a zoom flag. The zoom flag allows queries to only check points
- * at certain zoom levels. It is based off crvs/KDTree on Github.
+ * Author: ECE297 Team013 2019
+ * 
+ * KD Tree is a custom (by our ECE297 team) implementation of a classic KD Tree
+ * where k=2 with the added feature of a zoom flag. The zoom flag allows queries
+ * to only check points at certain zoom levels. It is inspired by crvs/KDTree on Github.
  * 
  */
 

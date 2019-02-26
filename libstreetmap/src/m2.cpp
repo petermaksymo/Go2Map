@@ -14,25 +14,6 @@
 #include "constants.hpp"
 #include <boost/algorithm/string.hpp>
 
-//void draw_map();
-//void draw_main_canvas (ezgl::renderer &g);
-//void draw_selected_intersection (ezgl::renderer &g);
-//void draw_street_segments (ezgl::renderer &g);
-//void draw_points_of_interest (ezgl::renderer &g);
-//void draw_features (ezgl::renderer &g);
-//void draw_street_name(ezgl::renderer &g);
-//void draw_subway_data(ezgl::renderer &g);
-//void draw_bike_data(ezgl::renderer &g);
-//void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
-//void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
-//void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
-//void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
-//void act_on_transit_toggle(ezgl::application *app, bool isToggled);
-//void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
-//void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
-//bool check_and_switch_map(ezgl::application *app, std::string choice);
-//void search_intersection(std::string street1, std::string street2);
-
 
 void draw_map () {
     ezgl::application::settings settings;
@@ -115,6 +96,7 @@ void draw_main_canvas (ezgl::renderer &g) {
 }
 
 
+// Draws the last highlighted intersection stored in MAP
 void draw_selected_intersection (ezgl::renderer &g) {
     int id = MAP.state.last_selected_intersection;
     if (id <= getNumIntersections()) {
@@ -416,7 +398,9 @@ void draw_features (ezgl::renderer &g) {
     result_points.clear();
 }
 
-
+// Draws subway data for all of the routes and  subway stops. Subways stops
+// are only drawn above zoom level 2. This does not use KD Trees as subway routes
+// are generally smaller data sets and stops are only drawn above zoom level 2.
 void draw_subway_data(ezgl::renderer &g){
     g.set_color(ezgl::PURPLE); 
     g.set_line_width(3);
@@ -440,6 +424,9 @@ void draw_subway_data(ezgl::renderer &g){
     g.free_surface(subway_png);
 }
 
+// Draws bike data including all bike paths and some of the bike parking, depending
+// on the zoom_level. Does not use KD2Tree since this is generally a smaller
+// dataset.
 void draw_bike_data(ezgl::renderer &g) {
     g.set_color(ezgl::BIKE_GREEN);
     g.set_line_width(1);
@@ -520,7 +507,7 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
     } 
 }
 
-//shortcut keys for easy navigation
+// Shortcut keys for easy navigation
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name) {
     (void) key_name;
     if(event->type == GDK_KEY_PRESS) {
@@ -542,15 +529,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
             std::string text = gtk_entry_get_text(text_entry);
             boost::algorithm::to_lower(text);
-            /*
-            std::stringstream ss(text);
-            std::string entry1, entry2;
-            ss >> entry1;
-            ss >> entry2;
-            std::cout << entry1 << " " << entry2 << std::endl;
-            //while ((entry2 != "@") && (!entry2.empty())) ss >> entry2;
-            if (entry2 == "&") ss >> entry1;
-            */ 
+            
             std::string entry;
             if (text.find('&') == std::string::npos) {
                 entry = text;
@@ -608,20 +587,19 @@ void search_intersection(std::string street1, std::string street2) {
     std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name(street1);
     std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name(street2);
     std::vector<unsigned> intersectionID, current_intersection;
+    
     // Check for all possible intersections
     for (unsigned int i = 0; i < streetID1.size() - 1; i++) {
         for (unsigned int j = 0; j < streetID2.size() - 1; j++) {
             current_intersection = find_intersection_ids_from_street_ids(streetID1[i], streetID2[j]);
             intersectionID.insert(intersectionID.end(), current_intersection.begin(), current_intersection.end()); // Combine two vectors
-            //std::cout << getStreetName(streetID1[i]) << getStreetName(streetID2[j]) << std::endl;  
         }
-        
     }
+
     MAP.state.intersection_search_result = intersectionID;
     for (unsigned int i = 0; i < intersectionID.size(); i++) {
         std::cout << getIntersectionName(intersectionID[i]) << std::endl;
     }
-    //MAP.state.last_selected_intersection = intersectionID[0];
 }
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
