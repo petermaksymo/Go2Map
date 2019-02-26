@@ -271,6 +271,7 @@ void draw_street_name(ezgl::renderer &g) {
 void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
+    ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/LocationMarker.png");
     if(MAP.state.zoom_level >= 2) {
         std::size_t search_depth = 0;
         if(MAP.state.zoom_level > 3) {
@@ -291,7 +292,6 @@ void draw_points_of_interest (ezgl::renderer &g) {
                              result_points, // results
                              result_ids,
                              MAP.state.zoom_level, search_depth); // zoom_level
-        ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/place.png");
         for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
         int i = it->first;
@@ -329,6 +329,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
         result_ids.clear();
         result_points.clear();
        }
+    g.free_surface(poi_png);
     }
 
 
