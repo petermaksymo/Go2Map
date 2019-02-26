@@ -31,8 +31,9 @@
 #include <thread>
 
 //helper functions for multi threading loading of all the data
+//some are needed because of loading dependencies
 void load_streets_data(std::string map_path, bool &success);
-void load_streets_and_intersections();
+void load_streets_and_segments();
 void load_OSM_data(std::string map_path, bool &success);
 
 bool load_map(std::string map_path) {
@@ -48,15 +49,13 @@ bool load_map(std::string map_path) {
     
     
     //now spool up threads for loading rest of data
-    std::thread sub0(load_street_segments);
+    std::thread sub0(load_streets_and_segments);
     std::thread sub1(load_points_of_interest);
     std::thread sub2(load_features);
-    std::thread sub3(load_streets);
     
     sub0.join();
     sub1.join();
     sub2.join();
-    sub3.join();
     
     
     bool load_successful = load_OSM_success && load_Streets_success;
@@ -83,6 +82,12 @@ void load_streets_data(std::string map_path, bool &success) {
     load_intersections();
     
     return;
+}
+
+//dependency so run in series
+void load_streets_and_segments() {
+    load_street_segments();
+    load_streets();
 }
 
 void load_OSM_data(std::string map_path, bool &success) {
