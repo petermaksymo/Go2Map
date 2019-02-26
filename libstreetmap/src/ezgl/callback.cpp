@@ -2,6 +2,7 @@
 #include "map_db.h"
 #include <time.h>       //used for timing
 #include <iostream>
+#include "../constants.hpp"
 
 namespace ezgl {
 
@@ -284,7 +285,7 @@ gboolean press_help(GtkWidget *, gpointer data)
     
     //create the help dialog window
     dialog = gtk_dialog_new_with_buttons(
-        "Help Window",
+        "Welcome to Go2MAP!",
         (GtkWindow*) window,
         GTK_DIALOG_MODAL,
         ("GOT IT"),
@@ -294,8 +295,8 @@ gboolean press_help(GtkWidget *, gpointer data)
     
     // Create a label and attach it to the content area of the dialog
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    label = (GtkLabel *)gtk_label_new("hi");
-    gtk_label_set_markup(label, "<span size=\"x-large\"> TEST </span>");
+    label = (GtkLabel *)gtk_label_new(HELP_TEXT.c_str());
+    gtk_label_set_max_width_chars(label, 80);
     gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)label);
     
     //show the dialog

@@ -39,3 +39,13 @@ const std::unordered_map<std::string, std::string> valid_map_paths {
     std::make_pair("toronto", "/cad2/ece297s/public/maps/toronto_canada.streets.bin")
 };
 
+const std::string HELP_TEXT =
+    "Pick between transit and cycling data in the layers menu on the right.\n\n"
+    "Click and drag to move around the map and scroll to zoom. Or use the navigation\n"
+    "buttons on the right.\n\n"
+    "Search for intersections by typing in \"street 1 & street 2\" and then pressing\n"
+    "the Find button. Hit the \"enter\" key along the way for suggestions.\n\n"
+    "Change maps by typing the name of the new map in the search bar and then pressing\n"
+    "enter. See what maps are available by typing \"map-list\"."
+;
+
