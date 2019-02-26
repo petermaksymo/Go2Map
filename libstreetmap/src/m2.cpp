@@ -5,7 +5,7 @@
 #include "map_db.h"
 #include "helper_functions.h"
 #include "m1.h"
-//#include "m2.h"
+#include "m2.h"
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include <iostream>
@@ -14,24 +14,24 @@
 #include "constants.hpp"
 #include <boost/algorithm/string.hpp>
 
-void draw_map();
-void draw_main_canvas (ezgl::renderer &g);
-void draw_selected_intersection (ezgl::renderer &g);
-void draw_street_segments (ezgl::renderer &g);
-void draw_points_of_interest (ezgl::renderer &g);
-void draw_features (ezgl::renderer &g);
-void draw_street_name(ezgl::renderer &g);
-void draw_subway_data(ezgl::renderer &g);
-void draw_bike_data(ezgl::renderer &g);
-void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
-void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
-void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
-void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
-void act_on_transit_toggle(ezgl::application *app, bool isToggled);
-void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
-void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
-bool check_and_switch_map(ezgl::application *app, std::string choice);
-void search_intersection(std::string street1, std::string street2);
+//void draw_map();
+//void draw_main_canvas (ezgl::renderer &g);
+//void draw_selected_intersection (ezgl::renderer &g);
+//void draw_street_segments (ezgl::renderer &g);
+//void draw_points_of_interest (ezgl::renderer &g);
+//void draw_features (ezgl::renderer &g);
+//void draw_street_name(ezgl::renderer &g);
+//void draw_subway_data(ezgl::renderer &g);
+//void draw_bike_data(ezgl::renderer &g);
+//void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
+//void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
+//void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
+//void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
+//void act_on_transit_toggle(ezgl::application *app, bool isToggled);
+//void act_on_bikes_toggle(ezgl::application *app, bool isToggled);
+//void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
+//bool check_and_switch_map(ezgl::application *app, std::string choice);
+//void search_intersection(std::string street1, std::string street2);
 
 
 void draw_map () {

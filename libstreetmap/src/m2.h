@@ -11,8 +11,11 @@
  * Created on February 25, 2019, 9:37 PM
  */
 
-#ifndef M2_H
-#define M2_H
+#include "ezgl/application.hpp"
+#include "ezgl/graphics.hpp"
+#include <string>
+
+#pragma once 
 
 void draw_map();
 
@@ -67,5 +70,4 @@ bool check_and_switch_map(ezgl::application *app, std::string choice);
 // Search all possible intersections between two roads return a vector to MAP data structure
 void search_intersection(std::string street1, std::string street2);
 
-#endif /* M2_H */
 
