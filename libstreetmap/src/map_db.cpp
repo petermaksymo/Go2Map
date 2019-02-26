@@ -59,7 +59,7 @@ void load_street_segments () {
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
         
-        if(MAP.LocalStreetSegments[i].importance_level <= 0) {
+        if(MAP.LocalStreetSegments[i].importance_level < 0) {
             street_segs_zoom_m1.push_back(from_pt);
             street_segs_zoom_m1.push_back(to_pt);
         } else if(MAP.LocalStreetSegments[i].importance_level <= 2) {
@@ -156,7 +156,7 @@ void load_points_of_interest () {
         poi_zoom_0.push_back(point);
     }
     
-    MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_0.begin(), poi_zoom_0.end(), 0, poi_zoom_0.size(), 0);
+    MAP.poi_k2tree.root = MAP.poi_k2tree.make_tree(poi_zoom_0.begin(), poi_zoom_0.end(), 0, poi_zoom_0.size(), -1);
     
     poi_zoom_0.clear();
 }

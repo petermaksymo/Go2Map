@@ -274,47 +274,42 @@ void draw_street_name(ezgl::renderer &g) {
 void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
+    
     ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/IntersectionIcon.png");
-    if(MAP.state.zoom_level >= 2) {
-        std::size_t search_depth = 0;
-        if(MAP.state.zoom_level > 3) {
-            if(MAP.state.current_width >= 1000) search_depth = 11;
-            else search_depth = 0;
-        } else if(MAP.state.scale > 2) {
-            search_depth = 10;
-        }  else if(MAP.state.zoom_level > 1) {
-            search_depth = 8;
-        } else {
-            search_depth = 4;
-        }
+    
+    // Decide what level of POI detail to show based on zoom level
+    std::size_t search_depth = 0;
+    if(MAP.state.zoom_level > 3) {
+        if(MAP.state.current_width >= 500) search_depth = 10;
+        else search_depth = 0;
+    } else if(MAP.state.zoom_level > 2) {
+        search_depth = 8;
+    }  else if(MAP.state.zoom_level > 1) {
+        search_depth = 6;
+    } else  if(MAP.state.zoom_level > 0) {
+        search_depth = 4;
+    } else {
+        search_depth = 1;
+    }
         
-        MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
-                             0, // depth of query
-                             std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
-                             std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
-                             result_points, // results
-                             result_ids,
-                             MAP.state.zoom_level, search_depth); // zoom_level
-        for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
+    MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
+                         0, // depth of query
+                         std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
+                         std::make_pair(MAP.state.current_view_y_buffered.first, MAP.state.current_view_y_buffered.second), // y-range (smaller, greater)
+                         result_points, // results
+                         result_ids,
+                         MAP.state.zoom_level, search_depth); // zoom_level
+    for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
         int i = it->first;
-        
+
         double x = x_from_lon(getPointOfInterestPosition(i).lon());
         double y = y_from_lat(getPointOfInterestPosition(i).lat());
         std::string poi_name = getPointOfInterestName(i);
-        
-        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/7500;
-        
-        // Reduce size of red dot as user zooms in to reduce clutter
-        if (MAP.state.scale > 70) radius /= 2;
-        if (MAP.state.scale > 130) radius /= 4;
-        if (MAP.state.scale > 260) radius /= 2;
-        
-        // Draw the red dot representing POI
-        g.set_color(ezgl::RED);   
+
         //g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
         g.draw_surface(poi_png, png_draw_center_point(g, ezgl::point2d(x,y), 24));
-        
+
         // Display text differently at different scale level
         if (MAP.state.scale > 130 && (i % 3  == 0)) {
             g.set_color(ezgl::SADDLE_BROWN);
@@ -327,13 +322,12 @@ void draw_points_of_interest (ezgl::renderer &g) {
             if (i % 2 == 0) g.draw_text(ezgl::point2d(x,y-0.0000005),poi_name, 100, 100); 
             else g.draw_text(ezgl::point2d(x,y+0.0000005),poi_name, 100, 100);
         }
-    }
     
         result_ids.clear();
         result_points.clear();
-       }
-    g.free_surface(poi_png);
     }
+    g.free_surface(poi_png);
+}
 
 
 void draw_features (ezgl::renderer &g) {
