@@ -104,8 +104,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     );
     
     g.set_line_cap(ezgl::line_cap::round);
-    
-    draw_features(g);    
+    draw_features(g);
     draw_street_segments(g);
     if(MAP.state.is_bikes_on) draw_bike_data(g);
     if(MAP.state.is_poi_on) draw_points_of_interest(g);
@@ -281,7 +280,6 @@ void draw_points_of_interest (ezgl::renderer &g) {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
     
     ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/IntersectionIcon.png");
-    
     // Decide what level of POI detail to show based on zoom level
     std::size_t search_depth = 0;
     if(MAP.state.zoom_level > 3) {
@@ -296,7 +294,6 @@ void draw_points_of_interest (ezgl::renderer &g) {
     } else {
         search_depth = 1;
     }
-    
     MAP.poi_k2tree.range_query(MAP.poi_k2tree.root, // root
                          0, // depth of query
                          std::make_pair(MAP.state.current_view_x_buffered.first, MAP.state.current_view_x_buffered.second), // x-range (smaller, greater)
@@ -304,7 +301,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
                          result_points, // results
                          result_ids,
                          MAP.state.zoom_level, search_depth); // zoom_level
-        
+            
     for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
         
         int i = it->first;
@@ -327,10 +324,11 @@ void draw_points_of_interest (ezgl::renderer &g) {
             if (i % 2 == 0) g.draw_text(ezgl::point2d(x,y-0.0000005),poi_name, 100, 100); 
             else g.draw_text(ezgl::point2d(x,y+0.0000005),poi_name, 100, 100);
         }
-    
-        result_ids.clear();
-        result_points.clear();
     }
+    
+    result_ids.clear();
+    result_points.clear();
+    
     g.free_surface(poi_png);
 }
 
