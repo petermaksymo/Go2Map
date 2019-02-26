@@ -274,7 +274,7 @@ void draw_points_of_interest (ezgl::renderer &g) {
                              result_points, // results
                              result_ids,
                              MAP.state.zoom_level, 0); // zoom_level
-
+        ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/place.png");
         for(std::map<unsigned int, std::pair<double, double>>::iterator it = result_ids.begin(); it != result_ids.end(); it++) { 
 
         int i = it->first;
@@ -292,7 +292,8 @@ void draw_points_of_interest (ezgl::renderer &g) {
         
         // Draw the red dot representing POI
         g.set_color(ezgl::RED);   
-        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        //g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        g.draw_surface(poi_png, png_draw_center_point(g, ezgl::point2d(x,y), 24));
         
         // Display text differently at different scale level
         if (MAP.state.scale > 130 && (i % 3  == 0)) {
@@ -410,7 +411,7 @@ void draw_subway_data(ezgl::renderer &g){
         //draw stations if zoomed in enough
         if(MAP.state.zoom_level >= 2) {            
             for(unsigned j =0; j < MAP.OSM_data.subway_routes[i].stations.size(); j++) {
-                g.draw_surface(subway_png, png_draw_center_point(g, MAP.OSM_data.subway_routes[i].stations[j], 48));
+                g.draw_surface(subway_png, png_draw_center_point(g, MAP.OSM_data.subway_routes[i].stations[j], 24));
             }
         }
     }
