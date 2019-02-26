@@ -517,6 +517,7 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 
 //shortcut keys for easy navigation
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name) {
+    (void) key_name;
     if(event->type == GDK_KEY_PRESS) {
         std::string main_canvas_id = app->get_main_canvas_id();
         auto canvas = app->get_canvas(main_canvas_id);
@@ -619,6 +620,8 @@ void search_intersection(std::string street1, std::string street2) {
 }
 
 gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
+    (void) widget;
+    
     // Pre declaration of the parameter of application
     auto ezgl_app = static_cast<ezgl::application *>(data);
     std::string main_canvas_id = ezgl_app->get_main_canvas_id();

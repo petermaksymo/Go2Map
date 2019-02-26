@@ -354,10 +354,16 @@ gboolean poi_toggled(GtkToggleButton *toggle_button, gpointer data){
 
 void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
 {
+    (void) response_id;
+    (void) user_data;
+    
     gtk_widget_destroy(GTK_WIDGET (dialog));
 }
 
 gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
+    (void) entry;
+    (void) event;
+    
     MAP.state.search_changed = true;
     
     return TRUE;
