@@ -119,13 +119,14 @@ void draw_main_canvas (ezgl::renderer &g) {
 void draw_selected_intersection (ezgl::renderer &g) {
     int id = MAP.state.last_selected_intersection;
     if (id <= getNumIntersections()) {
+        ezgl::surface *search_png = g.load_png("./libstreetmap/resources/Icons/search.png");
+        
         float x = x_from_lon(MAP.intersection_db[id].position.lon());
         float y = y_from_lat(MAP.intersection_db[id].position.lat());
         
-        float radius = (x_from_lon(MAP.world_values.max_lon) - x_from_lon(MAP.world_values.min_lon))/5000;
+        g.draw_surface(search_png, png_draw_center_point(g, ezgl::point2d(x,y), 36));
         
-        g.set_color(ezgl::GREEN);
-        g.fill_arc(ezgl::point2d(x,y), radius, 0, 360);
+        g.free_surface(search_png);
     }
 }
 
@@ -273,7 +274,7 @@ void draw_street_name(ezgl::renderer &g) {
 void draw_points_of_interest (ezgl::renderer &g) {
     std::map<unsigned int, std::pair<double, double>> result_ids;
     std::vector<std::pair<std::pair<double, double>, unsigned int>> result_points;
-    ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/LocationMarker.png");
+    ezgl::surface *poi_png = g.load_png("./libstreetmap/resources/Icons/IntersectionIcon.png");
     if(MAP.state.zoom_level >= 2) {
         std::size_t search_depth = 0;
         if(MAP.state.zoom_level > 3) {

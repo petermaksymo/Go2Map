@@ -1,2 +1,7 @@
-All Icons in this file were taken from: https://material.io/tools/icons/?icon=remove&style=baseline on Feb. 21, 2019.
-These files were renamed and we may have applied a different colour to them.
+All black icons in this file were taken from: https://material.io/tools/icons/?icon=remove&style=baseline on Feb. 21, 2019.
+
+LocationMarker.png and IntersectionIcon.png were custom made.
+
+suway.png was from google
+
+not all icons were used but they may be used later
