@@ -1,4 +1,4 @@
-/*
+ /*
  * Contains the definition for the global MAP object as well as definitions
  * for helper functions used to populate the MAP object that are called in 
  * load_map
@@ -30,8 +30,9 @@ struct InfoStreets {
 };
 
 struct InfoStreetSegmentsLocal {
-    std::vector<double> street_segment_length;
-    std::vector<double> street_segment_speed_limit; 
+    double street_segment_length;
+    double street_segment_speed_limit; 
+    int importance_level;               //when to draw based off zoom-level (-1 is most important)
 };
 
 struct WorldValues {
@@ -79,7 +80,7 @@ struct MapInfo {
     std::vector<InfoStreets> street_db;   
     std::vector<unsigned int> permanent_features; // features that must always be drawn
     std::multimap<std::string, int> street_name_id_map; //for street names
-    InfoStreetSegmentsLocal LocalStreetSegments;        //distances/speed limits for street segments
+    std::vector<InfoStreetSegmentsLocal> LocalStreetSegments;        //distances/speed limits for street segments
     WorldValues world_values;                           //values about the world (e.g. max latitude))
     Map_State state;
     KD2Tree street_seg_k2tree;
@@ -104,6 +105,8 @@ void load_streets ();
 void load_points_of_interest ();
 
 void load_features ();
+
+int get_street_segment_importance(unsigned street_db_id);
 
 //clears all data for reloading maps
 void clear_map_data();

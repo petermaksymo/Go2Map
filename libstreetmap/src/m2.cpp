@@ -159,15 +159,15 @@ void draw_street_segments (ezgl::renderer &g) {
         
         //set width before drawing
         if (MAP.state.zoom_level > 3) {
-            g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 10);
+            g.set_line_width(MAP.LocalStreetSegments[id].street_segment_speed_limit / 10);
         } else if (MAP.state.zoom_level == 0) {
-            g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 30);
+            g.set_line_width(MAP.LocalStreetSegments[id].street_segment_speed_limit / 30);
         } else {
-            g.set_line_width(MAP.LocalStreetSegments.street_segment_speed_limit[id] / 20);
+            g.set_line_width(MAP.LocalStreetSegments[id].street_segment_speed_limit / 20);
         }
         
         //make highways orange
-        if(MAP.LocalStreetSegments.street_segment_speed_limit[id] >= 80) {
+        if(MAP.LocalStreetSegments[id].street_segment_speed_limit >= 80) {
             g.set_color(ezgl::ORANGE);
         }
         

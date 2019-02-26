@@ -133,6 +133,12 @@ void add_ttc_station(const OSMNode* node, bool &found_ttc) {
     }
 }
 
+void check_and_add_street(const OSMWay * way, std::string key, std::string value) {
+    if(key == "" && value == "") {
+        
+    }
+}
+
 
 std::vector<ezgl::point2d> point_vector_from_way(const OSMWay* way) {
     std::vector<ezgl::point2d> points;

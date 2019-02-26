@@ -7,6 +7,7 @@
 #include "map_db.h"
 #include "KD2Tree.h"
 #include "StreetsDatabaseAPI.h"
+#include "OSMDatabaseAPI.h"
 #include <map>
 #include <boost/algorithm/string.hpp>
 #include "helper_functions.h"
@@ -33,13 +34,16 @@ void load_street_segments () {
         
         MAP.street_db[segment.streetID].segments.push_back(i);
         
-        MAP.LocalStreetSegments.street_segment_length.push_back(street_segment_length_helper(i));
-        MAP.LocalStreetSegments.street_segment_speed_limit.push_back(segment.speedLimit);
+        InfoStreetSegmentsLocal to_load;
+        to_load.street_segment_length = street_segment_length_helper(i);
+        to_load.street_segment_speed_limit = segment.speedLimit;
+        to_load.importance_level = get_street_segment_importance(i);
+        MAP.LocalStreetSegments.push_back(to_load);
         
         //  Calculate length of street and average speed limit
-        MAP.street_db[segment.streetID].length += MAP.LocalStreetSegments.street_segment_length[i];
+        MAP.street_db[segment.streetID].length += MAP.LocalStreetSegments[i].street_segment_length;
         MAP.street_db[segment.streetID].average_speed = (MAP.street_db[segment.streetID].average_speed*MAP.street_db[segment.streetID].segments.size()
-                                                        +MAP.LocalStreetSegments.street_segment_speed_limit[i])/(MAP.street_db[segment.streetID].segments.size() + 1);
+                                                        +MAP.LocalStreetSegments[i].street_segment_speed_limit)/(MAP.street_db[segment.streetID].segments.size() + 1);
         
     }
     
@@ -75,6 +79,7 @@ void load_street_segments () {
     street_segs_zoom_1.clear();
 }
 
+
 // load extra intersection info into MAP
 // Also determines the max and min LatLon for drawing
 void load_intersections () {
@@ -106,6 +111,7 @@ void load_intersections () {
     MAP.state.last_selected_intersection = getNumIntersections() + 1;
 }
 
+
 // loads street data into MAP
 void load_streets () { 
     //Iterating through all streets 
@@ -129,6 +135,7 @@ void load_streets () {
     }
 }
 
+
 void load_points_of_interest () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> poi_zoom_2;
     
@@ -148,6 +155,7 @@ void load_points_of_interest () {
     
     MAP.poi_k2tree.visualize_tree(MAP.poi_k2tree.root, 0, 6);
 }
+
 
 void load_features () {
     std::vector<std::pair<std::pair<double, double>, unsigned int>> feature_zoom_0;
@@ -187,6 +195,35 @@ void load_features () {
     feature_zoom_0.clear();
 }
 
+
+int get_street_segment_importance(unsigned street_db_id) {
+    const OSMWay *street = MAP.OSM_data.way_by_OSMID[getInfoStreetSegment(street_db_id).wayOSMID];
+    
+    for(unsigned i=0; i < getTagCount(street); i++) {
+        std::string key, value;
+        std::tie(key, value) = getTagPair(street, i);
+
+        if(key == "highway") {
+            if(value == "motorway")          
+                return -1;
+            else if(value == "trunk" || value == "motorway_link")
+                return 0;
+            else if(value == "primary" || value == "trunk_link")
+                return 1;
+            else if(value == "secondary" || value == "primary_link")
+                return 2;
+            else if(value == "tertiary" || value == "secondary_link")
+                return 3;
+            else 
+                return 4;
+        
+        }
+    } 
+    
+    return 4;
+}
+
+
 void clear_map_data() {
     MAP.intersection_db.clear();
     
@@ -196,8 +233,7 @@ void clear_map_data() {
     
     MAP.permanent_features.clear();
     
-    MAP.LocalStreetSegments.street_segment_length.clear();
-    MAP.LocalStreetSegments.street_segment_speed_limit.clear();
+    MAP.LocalStreetSegments.clear();
     
     MAP.state.last_selected_intersection = 10000000;
     

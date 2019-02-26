@@ -39,12 +39,25 @@ bool load_map(std::string map_path) {
     bool load_OSM_success, load_Streets_success;
     
     //spool up a thread to load the OSM data and Streets data in parallel
-    std::thread OSM_thread(load_OSM_data, map_path, std::ref(load_OSM_success));
-    std::thread Streets_thread(load_streets_data, map_path, std::ref(load_Streets_success));
+    std::thread OSM_loader(load_OSM_data, map_path, std::ref(load_OSM_success));
+    std::thread Streets_and_intersections_loader(load_streets_data, map_path, std::ref(load_Streets_success));
     
-    //wait for both threads to finish
-    OSM_thread.join();
-    Streets_thread.join();
+    //wait for both threads to finish, next part is dependant on this data
+    OSM_loader.join();
+    Streets_and_intersections_loader.join();
+    
+    
+    //now spool up threads for loading rest of data
+    std::thread sub0(load_street_segments);
+    std::thread sub1(load_points_of_interest);
+    std::thread sub2(load_features);
+    std::thread sub3(load_streets);
+    
+    sub0.join();
+    sub1.join();
+    sub2.join();
+    sub3.join();
+    
     
     bool load_successful = load_OSM_success && load_Streets_success;
 
@@ -64,22 +77,9 @@ void close_map() {
 void load_streets_data(std::string map_path, bool &success) {
     success = loadStreetsDatabaseBIN(map_path);
 
-    load_streets_and_intersections();
-    
-    //spool up threads for loading
-    std::thread sub1(load_points_of_interest);
-    std::thread sub2(load_features);
-    
-    sub1.join();
-    sub2.join();
+    load_intersections();
     
     return;
-}
-
-void load_streets_and_intersections() {
-    load_intersections();
-    load_street_segments();
-    load_streets();
 }
 
 void load_OSM_data(std::string map_path, bool &success) {
@@ -219,7 +219,7 @@ double find_distance_between_two_points(LatLon point1, LatLon point2) {
 
 // Access street segment length pre-computed and stored to MAP
 double find_street_segment_length(unsigned street_segment_id) {
-    return MAP.LocalStreetSegments.street_segment_length[street_segment_id];
+    return MAP.LocalStreetSegments[street_segment_id].street_segment_length;
 }
 
 
@@ -228,7 +228,7 @@ double find_street_length(unsigned street_id) {
     double distance = 0.0;
     // Iterate through each segment of the street
     for (unsigned int i = 0; i < MAP.street_db[street_id].segments.size(); i++) {
-        distance = distance + MAP.LocalStreetSegments.street_segment_length[MAP.street_db[street_id].segments[i]];
+        distance = distance + MAP.LocalStreetSegments[MAP.street_db[street_id].segments[i]].street_segment_length;
     }
     return distance;
 }
@@ -237,8 +237,8 @@ double find_street_length(unsigned street_id) {
 // Calculate travel time by accessing pre-computed street segment length and stored street segment speed limit
 double find_street_segment_travel_time(unsigned street_segment_id) {
     double time = 0.0;
-    time = MAP.LocalStreetSegments.street_segment_length[street_segment_id] 
-            / MAP.LocalStreetSegments.street_segment_speed_limit[street_segment_id] * 3.6; // Multiplying by 3.6 to convert from KM/h to M/s
+    time = MAP.LocalStreetSegments[street_segment_id].street_segment_length 
+            / MAP.LocalStreetSegments[street_segment_id].street_segment_speed_limit * 3.6; // Multiplying by 3.6 to convert from KM/h to M/s
     return time;
 }
 
