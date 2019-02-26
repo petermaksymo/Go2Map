@@ -1,5 +1,5 @@
 /*
- * Initial graphics implementation (may need to be refactored to separate files later)
+ * Initial graphics implementation
  */
 
 #include "map_db.h"
@@ -31,7 +31,8 @@ void draw_map () {
     application.run(nullptr, act_on_mouse_click, 
                     nullptr, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
-                    act_on_poi_toggle, act_on_suggested_clicked);
+                    act_on_poi_toggle, act_on_suggested_clicked,
+                    act_on_find);
 }
 
 

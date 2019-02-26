@@ -14,6 +14,7 @@
 #include "constants.hpp"
 #include <boost/algorithm/string.hpp>
 
+
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
     
     //highlight intersection when clicked on
@@ -24,28 +25,28 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
             MAP.intersection_db[MAP.state.last_selected_intersection].is_selected = false;
         }
 
-        std::cout << "Mouse clicked at (" << x << ", " << y << ")\n";
-
         LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
         int id = find_closest_intersection(position);
 
         app->update_message("Closest Intersection: " + MAP.intersection_db[id].name);
         MAP.intersection_db[id].is_selected = true;
         MAP.state.last_selected_intersection = id;
-        std::cout << id << std::endl;
 
         app->refresh_drawing();
         //end of use from tutorial slides
     } 
 }
 
-// Shortcut keys for easy navigation
+
+// Shortcut keys for easy navigation and handles search
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name) {
     (void) key_name;
+    
     if(event->type == GDK_KEY_PRESS) {
         std::string main_canvas_id = app->get_main_canvas_id();
         auto canvas = app->get_canvas(main_canvas_id);
         
+        //check if shortcut key
         switch(event->keyval) {
             case GDK_KEY_Page_Up:   ezgl::zoom_in(canvas, 5.0/3.0);      break;
             case GDK_KEY_Page_Down: ezgl::zoom_out(canvas, 5.0/3.0);     break;
@@ -68,6 +69,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             } else {
                 entry = text.substr(0, text.find('&') - 1);
             }
+            
             std::vector<unsigned> result;
             if (!entry.empty()) {
                 if(check_and_switch_map(app, text)) {
@@ -81,9 +83,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             // Limit search results shown
             if (result.size() < MAX_SUGGESTIONS) num_result_shown = result.size();
             
-            if (num_result_shown != 0) { 
-                std::cout<< std::endl;
-                
+            if (num_result_shown != 0) {                 
                 //loads the popup menu
                 GtkMenu *popup = (GtkMenu *)app->get_object("SearchPopUp");
                 GtkWidget *search_bar = (GtkWidget *)app->get_object("SearchBar");
@@ -102,8 +102,6 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
                         //if no result, populate menu with a blank
                         gtk_menu_item_set_label((GtkMenuItem *)suggestion, "");
                     } else {
-                        std::cout << getStreetName(result[i]) << std::endl;
-
                         gtk_menu_item_set_label((GtkMenuItem *)suggestion, getStreetName(result[i]).c_str());
                     }
                 }
@@ -113,6 +111,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
         }
     }
 }
+
 
 // Search for common intersections among all possible street results
 void search_intersection(std::string street1, std::string street2) {
@@ -129,12 +128,9 @@ void search_intersection(std::string street1, std::string street2) {
     }
 
     MAP.state.intersection_search_result = intersectionID;
-    for (unsigned int i = 0; i < intersectionID.size(); i++) {
-        std::cout << getIntersectionName(intersectionID[i]) << std::endl;
-    }
 }
 
-gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
+void act_on_find(GtkWidget *widget, gpointer data) {
     (void) widget;
     
     // Pre declaration of the parameter of application
@@ -173,6 +169,7 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
    
     if (MAP.state.search_index == (int)MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
     int index = MAP.state.search_index;
+    
     // Get location of the intersection and then apply margin to it
     if (MAP.state.intersection_search_result.empty()) {
         ezgl_app->update_message("No intersection found");
@@ -182,16 +179,18 @@ gboolean ezgl::press_find(GtkWidget *widget, gpointer data) {
         LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[index]);
         ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
         ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
+        
         // Construct new view of the canvas
-        rectangle view(origin, top_right);
+        ezgl::rectangle view(origin, top_right);
         ezgl::zoom_fit(canvas, view);
         MAP.state.last_selected_intersection = MAP.state.intersection_search_result[index];
+        
         // Update detail information of intersection and refresh the canvas
         ezgl_app->update_message(MAP.intersection_db[MAP.state.intersection_search_result[index]].name);
         ezgl_app->refresh_drawing();
     }
-    return True;
 }
+
 
 void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_transit_on = isToggled;
@@ -199,17 +198,20 @@ void act_on_transit_toggle(ezgl::application *app, bool isToggled) {
     app->refresh_drawing();
 }  
     
+
 void act_on_bikes_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_bikes_on = isToggled;
   
     app->refresh_drawing();
 }
 
+
 void act_on_poi_toggle(ezgl::application *app, bool isToggled) {
     MAP.state.is_poi_on = isToggled;
   
     app->refresh_drawing();
 }
+
 
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
@@ -228,6 +230,7 @@ bool check_and_switch_map(ezgl::application *app, std::string choice) {
     if (map_choice != valid_map_paths.end()) {
         std::cout << "Loading " + map_choice->first + " (it may take several seconds)\n";
 
+        //should work but normally doesnt
         app->update_message("Loading " + map_choice->first + " (it may take several seconds)");
         app->refresh_drawing();
 

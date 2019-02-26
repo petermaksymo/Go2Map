@@ -125,7 +125,9 @@ int application::run(setup_callback_fn initial_setup_user_callback,
     checkbox_fn transit_toggled_user_callback,
     checkbox_fn bikes_toggled_user_callback,
     checkbox_fn poi_toggled_user_callback,
-    suggestion_fn search_suggestion_user_callback)
+    suggestion_fn search_suggestion_user_callback,
+    find_fn find_user_callback    
+        )
 {
   if(disable_event_loop)
     return 0;
@@ -137,7 +139,8 @@ int application::run(setup_callback_fn initial_setup_user_callback,
   transit_toggled_callback = transit_toggled_user_callback;
   bikes_toggled_callback = bikes_toggled_user_callback,
   poi_toggled_callback = poi_toggled_user_callback,
-  search_suggestion_callback = search_suggestion_user_callback;
+  search_suggestion_callback = search_suggestion_user_callback,
+  find_callback = find_user_callback;
 
   // The result of calling g_application_run() again after it returns is unspecified.
   // So we have to destruct and reconstruct the GTKApplication

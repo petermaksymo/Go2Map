@@ -54,6 +54,12 @@ using checkbox_fn = void (*)(application *app, bool isToggled);
  * The signature of a user-defined callback function for selected suggestion
  */
 using suggestion_fn = void (*)(application *app, std::string suggestion);
+
+/**
+ * The signature of a user-defined callback function for the find button
+ */
+using find_fn = void (*)(GtkWidget *widget, gpointer data);
+
 /**
  * The core application.
  *
@@ -199,7 +205,8 @@ public:
       checkbox_fn transit_toggled_user_callback,
       checkbox_fn bikes_toggled_user_callback,
       checkbox_fn poi_toggled_user_callback,
-      suggestion_fn search_suggestion_user_callback
+      suggestion_fn search_suggestion_user_callback,
+      find_fn find_user_callback
   );
 
   /**
@@ -336,7 +343,11 @@ public:
   
   //the user-defined callback function for handline when a search suggestion is clicked
   suggestion_fn search_suggestion_callback;
+  
+  //the user-defined callback function for handline when the find button is clicked
+  find_fn find_callback;
 };
+
 }
 
 /**

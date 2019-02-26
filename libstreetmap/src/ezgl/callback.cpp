@@ -381,4 +381,14 @@ gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data) {
     return TRUE;
 }
 
+gboolean press_find(GtkWidget *widget, gpointer data) {   
+    auto application = static_cast<ezgl::application *>(data);
+    
+    if(application->find_callback != nullptr) {
+        application->find_callback(widget, data);
+    }
+    
+    return TRUE;
+}
+
 }
