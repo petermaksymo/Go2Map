@@ -59,13 +59,13 @@ void load_street_segments () {
         std::pair<std::pair<double, double>, unsigned int> to_pt = std::make_pair(t_point, i);
         
         
-        if(MAP.street_db[segment.streetID].average_speed >= 80) {
+        if(MAP.LocalStreetSegments[i].importance_level <= 0) {
             street_segs_zoom_m1.push_back(from_pt);
             street_segs_zoom_m1.push_back(to_pt);
-        } else if((MAP.street_db[segment.streetID].average_speed >= 60) || ((MAP.street_db[segment.streetID].length > 1000 && MAP.street_db[segment.streetID].length < 100000))) {
+        } else if(MAP.LocalStreetSegments[i].importance_level <= 2) {
             street_segs_zoom_0.push_back(from_pt);
             street_segs_zoom_0.push_back(to_pt);
-        } else if((MAP.street_db[segment.streetID].average_speed >= 30) && ((MAP.street_db[segment.streetID].length > 200 && MAP.street_db[segment.streetID].length < 100000)) || ((MAP.street_db[segment.streetID].length > 10000 && MAP.street_db[segment.streetID].length < 100000))) {
+        } else if(MAP.LocalStreetSegments[i].importance_level <=3 && MAP.street_db[segment.streetID].length > 200 && MAP.street_db[segment.streetID].length < 1000000) {
             street_segs_zoom_1.push_back(from_pt);
             street_segs_zoom_1.push_back(to_pt);
         } else {
@@ -211,13 +211,13 @@ int get_street_segment_importance(unsigned street_db_id) {
         if(key == "highway") {
             if(value == "motorway")          
                 return -1;
-            else if(value == "trunk" || value == "motorway_link")
+            else if(value == "trunk")
                 return 0;
-            else if(value == "primary" || value == "trunk_link")
+            else if(value == "primary")
                 return 1;
-            else if(value == "secondary" || value == "primary_link")
+            else if(value == "secondary")
                 return 2;
-            else if(value == "tertiary" || value == "secondary_link")
+            else if(value == "tertiary" || value == "secondary_link"  || value == "trunk_link" || value == "motorway_link"  || value == "primary_link")
                 return 3;
             else 
                 return 4;

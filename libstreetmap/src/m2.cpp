@@ -170,7 +170,7 @@ void draw_street_segments (ezgl::renderer &g) {
         }
         
         //make highways orange
-        if(MAP.LocalStreetSegments[id].street_segment_speed_limit >= 80) {
+        if(MAP.LocalStreetSegments[id].importance_level < 0) {
             g.set_color(ezgl::ORANGE);
         }
         
