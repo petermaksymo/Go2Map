@@ -1,6 +1,6 @@
 /*
- * File:   helper_functions.h
- *
+ * Helper functions, mostly used for converting coordinates as well as 
+ * some others
  */
 
 #pragma once //protects against multiple inclusions of this header file

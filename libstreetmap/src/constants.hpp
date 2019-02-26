@@ -2,13 +2,6 @@
  * Constants needed
  */
 
-/* 
- * File:   constants.hpp
- * Author: maksymo4
- *
- * Created on February 23, 2019, 11:14 PM
- */
-
 #pragma once
 
 #include <unordered_map>

@@ -9,15 +9,18 @@
 #include <ezgl/point.hpp>
 #include "ezgl/graphics.hpp"
 
+
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec) {
     std::sort(vec.begin(), vec.end());
     vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
+
 double y_from_lat (double lat) {  
     return (lat * DEG_TO_RAD);
 }
+
 
 double x_from_lon (double lon) {
     double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
@@ -25,9 +28,11 @@ double x_from_lon (double lon) {
     return (lon * cos(avg_lat) * DEG_TO_RAD);
 }
 
+
 double lat_from_y (double y) {
     return (y / DEG_TO_RAD);
 }
+
 
 double lon_from_x (double x) {
     double avg_lat = (MAP.world_values.max_lat + MAP.world_values.min_lat) / 2.0 * DEG_TO_RAD;
@@ -35,11 +40,13 @@ double lon_from_x (double x) {
     return (x / (cos(avg_lat) * DEG_TO_RAD));
 }
 
+
 ezgl::point2d point2d_from_LatLon (LatLon point) {
     ezgl::point2d coord(x_from_lon(point.lon()), y_from_lat(point.lat()));
     
     return coord;
 }
+
 
 //Pre-compute length of street segment
 double street_segment_length_helper(unsigned street_segment_id) {
@@ -79,9 +86,11 @@ double street_segment_length_helper(unsigned street_segment_id) {
     return distance;
 }
 
+
 double distance_from_points(double x1, double y1, double x2, double y2) {
     return sqrt(pow((x2-x1), 2) + pow((y2-y1), 2));
 }
+
 
 ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, int png_size) {
     ezgl::point2d png_adjust = g.get_camera()->get_world_scale_factor();

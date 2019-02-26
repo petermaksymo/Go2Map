@@ -131,6 +131,7 @@ KD2Node* KD2Tree::make_tree(std::vector<std::pair<std::pair<double, double>, uns
     return new_node;
 }
 
+
 // Recursively visualizes KD Tree horizontally
 void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &zoom_level) {
     if(!ptr) return;
@@ -153,6 +154,7 @@ void KD2Tree::visualize_tree(KD2Node* ptr, const std::size_t depth, const int &z
     return;
 }
 
+
 // Recursive function to insert pair into KD2 Tree
 // Tries to insert left if less than middle point, or right if greater than or
 // equal to.
@@ -172,6 +174,7 @@ void KD2Tree::insert_pair(KD2Node* ptr, const std::pair<std::pair<double, double
         else ptr->right = new KD2Node(new_pt.first, new_pt.second, zoom_level);
     }
 }
+
 
 // Inserts an vector of points into an RTree by recursively splitting the array
 // to match the nodes in the RTree until places to insert the points are found.

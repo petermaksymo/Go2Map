@@ -310,6 +310,7 @@ gboolean press_help(GtkWidget *, gpointer data)
         NULL
     );
     
+    return TRUE;
 }
 
 gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data){
@@ -321,6 +322,8 @@ gboolean transit_toggled(GtkToggleButton *toggle_button, gpointer data){
 
       application->transit_toggled_callback(application, isToggled);
     }
+    
+    return TRUE;
 }
 
 gboolean bikes_toggled(GtkToggleButton *toggle_button, gpointer data){
@@ -332,6 +335,8 @@ gboolean bikes_toggled(GtkToggleButton *toggle_button, gpointer data){
 
       application->bikes_toggled_callback(application, isToggled);
     }
+    
+    return TRUE;
 }
 
 void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
@@ -341,6 +346,8 @@ void on_dialog_response(GtkDialog *dialog, gint response_id, gpointer user_data)
 
 gboolean search_entry_handle_event (GtkSearchEntry *entry, GdkEvent *event) {
     MAP.state.search_changed = true;
+    
+    return TRUE;
 }
 
 gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data) {
@@ -351,6 +358,8 @@ gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data) {
     
         application->search_suggestion_callback(application, suggestion);
     }
+    
+    return TRUE;
 }
 
 }

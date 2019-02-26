@@ -1,12 +1,6 @@
 /*
- * The definitions to functions used to fetch extra data from the Layer-1 api
- */
-
-/* 
- * File:   OSMFetchers.h
- * Author: maksymo4
- *
- * Created on February 22, 2019, 4:38 PM
+ * The definitions to functions used to fetch and load 
+ * extra data from the Layer-1 api
  */
 
 #pragma once
@@ -18,6 +12,7 @@
 //Loads all needed OSM data as well as generates hash tables for nodes and ways
 //so we can lookup through OSMid
 void load_osm_data();
+
 
 //goes through all OSM nodes creating a hash table for lookup by OSMID and
 //adds any node data already distinguishable to MAP
@@ -31,6 +26,7 @@ void go_through_OSM_ways();
 //note, must be run AFTER going through nodes/ways as it needs the hash tables
 //for lookup by OSMID
 void go_through_OSM_relations();
+
 
 //Adds a subway route given the proper OSMRelation*
 void add_subway_route(const OSMRelation* relation);

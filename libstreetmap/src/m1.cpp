@@ -73,6 +73,9 @@ void close_map() {
     closeStreetDatabase();
 }
 
+
+////////////////////////////////////////////////////////////////
+
 //Loading helper functions:
 void load_streets_data(std::string map_path, bool &success) {
     success = loadStreetsDatabaseBIN(map_path);
@@ -94,6 +97,9 @@ void load_OSM_data(std::string map_path, bool &success) {
      
     return;
 }
+
+//////////////////////////////////////////////////////////////
+//M1 functions:
 
 //Returns the street segments for the given intersection 
 //pre-computed in load_map for performance
