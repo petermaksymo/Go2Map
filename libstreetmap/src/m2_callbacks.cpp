@@ -120,8 +120,8 @@ void search_intersection(std::string street1, std::string street2) {
     std::vector<unsigned> intersectionID, current_intersection;
     
     // Check for all possible intersections
-    for (unsigned int i = 0; i < streetID1.size() - 1; i++) {
-        for (unsigned int j = 0; j < streetID2.size() - 1; j++) {
+    for (unsigned int i = 0; i < streetID1.size(); i++) {
+        for (unsigned int j = 0; j < streetID2.size(); j++) {
             current_intersection = find_intersection_ids_from_street_ids(streetID1[i], streetID2[j]);
             intersectionID.insert(intersectionID.end(), current_intersection.begin(), current_intersection.end()); // Combine two vectors
         }
