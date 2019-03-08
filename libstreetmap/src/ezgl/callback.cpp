@@ -71,24 +71,24 @@ gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer data )
       application->mouse_press_callback(application, event, world.x, world.y);
     }
     
-//    //implement inertial scrolling
-//    if(was_panning) {
-//        std::string main_canvas_id = application->get_main_canvas_id();
-//        auto canvas = application->get_canvas(main_canvas_id);
-//        
-//        
-//        //translate by 1/10th prev_dx/dy each time for a max of 5 times
-//        //or when very small
-//        int counter = 0;
-//        while((prev_dx > 0.00000001 && prev_dy > 0.00000001) || counter < 5) {
-//            translate(canvas, -prev_dx, -prev_dy);
-//            application->refresh_drawing();
-//            
-//            prev_dx = prev_dx/10.0;
-//            prev_dy = prev_dy/10.0;
-//            counter ++;
-//        }
-//    }
+    //implement inertial scrolling
+    if(was_panning) {
+        std::string main_canvas_id = application->get_main_canvas_id();
+        auto canvas = application->get_canvas(main_canvas_id);
+        
+        
+        //translate by 1/10th prev_dx/dy each time for a max of 5 times
+        //or when very small
+        int counter = 0;
+        while((prev_dx > 0.00000001 && prev_dy > 0.00000001) || counter < 5) {
+            translate(canvas, -prev_dx, -prev_dy);
+            application->refresh_drawing();
+            
+            prev_dx = prev_dx/10.0;
+            prev_dy = prev_dy/10.0;
+            counter ++;
+        }
+    }
     
   }
 
@@ -103,9 +103,6 @@ gboolean move_mouse(GtkWidget *, GdkEventButton *event, gpointer data)
 
     // Check if the pan button is pressed to support dragging
     if(pan_button_pressed) {
-      // drop this panning event if we have just served another one
-      if(gtk_get_current_event_time() - last_panning_event_time < 100)
-        return true;
 
       last_panning_event_time = gtk_get_current_event_time();
 
