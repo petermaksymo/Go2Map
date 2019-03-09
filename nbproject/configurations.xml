@@ -21,6 +21,7 @@
           <in>m2.cpp</in>
           <in>m2_callbacks.cpp</in>
           <in>m2_draw.cpp</in>
+          <in>m3.cpp</in>
           <in>map_db.cpp</in>
           <in>map_db.h</in>
         </df>
@@ -171,6 +172,8 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -305,6 +308,8 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
           <preprocessorList>
@@ -373,6 +378,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -468,6 +475,8 @@
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
@@ -545,6 +554,8 @@
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
@@ -621,6 +632,8 @@
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
@@ -688,6 +701,8 @@
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
       </item>

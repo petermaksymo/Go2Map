@@ -25,6 +25,7 @@
 #include "map_db.h"
 #include "m1.h"
 #include "m2.h"
+#include "m3.h"
 #include "KD2Tree.h"
 
 //Program exit codes
