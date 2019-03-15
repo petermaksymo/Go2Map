@@ -69,6 +69,7 @@ TurnType find_turn_type(unsigned segment1_id, unsigned segment2_id) {
     ezgl::point2d vec2 = seg2_point - intersection_point;
     
     //find angle between the two vectors
+    //method/idea from: https://stackoverflow.com/a/21486462
     double dot = vec1.x * vec2.x + vec1.y * vec2.y; //dot product
     double det = vec1.x * vec2.y - vec1.y * vec2.x; //determinant
     double angle = atan2(det, dot);
@@ -90,8 +91,8 @@ ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & s
             : getIntersectionPosition(segment.to);
     } else {
         point_LL = segment.to == intersection_id
-            ? getStreetSegmentCurvePoint(0, segment_id)
-            : getStreetSegmentCurvePoint(segment.curvePointCount-1, segment_id);
+            ? getStreetSegmentCurvePoint(segment.curvePointCount-1, segment_id)
+            : getStreetSegmentCurvePoint(0, segment_id);
     }
     
     return point2d_from_LatLon(point_LL);
