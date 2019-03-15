@@ -24,6 +24,9 @@ double lat_from_y (double y);
 //convert x coordinate to longitude
 double lon_from_x (double x);
 
+//returns angle from 2 points
+double angle_from_2_point2d (ezgl::point2d p1, ezgl::point2d p2);
+
 //convert LatLon to point2d
 ezgl::point2d point2d_from_LatLon (LatLon point);
 

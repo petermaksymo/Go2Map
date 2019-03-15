@@ -139,15 +139,10 @@ void draw_street_name(ezgl::renderer &g) {
         
         if (MAP.state.zoom_level >= 3 && (getStreetName(getInfoStreetSegment(i).streetID) != "<unknown>")) {
             for(std::vector<LatLon>::iterator it_p = points.begin(); (it_p + 1) != points.end(); it_p++) {
-                double x1 = x_from_lon(it_p->lon());
-                double y1 = y_from_lat(it_p->lat());
-                double x2 = x_from_lon((it_p + 1)->lon());
-                double y2 = y_from_lat((it_p + 1)->lat());
-
-                double angle;
-                if(x2 == x1 && y2 > y1) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
-                else if(x2 == x1 && y2 < y1) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
-                else angle = ( atan( (y2-y1)/(x2-x1) ) )/DEG_TO_RAD;
+                ezgl::point2d point_1 = point2d_from_LatLon(*it_p);
+                ezgl::point2d point_2 = point2d_from_LatLon(*(it_p+1));
+                
+                double angle = angle_from_2_point2d(point_1, point_2);
                 
                 //keep orientation of text the same
                 if (angle > 90) angle = angle - 180;
@@ -155,11 +150,12 @@ void draw_street_name(ezgl::renderer &g) {
                 
                 g.set_color(ezgl::BLACK);
                 
-                ezgl::point2d mid((x2 + x1) / 2.0, (y2 + y1) / 2.0);
+                ezgl::point2d mid((point_2.x + point_1.x) / 2.0, (point_2.y + point_1.y) / 2.0);
                 
                 
                 g.set_text_rotation(angle);
-                g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID), distance_from_points(x1, y1, x2, y2), 100);
+                g.draw_text(mid, getStreetName(getInfoStreetSegment(i).streetID), 
+                        distance_from_points(point_1.x, point_1.y, point_2.x, point_2.y), 100);
             }
         }
         points.clear();

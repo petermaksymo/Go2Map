@@ -47,6 +47,15 @@ ezgl::point2d point2d_from_LatLon (LatLon point) {
     return coord;
 }
 
+double angle_from_2_point2d (ezgl::point2d p1, ezgl::point2d p2) {
+    double angle;
+    if(p2.x == p1.x && p2.y > p1.y) angle = atan(1)*2 /DEG_TO_RAD; // pi / 2
+    else if(p2.x == p1.x && p2.y < p1.y) angle = atan(1)*6 /DEG_TO_RAD; // 3* pi / 2
+    else angle = ( atan2( (p2.y-p1.y) , (p2.x-p1.x) ) )/DEG_TO_RAD;
+    
+    return angle;
+}
+
 
 //Pre-compute length of street segment
 double street_segment_length_helper(unsigned street_segment_id) {

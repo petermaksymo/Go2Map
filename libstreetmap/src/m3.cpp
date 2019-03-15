@@ -12,93 +12,67 @@
 #include <cmath>
 #include <stdio.h>
 
-TurnType find_turn_type(unsigned street_segment1, unsigned street_segment2) {
-    InfoStreetSegment segment1 = getInfoStreetSegment(street_segment1);
-    InfoStreetSegment segment2 = getInfoStreetSegment(street_segment2);
+ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id);
+
+TurnType find_turn_type(unsigned segment1_id, unsigned segment2_id) {
+    InfoStreetSegment segment1 = getInfoStreetSegment(segment1_id);
+    InfoStreetSegment segment2 = getInfoStreetSegment(segment2_id);
     
-    double street1_x, street1_y, street2_x, street2_y;
     int intersection_id = 0;
     
-    // Check the intersectionIndex
+    // Find the intersection the turn takes place, returns NONE if not found
     if (segment1.to == segment2.to) intersection_id = segment1.to; 
     else if (segment1.to == segment2.from) intersection_id = segment1.to; 
     else if (segment1.from == segment2.from) intersection_id = segment1.from; 
     else if (segment1.from == segment2.to) intersection_id = segment1.from;  
     else return TurnType::NONE;
     
-    // Return NONE if streets have same id
+    // Return STRAIGHT if streets have same id
     if (segment1.streetID == segment2.streetID) return TurnType::STRAIGHT;
     
-    // Find the closest curvepoint on first street segment
-    // If the street has no curvepoint, then the other end is the end point
-    if (segment1.curvePointCount == 0) {
-        street1_x = x_from_lon(getIntersectionPosition(segment1.to).lon());
-        street1_y = y_from_lat(getIntersectionPosition(segment1.to).lat());
-    }
-    // If street1 has 'from' end as intersection, then first curvepoint is the end point for calculation
-    else if (segment1.from == intersection_id) { 
-        street1_x = x_from_lon(getStreetSegmentCurvePoint(0, street_segment1).lon());
-        street1_y = y_from_lat(getStreetSegmentCurvePoint(0, street_segment1).lat());
-    } 
-    // If street1 has 'to' end as intersection, then last curvepoint is the end point for calculation
-    else {
-        street1_x = x_from_lon(getStreetSegmentCurvePoint(segment1.curvePointCount - 1, street_segment1).lon());
-        street1_y = y_from_lat(getStreetSegmentCurvePoint(segment1.curvePointCount - 1, street_segment1).lat());
-    }
+    // get the points for calculation
+    ezgl::point2d seg1_point = get_other_segment_point(intersection_id, segment1, segment1_id);
+    ezgl::point2d seg2_point = get_other_segment_point(intersection_id, segment2, segment2_id);
+    ezgl::point2d intersection_point = point2d_from_LatLon(getIntersectionPosition(intersection_id));
     
-    // Find the closest curvepoint on second street segment
-    if (segment2.curvePointCount == 0) {
-        street2_x = x_from_lon(getIntersectionPosition(segment2.to).lon());
-        street2_y = y_from_lat(getIntersectionPosition(segment2.to).lat());
-    } else if (segment1.from == intersection_id) {
-        street2_x = x_from_lon(getStreetSegmentCurvePoint(0, street_segment2).lon());
-        street2_y = y_from_lat(getStreetSegmentCurvePoint(0, street_segment2).lat());
+    //convert to 2 vectors
+    ezgl::point2d vec1 = intersection_point - seg1_point;
+    ezgl::point2d vec2 = seg2_point - intersection_point;
+    
+    //find angle between the two vectors
+    double dot = vec1.x * vec2.x + vec1.y * vec2.y; //dot product
+    double det = vec1.x * vec2.y - vec1.y * vec2.x; //determinant
+    double angle = atan2(det, dot);
+    
+    if(angle > 0) return TurnType::LEFT;
+    return TurnType::RIGHT;
+}
+
+
+//Helper function that will return the first point in a street segment (curve point or intersection point)
+//that is closest to the intersection of interest
+ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id) {
+    LatLon point_LL;
+    
+    //if no curve points, the other point is location of other intersection
+    if(segment.curvePointCount == 0) {
+        point_LL = segment.to == intersection_id
+            ? getIntersectionPosition(segment.from)
+            : getIntersectionPosition(segment.to);
     } else {
-        street2_x = x_from_lon(getStreetSegmentCurvePoint(segment1.curvePointCount - 1, street_segment2).lon());
-        street2_y = y_from_lat(getStreetSegmentCurvePoint(segment1.curvePointCount - 1, street_segment2).lat());
+        point_LL = segment.to == intersection_id
+            ? getStreetSegmentCurvePoint(0, segment_id)
+            : getStreetSegmentCurvePoint(segment.curvePointCount-1, segment_id);
     }
     
-    // Fetch x,y position of the intersection
-    double intersection_x = x_from_lon(getIntersectionPosition(intersection_id).lon());
-    double intersection_y = y_from_lat(getIntersectionPosition(intersection_id).lat());
-    
-    // Calculate the angle of each street segment
-    int angle_segment1; 
-    int angle_segment2;
-    if (street1_x - intersection_x == 0) angle_segment1 = 90; 
-    else if (abs(street1_y - intersection_y == 0)) angle_segment1 = 0;
-    else angle_segment1 = (atan(abs(street1_y - intersection_y) / abs(street1_x - intersection_x)) ) / DEG_TO_RAD;
-        
-    if (street2_x - intersection_x == 0) angle_segment2 = 90; 
-    else if (abs(street2_y - intersection_y == 0)) angle_segment2 = 0;
-    else angle_segment2 = (atan(abs(street2_y - intersection_y) / abs(street2_x - intersection_x)) ) / DEG_TO_RAD;
-    
-    // Adjust the angle into 180 to -180 degrees starting from pos x axis
-    angle_segment1 = (street1_x > intersection_x) ? angle_segment1 : 180 - angle_segment1;
-    angle_segment2 = (street2_x > intersection_x) ? angle_segment2 : 180 - angle_segment2;
-    angle_segment1 = (street1_y >= intersection_y) ? angle_segment1 : -angle_segment1;
-    angle_segment2 = (street2_y >= intersection_y) ? angle_segment2 : -angle_segment2;
-    std::cout << angle_segment1 << " " << angle_segment2 << std::endl;
-    if (angle_segment1 == angle_segment2) return TurnType::RIGHT;
-    if (angle_segment1 >= 0 && angle_segment2 >= 0) {
-        if (angle_segment1 <= angle_segment2) return TurnType::RIGHT;
-        else return TurnType::LEFT;
-    } else if (angle_segment1 <= 0 && angle_segment2 >= 0) {
-        if ((angle_segment1 + 180) < angle_segment2) return TurnType::LEFT;
-        else return TurnType::RIGHT;
-    } else if (angle_segment1 >= 0 && angle_segment2 <= 0) {
-        if (angle_segment1  < angle_segment2 + 180) return TurnType::LEFT;
-        else return TurnType::RIGHT;
-    } else if (angle_segment1 <= 0 && angle_segment2 <= 0) {
-        if (angle_segment1 <= angle_segment2) return TurnType::RIGHT;
-        else return TurnType::LEFT;
-    } 
+    return point2d_from_LatLon(point_LL);
 }
 
 
 double compute_path_travel_time(const std::vector<unsigned>& path, 
                                 const double right_turn_penalty, 
                                 const double left_turn_penalty) {
+    return 0.0;
     
 }
 
@@ -107,5 +81,7 @@ std::vector<unsigned> find_path_between_intersections(
                   const unsigned intersect_id_end,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
+    std::vector<unsigned> t = {0};
+    return t;
     
 }
