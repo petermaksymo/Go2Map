@@ -10,6 +10,7 @@
 #include <math.h>
 #include "helper_functions.h"
 #include <cmath>
+#include <stdio.h>
 
 TurnType find_turn_type(unsigned street_segment1, unsigned street_segment2) {
     InfoStreetSegment segment1 = getInfoStreetSegment(street_segment1);
@@ -28,7 +29,7 @@ TurnType find_turn_type(unsigned street_segment1, unsigned street_segment2) {
     // Return NONE if streets have same id
     if (segment1.streetID == segment2.streetID) return TurnType::STRAIGHT;
     
-    // Calculate the slope of first street segment
+    // Find the closest curvepoint on first street segment
     // If the street has no curvepoint, then the other end is the end point
     if (segment1.curvePointCount == 0) {
         street1_x = x_from_lon(getIntersectionPosition(segment1.to).lon());
@@ -45,7 +46,7 @@ TurnType find_turn_type(unsigned street_segment1, unsigned street_segment2) {
         street1_y = y_from_lat(getStreetSegmentCurvePoint(segment1.curvePointCount - 1, street_segment1).lat());
     }
     
-    // Calculate the slope of second street segment
+    // Find the closest curvepoint on second street segment
     if (segment2.curvePointCount == 0) {
         street2_x = x_from_lon(getIntersectionPosition(segment2.to).lon());
         street2_y = y_from_lat(getIntersectionPosition(segment2.to).lat());
@@ -61,21 +62,39 @@ TurnType find_turn_type(unsigned street_segment1, unsigned street_segment2) {
     double intersection_x = x_from_lon(getIntersectionPosition(intersection_id).lon());
     double intersection_y = y_from_lat(getIntersectionPosition(intersection_id).lat());
     
-    // Calculate the slope of each street segment
-    double slope_segment1; 
-    double slope_segment2;
-    if (street1_x - intersection_x == 0) slope_segment1 = 90; 
-    else if (abs(street1_y - intersection_y == 0)) slope_segment1 = 0;
-    else slope_segment1 = (atan(abs(street1_y - intersection_y) / abs(street1_x - intersection_x)) ) / DEG_TO_RAD;
+    // Calculate the angle of each street segment
+    int angle_segment1; 
+    int angle_segment2;
+    if (street1_x - intersection_x == 0) angle_segment1 = 90; 
+    else if (abs(street1_y - intersection_y == 0)) angle_segment1 = 0;
+    else angle_segment1 = (atan(abs(street1_y - intersection_y) / abs(street1_x - intersection_x)) ) / DEG_TO_RAD;
+        
+    if (street2_x - intersection_x == 0) angle_segment2 = 90; 
+    else if (abs(street2_y - intersection_y == 0)) angle_segment2 = 0;
+    else angle_segment2 = (atan(abs(street2_y - intersection_y) / abs(street2_x - intersection_x)) ) / DEG_TO_RAD;
     
-    if (street2_x - intersection_x == 0) slope_segment2 = 90; 
-    else if (abs(street2_y - intersection_y == 0)) slope_segment2 = 0;
-    else slope_segment2 = (atan(abs(street2_y - intersection_y) / abs(street2_x - intersection_x)) ) / DEG_TO_RAD;
-    
-    if (slope_segment1 >= slope_segment2) return TurnType::RIGHT;
-    if (slope_segment1 < slope_segment2) return TurnType::LEFT;
-      
+    // Adjust the angle into 180 to -180 degrees starting from pos x axis
+    angle_segment1 = (street1_x > intersection_x) ? angle_segment1 : 180 - angle_segment1;
+    angle_segment2 = (street2_x > intersection_x) ? angle_segment2 : 180 - angle_segment2;
+    angle_segment1 = (street1_y >= intersection_y) ? angle_segment1 : -angle_segment1;
+    angle_segment2 = (street2_y >= intersection_y) ? angle_segment2 : -angle_segment2;
+    std::cout << angle_segment1 << " " << angle_segment2 << std::endl;
+    if (angle_segment1 == angle_segment2) return TurnType::RIGHT;
+    if (angle_segment1 >= 0 && angle_segment2 >= 0) {
+        if (angle_segment1 <= angle_segment2) return TurnType::RIGHT;
+        else return TurnType::LEFT;
+    } else if (angle_segment1 <= 0 && angle_segment2 >= 0) {
+        if ((angle_segment1 + 180) < angle_segment2) return TurnType::LEFT;
+        else return TurnType::RIGHT;
+    } else if (angle_segment1 >= 0 && angle_segment2 <= 0) {
+        if (angle_segment1  < angle_segment2 + 180) return TurnType::LEFT;
+        else return TurnType::RIGHT;
+    } else if (angle_segment1 <= 0 && angle_segment2 <= 0) {
+        if (angle_segment1 <= angle_segment2) return TurnType::RIGHT;
+        else return TurnType::LEFT;
+    } 
 }
+
 
 double compute_path_travel_time(const std::vector<unsigned>& path, 
                                 const double right_turn_penalty, 
