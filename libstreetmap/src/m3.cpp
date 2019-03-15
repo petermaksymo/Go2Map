@@ -102,8 +102,24 @@ ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & s
 double compute_path_travel_time(const std::vector<unsigned>& path, 
                                 const double right_turn_penalty, 
                                 const double left_turn_penalty) {
-    return 0.0;
+    double travel_time = 0.0;
     
+    //add path time, then check for turn and add turn penalty
+    for(auto it = path.begin(); it != path.end() - 1; ++it) {
+        travel_time += find_street_segment_travel_time(*it);
+        
+        TurnType turn = find_turn_type(*it, *(it+1));
+        switch(turn) {
+            case TurnType::LEFT  : travel_time += left_turn_penalty;  break;
+            case TurnType::RIGHT : travel_time += right_turn_penalty; break;
+            default: break;
+        }
+        
+    }
+    //add last path (not done in for loop))
+    travel_time += find_street_segment_travel_time(path[path.size()-1]);
+
+    return travel_time;
 }
 
 std::vector<unsigned> find_path_between_intersections(
