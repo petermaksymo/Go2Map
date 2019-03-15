@@ -14,6 +14,35 @@
 
 ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id);
 
+#define NO_EDGE -1
+
+// A node represent a single intersection of the map
+class Node {
+    private:
+    int intersection_id; // ID of intersection the node contains
+    int edge_in; // The route taken coming into the node
+    double travel_time;
+    std::vector<int> edge_out; // All street segment going out of the intersection  
+    
+    public:
+    Node(int id, int edge, double time) {
+        intersection_id = id;
+        edge_in = edge;
+        travel_time = time;
+        
+        // Insert every single connected street segment into outgoing_
+        for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++) {
+            // Handling of single-way case is needed 
+            edge_out.push_back(getIntersectionStreetSegment(i, intersection_id));
+        }
+        
+    }
+    
+};
+
+// Forward declaration of functions
+bool bfsPath(Node* sourceNode, int destID);
+
 TurnType find_turn_type(unsigned segment1_id, unsigned segment2_id) {
     InfoStreetSegment segment1 = getInfoStreetSegment(segment1_id);
     InfoStreetSegment segment2 = getInfoStreetSegment(segment2_id);
@@ -81,7 +110,25 @@ std::vector<unsigned> find_path_between_intersections(
                   const unsigned intersect_id_end,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
-    std::vector<unsigned> t = {0};
-    return t;
+    // Initialize the starting intersection
+    Node* sourceNode = new Node(intersect_id_start, NO_EDGE, 0);  
+    bfsPath(sourceNode, intersect_id_end);
     
+}
+
+bool bfsPath(Node* sourceNode, int destID) {
+    // Initialize queue for BFS
+    std::vector<Node* > wavefront;
+    
+    // Queue the source node 
+    wavefront.push_back(sourceNode);
+    
+
+    
+    // Do bfs while the wavefront is not empty
+    while (!wavefront.empty()) {
+        
+    } 
+    
+    return false;
 }
