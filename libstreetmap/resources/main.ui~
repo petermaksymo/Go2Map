@@ -454,12 +454,12 @@
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Click after filling the search box</property>
                     <property name="margin_top">25</property>
-                    <property name="relief">half</property>
+                    <property name="relief">none</property>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="pixbuf">baseline_search_black_24dp.png</property>
+                        <property name="pixbuf">baseline-search-24px.png</property>
                       </object>
                     </child>
                   </object>
@@ -499,12 +499,12 @@ Press &lt;enter&gt; to get suggestions, when ready to search, press the Find but
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="relief">half</property>
+                    <property name="relief">none</property>
                     <child>
                       <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="pixbuf">baseline_directions_black_24dp.png</property>
+                        <property name="pixbuf">baseline-directions-24px.png</property>
                       </object>
                     </child>
                   </object>
