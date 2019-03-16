@@ -32,7 +32,7 @@ void draw_map () {
                     nullptr, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
                     act_on_poi_toggle, act_on_suggested_clicked,
-                    act_on_find);
+                    act_on_find, act_on_directions);
 }
 
 

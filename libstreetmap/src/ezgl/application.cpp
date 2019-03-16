@@ -126,7 +126,8 @@ int application::run(setup_callback_fn initial_setup_user_callback,
     checkbox_fn bikes_toggled_user_callback,
     checkbox_fn poi_toggled_user_callback,
     suggestion_fn search_suggestion_user_callback,
-    find_fn find_user_callback    
+    find_fn find_user_callback,
+    find_fn directions_user_callback
         )
 {
   if(disable_event_loop)
@@ -141,6 +142,7 @@ int application::run(setup_callback_fn initial_setup_user_callback,
   poi_toggled_callback = poi_toggled_user_callback,
   search_suggestion_callback = search_suggestion_user_callback,
   find_callback = find_user_callback;
+  directions_callback = directions_user_callback;
 
   // The result of calling g_application_run() again after it returns is unspecified.
   // So we have to destruct and reconstruct the GTKApplication
@@ -276,6 +278,11 @@ void application::register_default_buttons_callbacks(ezgl::application *applicat
   // Connect press_find function to the Find button
   GObject *find_button = application->get_object("FindButton");
   g_signal_connect(find_button, "clicked", G_CALLBACK(press_find), application);
+  
+    //Connects the directions button to its callback
+  GObject *directions_button = application->get_object("DirectionsButton");
+  g_signal_connect(directions_button, "clicked", G_CALLBACK(press_directions), application);
+  
 }
 
 void application::update_message(std::string const &message)

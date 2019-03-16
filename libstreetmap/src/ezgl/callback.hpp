@@ -179,6 +179,9 @@ gboolean handle_search_suggestion (GtkMenuItem *menu_item, gpointer data);
 
 //Callback function for directions to/from on right click popup
 gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data);
+
+// React to clicked directions button
+gboolean press_directions(GtkWidget *widget, gpointer data);
 }
 
 #endif //EZGL_CALLBACK_HPP

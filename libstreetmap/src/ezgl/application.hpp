@@ -206,7 +206,8 @@ public:
       checkbox_fn bikes_toggled_user_callback,
       checkbox_fn poi_toggled_user_callback,
       suggestion_fn search_suggestion_user_callback,
-      find_fn find_user_callback
+      find_fn find_user_callback,
+      find_fn directions_user_callback
   );
 
   /**
@@ -346,6 +347,9 @@ public:
   
   //the user-defined callback function for handline when the find button is clicked
   find_fn find_callback;
+  
+  //the user-defined callback function for handling when the directions button is clicked
+  find_fn directions_callback;
 };
 
 }

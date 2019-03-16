@@ -258,6 +258,10 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
 }
 
 
+void act_on_directions(GtkWidget *widget, gpointer data) {
+    std::cout << "in m2.sadsa\n";
+}
+
 bool check_and_switch_map(ezgl::application *app, std::string choice) {
     auto map_choice = valid_map_paths.find(choice);
     if (map_choice != valid_map_paths.end()) {
