@@ -105,7 +105,7 @@ void draw_street_segments (ezgl::renderer &g) {
     result_points.clear();
 }
 
-// Draw the street segments and start/end of global route
+// Draw the street segments of global route twice to draw a border around the route
 void draw_route (ezgl::renderer &g) {
     // Loop over global route segments, drawing each
     for(std::vector<unsigned int>::iterator it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end(); it++) { 
@@ -163,7 +163,10 @@ void draw_route (ezgl::renderer &g) {
         
         draw_curve(g, points);
     }
-    
+}
+
+// Draw the start/end markers for global route
+void draw_route_start_end (ezgl::renderer &g) {
     // Draw start marker
     ezgl::surface *start_png = g.load_png("./libstreetmap/resources/GreenLocationMarkerDouble.png");
     double x = x_from_lon(getIntersectionPosition(MAP.route_data.start_intersection).lon());
