@@ -29,6 +29,12 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 
         LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
         int id = find_closest_intersection(position);
+        // Get intersections and street segments
+        std::cout << MAP.intersection_db[id].name << ": " << id << std::endl;
+        std::vector<unsigned int> intersects = find_intersection_street_segments(id);
+        for(std::vector<unsigned int>::iterator it = intersects.begin(); it != intersects.end(); it++) {
+            std::cout << "int_id: " << *it << std::endl;
+        }
 
         app->update_message("Closest Intersection: " + MAP.intersection_db[id].name);
         MAP.intersection_db[id].is_selected = true;

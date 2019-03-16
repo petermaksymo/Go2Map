@@ -13,6 +13,9 @@ void draw_selected_intersection (ezgl::renderer &g);
 // segments that are current view. Then loops over the ids, drawing each curves
 void draw_street_segments (ezgl::renderer &g);
 
+// Draw the street segments and start/end of global route
+void draw_route (ezgl::renderer &g);
+
 // Uses a range query based on the current view and zoom level to find all the 
 // street segments for this view and draw them
 void draw_street_name(ezgl::renderer &g);

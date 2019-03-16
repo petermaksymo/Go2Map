@@ -87,7 +87,7 @@ void draw_main_canvas (ezgl::renderer &g) {
     if(MAP.state.is_bikes_on) draw_bike_data(g);
     if(MAP.state.is_poi_on) draw_points_of_interest(g);
     draw_selected_intersection(g);
-    draw_street_name(g);
-    
     if(MAP.state.is_transit_on) draw_subway_data(g);
+    draw_route(g);
+    draw_street_name(g);
 }

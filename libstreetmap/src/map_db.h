@@ -42,6 +42,12 @@ struct WorldValues {
     double min_lon; //minimum longitude for drawing
 };
 
+struct RouteData {
+    std::vector<unsigned int> route_segments; // vector of street segments in route
+    unsigned int start_intersection;          // id of start of route
+    unsigned int end_intersection;            // id of end of route
+};
+
 //Values that change throughout map navigation
 struct Map_State {
     int last_selected_intersection;  //last selected intersection to wipe selected
@@ -88,6 +94,7 @@ struct MapInfo {
     KD2Tree poi_k2tree;
     KD2Tree feature_k2tree;
     OSMData OSM_data;
+    RouteData   route_data;
 };
 
 
