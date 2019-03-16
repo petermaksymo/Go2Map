@@ -414,29 +414,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="FindButton">
-                    <property name="label" translatable="yes">Find</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Click after filling the search box</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="DirectionsButton">
-                    <property name="label" translatable="yes">Directions</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -467,8 +448,30 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkButton" id="FindButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Click after filling the search box</property>
+                    <property name="margin_top">25</property>
+                    <property name="relief">half</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">baseline_search_black_24dp.png</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkSearchEntry" id="SearchBar">
                     <property name="width_request">200</property>
+                    <property name="height_request">35</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
@@ -492,18 +495,36 @@ Press &lt;enter&gt; to get suggestions, when ready to search, press the Find but
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSearchEntry" id="SearchBar1">
+                  <object class="GtkButton" id="DirectionsButton">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="relief">half</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">baseline_directions_black_24dp.png</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSearchEntry" id="ToBar">
                     <property name="width_request">200</property>
+                    <property name="height_request">35</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
                     <property name="has_default">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Search for an intersection or input the name of a new map to reload.
-Press &lt;enter&gt; to get suggestions, when ready to search, press the Find button.</property>
                     <property name="halign">start</property>
                     <property name="valign">start</property>
-                    <property name="margin_top">25</property>
+                    <property name="margin_left">25</property>
                     <property name="shadow_type">none</property>
                     <property name="primary_icon_activatable">False</property>
                     <property name="primary_icon_sensitive">False</property>
@@ -511,8 +532,8 @@ Press &lt;enter&gt; to get suggestions, when ready to search, press the Find but
                     <property name="populate_all">True</property>
                   </object>
                   <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
                   </packing>
                 </child>
               </object>

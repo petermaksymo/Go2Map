@@ -99,10 +99,10 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             if (num_result_shown != 0) {                 
                 //loads the popup menu
                 GtkMenu *popup = (GtkMenu *)app->get_object("SearchPopUp");
-                GtkWidget *search_bar = (GtkWidget *)app->get_object("SearchBar");
+                GtkWidget *to_bar = (GtkWidget *)app->get_object("ToBar");
 
                 //creates the popup menu under the search bar
-                gtk_menu_popup_at_widget(popup, search_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
+                gtk_menu_popup_at_widget(popup, to_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
                 
                 //populate the menu with suggestions
                 for (int i = 0; i < MAX_SUGGESTIONS; i++) {
