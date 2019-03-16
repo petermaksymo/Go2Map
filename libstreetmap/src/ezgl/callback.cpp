@@ -388,4 +388,22 @@ gboolean press_find(GtkWidget *widget, gpointer data) {
     return TRUE;
 }
 
+gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
+    auto application = static_cast<ezgl::application *>(data);
+    
+    //gives us event: "Directions To" or "Directions From"
+    std::string suggestion = gtk_menu_item_get_label(menu_item);
+    
+    //populate to respective text entry with closest intersection
+    if(suggestion == "Directions From") {
+       GtkEntry* text_entry = (GtkEntry *) application->get_object("SearchBar"); 
+       gtk_entry_set_text(text_entry, MAP.state.directions_intersection.c_str());
+    } else if (suggestion == "Directions To") {
+       GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar"); 
+       gtk_entry_set_text(text_entry, MAP.state.directions_intersection.c_str());
+    }
+    
+    return TRUE;
+}
+
 }

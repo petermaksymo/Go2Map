@@ -212,8 +212,17 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   GObject *poi_toggle = application->get_object("POIToggle");
   g_signal_connect(poi_toggle, "toggled", G_CALLBACK(poi_toggled), application);
   
+  //Connects the search bar to its callback
   GObject *search_bar = application->get_object("SearchBar");
   g_signal_connect(search_bar, "search-changed", G_CALLBACK(search_entry_handle_event), application);
+  
+  //Connects to to its callback
+  GObject *rightClickTo = application->get_object("RightClickTo");
+  g_signal_connect(rightClickTo, "activate", G_CALLBACK(handle_to_from), application);
+  
+  //Connects from to its callback
+  GObject *rightClickFrom = application->get_object("RightClickFrom");
+  g_signal_connect(rightClickFrom, "activate", G_CALLBACK(handle_to_from), application);
   
   //Loop through suggestions to connect each, can use the same callback function
   for(int i = 0; i < MAX_SUGGESTIONS; i ++) {
