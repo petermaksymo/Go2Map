@@ -112,7 +112,7 @@ void draw_route (ezgl::renderer &g) {
         
         int id = *it;
  
-        g.set_color(ezgl::ROUTE_BLUE);
+        g.set_color(ezgl::ROUTE_OUTLINE_BLUE);
         
         //load all LatLon of points into a vector for the draw_curve helper function
         std::vector<LatLon> points;
@@ -131,6 +131,34 @@ void draw_route (ezgl::renderer &g) {
             g.set_line_width(2 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 30);
         } else {
             g.set_line_width(2 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 20);
+        }
+        
+        draw_curve(g, points);
+    }
+    
+    for(std::vector<unsigned int>::iterator it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end(); it++) { 
+        
+        int id = *it;
+ 
+        g.set_color(ezgl::ROUTE_BLUE);
+        
+        //load all LatLon of points into a vector for the draw_curve helper function
+        std::vector<LatLon> points;
+        points.push_back(MAP.intersection_db[getInfoStreetSegment(id).from].position);
+        if(getInfoStreetSegment(id).curvePointCount > 0) {
+            for(int i = 0; i < getInfoStreetSegment(id).curvePointCount; i++) {
+                points.push_back(getStreetSegmentCurvePoint(i, id));
+            }
+        }
+        points.push_back(MAP.intersection_db[getInfoStreetSegment(id).to].position);
+        
+        //set width before drawing
+        if (MAP.state.zoom_level > 3) {
+            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 10);
+        } else if (MAP.state.zoom_level == 0) {
+            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 30);
+        } else {
+            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 20);
         }
         
         draw_curve(g, points);
