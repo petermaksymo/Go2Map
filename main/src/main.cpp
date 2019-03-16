@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     }
     
     std::cout << "Successfully loaded map '" << map_path << "'\n";
-    find_path_between_intersections(49522, 56321, 0, 0);
+    find_path_between_intersections(1450, 23220, 0, 0);
     //You can now do something with the map data
     draw_map();
     

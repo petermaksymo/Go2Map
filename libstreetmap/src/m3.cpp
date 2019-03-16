@@ -141,13 +141,11 @@ bool bfsPath(Node* sourceNode, int destID) {
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
    
     // Queue the source node 
-    waveElem sourceElem = waveElem(sourceNode, NO_EDGE, 0.0); // Constructor is broken
+    waveElem sourceElem = waveElem(sourceNode, NO_EDGE, 0.0); 
     std::cout << (sourceElem.node)->intersection_id << std::endl;
 
     wavefront.push(sourceElem); 
    
-    
-    
     // Do bfs while the wavefront is not empty
     while (!wavefront.empty()) {
         waveElem currentElem = wavefront.top(); // Fetch the first item from the wavefront
@@ -159,21 +157,26 @@ bool bfsPath(Node* sourceNode, int destID) {
             int currentEdge = currentNode->edge_out[i];
             InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
             double travel_time = MAP.LocalStreetSegments[i].travel_time;
+            Node* nextNode;
             
             // Assign the next node of the current edge
-            Node* nextNode = (edgeInfo.from == currentNode->intersection_id)
+            if (currentEdge!= currentNode->edge_in) {
+                Node* nextNode = (edgeInfo.from == currentNode->intersection_id)
                     ? MAP.intersection_node[edgeInfo.to]
                     : MAP.intersection_node[edgeInfo.from];
+            }
             
             // Only update the node data and wavefront if it is a faster solution
-            if (currentNode->best_time == 0 || currentNode->best_time + travel_time < nextNode->best_time) {
-
+            if (nextNode->best_time == 0 || currentNode->best_time + travel_time < nextNode->best_time) {
+                // if condition is broken
                 nextNode->edge_in = currentEdge;
                 nextNode->best_time = currentNode->best_time + travel_time; 
-
+                std::cout << nextNode->intersection_id << std::endl;
+                std::cout << nextNode->edge_in << std::endl;
                 // Queue the new wave element with newly approximated travel_time
                 wavefront.push(waveElem(nextNode, currentEdge, currentElem.travel_time 
                         + travel_time));
+                
             }
         }
         if (currentNode->intersection_id == destID) {return true; }
