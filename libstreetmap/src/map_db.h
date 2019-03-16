@@ -65,6 +65,7 @@ struct Map_State {
     bool is_bikes_on = false;
     bool is_poi_on = true;
     bool search_changed = false;
+    bool displaying_search_results = true; // true if results in dropdown correspond to "SearchBar", false if for "ToBar"
     double current_width;
 };
 
