@@ -242,10 +242,16 @@
       </folder>
       <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/ezgl/application.cpp"
@@ -286,22 +292,37 @@
             tool="1"
             flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2_callbacks.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/m2_draw.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="11">
@@ -310,6 +331,9 @@
       </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">

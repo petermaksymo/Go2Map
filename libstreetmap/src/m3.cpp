@@ -11,8 +11,10 @@
 #include "helper_functions.h"
 #include <cmath>
 #include <stdio.h>
-#include <queue>
 #include <map_db.h>
+#include <vector>
+//#include <queue>
+#include <bits/stdc++.h>
 
 ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id);
 
@@ -21,24 +23,25 @@ ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & s
 // A wave element to traverse through all the node
 class waveElem {
     public:
-        
+    
     Node* node;
     int edgeID;
     double travel_time;
     
-    waveElem(Node* node, int edgeID, double travel_time) {
-        node = node;
-        edgeID= edgeID;
-        travel_time = travel_time;
+    waveElem(Node* node1, int edgeID1, double travel_time1) {
+        node = node1;
+        edgeID = edgeID1;
+        travel_time = travel_time1;
+        //std::cout << node->intersection_id << " " << edgeID << " " << travel_time << std::endl;
     }
 };
 
 // A custom comparator used for sort min heap base on travel_time
 class comparator { 
     public: 
-    bool operator() (waveElem& point1, waveElem& point2) 
+    int operator() (const waveElem point1, const waveElem point2) 
     { 
-        return point1.travel_time < point2.travel_time; 
+        return point1.travel_time > point2.travel_time; 
     } 
 }; 
 // Forward declaration of functions
@@ -135,10 +138,15 @@ std::vector<unsigned> find_path_between_intersections(
 
 bool bfsPath(Node* sourceNode, int destID) {
     // Initialize queue for BFS
-    std::priority_queue<waveElem, std::vector<waveElem>, comparator> wavefront; 
-    
+    std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
+   
     // Queue the source node 
-    wavefront.push(waveElem(sourceNode, NO_EDGE, 0));
+    waveElem sourceElem = waveElem(sourceNode, NO_EDGE, 0.0); // Constructor is broken
+    std::cout << (sourceElem.node)->intersection_id << std::endl;
+
+    wavefront.push(sourceElem); 
+   
+    
     
     // Do bfs while the wavefront is not empty
     while (!wavefront.empty()) {

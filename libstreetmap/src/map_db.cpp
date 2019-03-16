@@ -114,7 +114,7 @@ void load_intersections () {
         }         
         MAP.intersection_db[i].position = getIntersectionPosition(i);
         MAP.intersection_db[i].name = getIntersectionName(i);
-        MAP.intersection_node.push_back(new Node(i, -1, 0));
+        MAP.intersection_node[i] = (new Node(i, -1, 0));
         
         //Check and update min/max lat/lon in world_values
         MAP.world_values.max_lat = std::max(MAP.world_values.max_lat, MAP.intersection_db[i].position.lat());
