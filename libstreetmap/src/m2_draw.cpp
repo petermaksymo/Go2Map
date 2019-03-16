@@ -165,16 +165,16 @@ void draw_route (ezgl::renderer &g) {
     }
     
     // Draw start marker
-    ezgl::surface *start_png = g.load_png("./libstreetmap/resources/GreenLocationMarker.png");
+    ezgl::surface *start_png = g.load_png("./libstreetmap/resources/GreenLocationMarkerDouble.png");
     double x = x_from_lon(getIntersectionPosition(MAP.route_data.start_intersection).lon());
     double y = y_from_lat(getIntersectionPosition(MAP.route_data.start_intersection).lat());
-    g.draw_surface(start_png, png_draw_bottom_middle(g, ezgl::point2d(x,y), 24));
+    g.draw_surface(start_png, png_draw_bottom_middle(g, ezgl::point2d(x,y), 48, 30));
   
     // Draw end marker
-    ezgl::surface *end_png = g.load_png("./libstreetmap/resources/BlueLocationMarker.png");
+    ezgl::surface *end_png = g.load_png("./libstreetmap/resources/BlueLocationMarkerDouble.png");
     double x2 = x_from_lon(getIntersectionPosition(MAP.route_data.end_intersection).lon());
     double y2 = y_from_lat(getIntersectionPosition(MAP.route_data.end_intersection).lat());
-    g.draw_surface(end_png, png_draw_bottom_middle(g, ezgl::point2d(x2,y2), 24));
+    g.draw_surface(end_png, png_draw_bottom_middle(g, ezgl::point2d(x2,y2), 48, 30));
 }
 
 
