@@ -14,11 +14,13 @@
 #include "constants.hpp"
 #include <boost/algorithm/string.hpp>
 
+#define LEFT_MOUSE_BUTTON 1
+#define RIGHT_MOUSE_BUTTON 3
 
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
     
     //highlight intersection when clicked on
-    if(event->button == 1) {
+    if(event->button == LEFT_MOUSE_BUTTON) {
         //This part was used from the slides in tutorial
         //clear previously selected intersection
         if(MAP.state.last_selected_intersection <= getNumIntersections()) {
@@ -34,7 +36,12 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 
         app->refresh_drawing();
         //end of use from tutorial slides
-    } 
+    } else if (event->button == RIGHT_MOUSE_BUTTON) {
+        
+        //give menu popup on right click
+        GtkMenu *popup = (GtkMenu *)app->get_object("RightClickPopUp");
+        gtk_menu_popup_at_pointer (popup, (GdkEvent*)event);
+    }
 }
 
 
