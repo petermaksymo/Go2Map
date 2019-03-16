@@ -397,11 +397,17 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
     //populate to respective text entry with closest intersection
     if(suggestion == "Directions From") {
        GtkEntry* text_entry = (GtkEntry *) application->get_object("SearchBar"); 
-       gtk_entry_set_text(text_entry, MAP.state.directions_intersection.c_str());
+       int id = MAP.state.directions_intersection_id;
+       gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
+       MAP.route_data.start_intersection = (unsigned)id;
     } else if (suggestion == "Directions To") {
-       GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar"); 
-       gtk_entry_set_text(text_entry, MAP.state.directions_intersection.c_str());
+       GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar");
+       int id = MAP.state.directions_intersection_id;
+       gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
+       MAP.route_data.end_intersection = (unsigned)id;
     }
+    
+    application->refresh_drawing();
     
     return TRUE;
 }
