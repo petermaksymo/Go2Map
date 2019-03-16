@@ -14,6 +14,29 @@
 
 //The definition of the global MAP object
 //used as the main database
+// A node represent a single intersection of the map
+class Node {
+    public:
+        
+    int intersection_id; // ID of intersection the node contains
+    int edge_in; // The route taken coming into the node
+    double best_time;
+    std::vector<int> edge_out; // All street segment going out of the intersection  
+    
+    Node(int id, int edge, double time) {
+        intersection_id = id;
+        edge_in = edge;
+        best_time = time;
+        
+        // Insert every single connected street segment into outgoing_
+        for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++) {
+            // Handling of single-way case is needed 
+            edge_out.push_back(getIntersectionStreetSegment(i, intersection_id));
+        }
+        
+    }
+    
+};
 
 struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
@@ -32,6 +55,7 @@ struct InfoStreets {
 struct InfoStreetSegmentsLocal {
     double street_segment_length;
     double street_segment_speed_limit; 
+    double travel_time;
     int importance_level;               //when to draw based off zoom-level (-1 is most important)
 };
 
@@ -84,6 +108,7 @@ struct OSMData {
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
+    std::vector<Node*> intersection_node;  // all the intersection as node
     std::vector<InfoStreets> street_db;   
     std::vector<unsigned int> permanent_features; // features that must always be drawn
     std::multimap<std::string, int> street_name_id_map; //for street names
@@ -96,7 +121,6 @@ struct MapInfo {
     OSMData OSM_data;
     RouteData   route_data;
 };
-
 
 //tells compiler that MAP exists (so we can use it in all files)
 //MAP is declared in map_object.cpp

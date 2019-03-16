@@ -11,35 +11,36 @@
 #include "helper_functions.h"
 #include <cmath>
 #include <stdio.h>
+#include <queue>
+#include <map_db.h>
 
 ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id);
 
 #define NO_EDGE -1
 
-// A node represent a single intersection of the map
-class Node {
-    private:
-    int intersection_id; // ID of intersection the node contains
-    int edge_in; // The route taken coming into the node
-    double travel_time;
-    std::vector<int> edge_out; // All street segment going out of the intersection  
-    
+// A wave element to traverse through all the node
+class waveElem {
     public:
-    Node(int id, int edge, double time) {
-        intersection_id = id;
-        edge_in = edge;
-        travel_time = time;
         
-        // Insert every single connected street segment into outgoing_
-        for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++) {
-            // Handling of single-way case is needed 
-            edge_out.push_back(getIntersectionStreetSegment(i, intersection_id));
-        }
-        
-    }
+    Node* node;
+    int edgeID;
+    double travel_time;
     
+    waveElem(Node* node, int edgeID, double travel_time) {
+        node = node;
+        edgeID= edgeID;
+        travel_time = travel_time;
+    }
 };
 
+// A custom comparator used for sort min heap base on travel_time
+class comparator { 
+    public: 
+    bool operator() (waveElem& point1, waveElem& point2) 
+    { 
+        return point1.travel_time < point2.travel_time; 
+    } 
+}; 
 // Forward declaration of functions
 bool bfsPath(Node* sourceNode, int destID);
 
@@ -128,22 +129,23 @@ std::vector<unsigned> find_path_between_intersections(
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
     // Initialize the starting intersection
-    Node* sourceNode = new Node(intersect_id_start, NO_EDGE, 0);  
-    bfsPath(sourceNode, intersect_id_end);
+    Node sourceNode = Node(intersect_id_start, NO_EDGE, 0);  
+    bfsPath(&sourceNode, intersect_id_end);
     
 }
 
 bool bfsPath(Node* sourceNode, int destID) {
     // Initialize queue for BFS
-    std::vector<Node* > wavefront;
+    std::priority_queue<waveElem, std::vector<waveElem>, comparator> wavefront; 
     
     // Queue the source node 
-    wavefront.push_back(sourceNode);
-    
-
+    wavefront.push(waveElem(sourceNode, NO_EDGE, 0));
     
     // Do bfs while the wavefront is not empty
     while (!wavefront.empty()) {
+        waveElem currentElem = wavefront.top(); // Fetch the first item from the wavefront
+        wavefront.pop(); // Remove the first element
+        
         
     } 
     

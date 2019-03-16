@@ -49,6 +49,7 @@ void load_street_segments () {
         InfoStreetSegmentsLocal to_load;
         to_load.street_segment_length = street_segment_length_helper(i);
         to_load.street_segment_speed_limit = segment.speedLimit;
+        to_load.travel_time = to_load.street_segment_length / to_load.street_segment_speed_limit;
         to_load.importance_level = get_street_segment_importance(i);
         MAP.LocalStreetSegments.push_back(to_load);
         
@@ -97,6 +98,7 @@ void load_street_segments () {
 // Also determines the max and min LatLon for drawing
 void load_intersections () {
     MAP.intersection_db.resize(getNumIntersections());
+    MAP.intersection_node.resize(getNumIntersections());
     
     //initialize world values so comparing later works
     MAP.world_values.max_lat = getIntersectionPosition(0).lat();
@@ -112,6 +114,7 @@ void load_intersections () {
         }         
         MAP.intersection_db[i].position = getIntersectionPosition(i);
         MAP.intersection_db[i].name = getIntersectionName(i);
+        MAP.intersection_node.push_back(new Node(i, -1, 0));
         
         //Check and update min/max lat/lon in world_values
         MAP.world_values.max_lat = std::max(MAP.world_values.max_lat, MAP.intersection_db[i].position.lat());
