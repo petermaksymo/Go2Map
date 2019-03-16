@@ -1,4 +1,4 @@
- /*
+/*
  * Contains the definition for the global MAP object as well as definitions
  * for helper functions used to populate the MAP object that are called in 
  * load_map

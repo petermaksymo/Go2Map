@@ -128,9 +128,8 @@ std::vector<unsigned> find_path_between_intersections(
                   const unsigned intersect_id_end,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
-    // Initialize the starting intersection
-    Node sourceNode = Node(intersect_id_start, NO_EDGE, 0);  
-    bfsPath(&sourceNode, intersect_id_end);
+    // Initialize the starting intersection 
+    bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end);
     
 }
 
@@ -144,8 +143,32 @@ bool bfsPath(Node* sourceNode, int destID) {
     // Do bfs while the wavefront is not empty
     while (!wavefront.empty()) {
         waveElem currentElem = wavefront.top(); // Fetch the first item from the wavefront
-        wavefront.pop(); // Remove the first element
         
+        wavefront.pop(); // Remove the first element
+        Node* currentNode = currentElem.node;
+        
+        for (int i = 0; i < currentNode->edge_out.size(); i++) {
+            int currentEdge = currentNode->edge_out[i];
+            InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
+            double travel_time = MAP.LocalStreetSegments[i].travel_time;
+            
+            // Assign the next node of the current edge
+            Node* nextNode = (edgeInfo.from == currentNode->intersection_id)
+                    ? MAP.intersection_node[edgeInfo.to]
+                    : MAP.intersection_node[edgeInfo.from];
+            
+            // Only update the node data and wavefront if it is a faster solution
+            if (currentNode->best_time == 0 || currentNode->best_time + travel_time < nextNode->best_time) {
+
+                nextNode->edge_in = currentEdge;
+                nextNode->best_time = currentNode->best_time + travel_time; 
+
+                // Queue the new wave element with newly approximated travel_time
+                wavefront.push(waveElem(nextNode, currentEdge, currentElem.travel_time 
+                        + travel_time));
+            }
+        }
+        if (currentNode->intersection_id == destID) {return true; }
         
     } 
     
