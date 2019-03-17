@@ -413,12 +413,66 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
     return TRUE;
 }
 
-gboolean press_directions(GtkWidget *widget, gpointer data) {
+gboolean press_directions(GtkWidget *widget, gpointer data) {  
+    GObject *window;
+    GtkWidget *content_area;
+    GtkWidget *dialog;
     auto application = static_cast<ezgl::application *>(data);
     
+    //go to user-defined callback first to generate the directions in MAP
     if(application->directions_callback != nullptr) {
         application->directions_callback(widget, data);
     }
+    
+    //get pointer to main application window
+    window = application->get_object(application->get_main_window_id().c_str());
+    
+    //create the help dialog window
+    dialog = gtk_dialog_new_with_buttons(
+        "Directions",
+        (GtkWindow*) window,
+        GTK_DIALOG_MODAL,
+        ("GOT IT"),
+        GTK_RESPONSE_DELETE_EVENT,
+        NULL
+    );
+    
+    // Create a scrolled window and attach it to the content area of the dialog
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget * scroll_window = (GtkWidget *) gtk_scrolled_window_new(NULL, NULL);
+    gtk_widget_set_size_request(scroll_window, 400, 400);
+    gtk_container_add((GtkContainer *)content_area, scroll_window);
+    
+    //Create a Viewport and attach it to the scrolled window
+    GtkWidget * viewport = (GtkWidget *) gtk_viewport_new(NULL, NULL);
+    gtk_container_add((GtkContainer *)scroll_window, viewport);
+    
+    //create a grid of the directions and place it in the viewport    
+    GtkGrid* grid = (GtkGrid* ) gtk_grid_new();
+    
+    //add directions
+    for(int i = 0; i < 20; i++) {
+        gtk_grid_insert_row(grid, i);
+        GtkWidget * image = gtk_image_new_from_file("./libstreetmap/resources/search.png");
+        
+        std::string direction = "testcase ";
+        GtkWidget * label = gtk_label_new(direction.c_str());
+        
+        gtk_grid_attach(grid, image, 0, i, 1, 1);
+        gtk_grid_attach(grid, label, 1, i, 1, 1);
+    }
+    gtk_container_add ((GtkContainer *) viewport, (GtkWidget *) grid);  
+    
+    //show the dialog
+    gtk_widget_show_all ((GtkWidget *)dialog);
+
+    //Connect a response to the callback function
+    g_signal_connect(
+        GTK_DIALOG(dialog),
+        "response",
+        G_CALLBACK(on_dialog_response),
+        NULL
+    );
     
     return TRUE;
 }

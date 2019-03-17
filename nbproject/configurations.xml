@@ -321,6 +321,9 @@
       </item>
       <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
+          <preprocessorList>
+            <Elem>_GLIBCXX_DEBUG</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
@@ -351,14 +354,28 @@
           <executablePath>mapper</executablePath>
           <ccTool>
             <incDir>
+              <pElem>libstreetmap/src</pElem>
+              <pElem>libstreetmap</pElem>
+              <pElem>libstreetmap/src/ezgl</pElem>
               <pElem>/cad2/ece297s/public/include/milestones</pElem>
               <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+              <pElem>/usr/include/gtk-3.0</pElem>
+              <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+              <pElem>/usr/include/at-spi-2.0</pElem>
+              <pElem>/usr/include/dbus-1.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+              <pElem>/usr/include/gio-unix-2.0</pElem>
               <pElem>/usr/include/cairo</pElem>
-              <pElem>/usr/include/glib-2.0</pElem>
-              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/pango-1.0</pElem>
+              <pElem>/usr/include/harfbuzz</pElem>
+              <pElem>/usr/include/atk-1.0</pElem>
               <pElem>/usr/include/pixman-1</pElem>
               <pElem>/usr/include/freetype2</pElem>
               <pElem>/usr/include/libpng16</pElem>
+              <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+              <pElem>/usr/include/glib-2.0</pElem>
+              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+              <pElem>/usr/include/x86_64-linux-gnu</pElem>
               <pElem>.</pElem>
             </incDir>
             <preprocessorList>
@@ -371,29 +388,77 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
-      <item path="libstreetmap/src/constants.hpp" ex="false" tool="3" flavor2="0">
+      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/application.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/callback.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/camera.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/canvas.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/control.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/graphics.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
       <item path="libstreetmap/src/helper_functions.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
-      </item>
-      <item path="libstreetmap/src/helper_functions.h"
-            ex="false"
-            tool="3"
-            flavor2="0">
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
       <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="0">
+      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="0">
+      <item path="libstreetmap/src/m2_callbacks.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="0">
+      <item path="libstreetmap/src/m2_draw.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
