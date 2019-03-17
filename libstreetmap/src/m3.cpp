@@ -132,7 +132,8 @@ std::vector<unsigned> find_path_between_intersections(
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
     // Initialize the starting intersection 
-    bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end);
+    if (bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end)) std::cout << "hell yeah bud" << std::endl;
+    else std::cout<< "oh no" << std::endl;
     
 }
 
@@ -143,7 +144,6 @@ bool bfsPath(Node* sourceNode, int destID) {
     // Queue the source node 
     waveElem sourceElem = waveElem(sourceNode, NO_EDGE, 0.0); 
     std::cout << (sourceElem.node)->intersection_id << std::endl;
-
     wavefront.push(sourceElem); 
    
     // Do bfs while the wavefront is not empty
@@ -156,12 +156,12 @@ bool bfsPath(Node* sourceNode, int destID) {
         for (int i = 0; i < currentNode->edge_out.size(); i++) {
             int currentEdge = currentNode->edge_out[i];
             InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
-            double travel_time = MAP.LocalStreetSegments[i].travel_time;
+            double travel_time = MAP.LocalStreetSegments[currentEdge].travel_time;
             Node* nextNode;
             
             // Assign the next node of the current edge
             if (currentEdge!= currentNode->edge_in) {
-                Node* nextNode = (edgeInfo.from == currentNode->intersection_id)
+                nextNode = (edgeInfo.from == currentNode->intersection_id)
                     ? MAP.intersection_node[edgeInfo.to]
                     : MAP.intersection_node[edgeInfo.from];
             }
