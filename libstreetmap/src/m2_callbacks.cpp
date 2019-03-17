@@ -257,18 +257,9 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
-
+//Generate directions
 void act_on_directions(GtkWidget *widget, gpointer data) {
-    (void) widget;
     
-    auto app = static_cast<ezgl::application *>(data);
-    GtkDialog* dialog = (GtkDialog *) app->get_object("DirectionsDialog");
-    GtkGrid* grid = (GtkGrid *) app->get_object("DirectionsGrid");
-    
-    gtk_dialog_run(dialog);
-    
-    
-    std::cout << "done in m2_callback\n";
 }
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {

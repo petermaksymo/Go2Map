@@ -279,7 +279,7 @@ void application::register_default_buttons_callbacks(ezgl::application *applicat
   GObject *find_button = application->get_object("FindButton");
   g_signal_connect(find_button, "clicked", G_CALLBACK(press_find), application);
   
-    //Connects the directions button to its callback
+  //Connects the directions button to its callback
   GObject *directions_button = application->get_object("DirectionsButton");
   g_signal_connect(directions_button, "clicked", G_CALLBACK(press_directions), application);
   
