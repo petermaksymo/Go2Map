@@ -29,6 +29,8 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion);
 // Will run search
 void act_on_find(GtkWidget *widget, gpointer data);
 
+//will run pathfinding
+void act_on_directions(GtkWidget *widget, gpointer data);
 
 //Helpers:
 //used in searching to check if we should switch and do it if possible

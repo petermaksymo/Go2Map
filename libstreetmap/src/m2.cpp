@@ -32,7 +32,7 @@ void draw_map () {
                     nullptr, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
                     act_on_poi_toggle, act_on_suggested_clicked,
-                    act_on_find);
+                    act_on_find, act_on_directions);
 }
 
 
@@ -85,9 +85,10 @@ void draw_main_canvas (ezgl::renderer &g) {
     draw_features(g);
     draw_street_segments(g);
     if(MAP.state.is_bikes_on) draw_bike_data(g);
-    if(MAP.state.is_poi_on) draw_points_of_interest(g);
     draw_selected_intersection(g);
     if(MAP.state.is_transit_on) draw_subway_data(g);
     draw_route(g);
     draw_street_name(g);
+    if(MAP.state.is_poi_on) draw_points_of_interest(g);
+    draw_route_start_end(g);
 }

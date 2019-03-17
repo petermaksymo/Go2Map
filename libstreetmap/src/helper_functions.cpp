@@ -109,10 +109,10 @@ ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, i
     return(original + png_adjust);
 }
 
-ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_size) {
+ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_height, int png_width) {
     ezgl::point2d png_adjust = g.get_camera()->get_world_scale_factor();
-    png_adjust.x = png_adjust.x * -png_size/2;
-    png_adjust.y = png_adjust.y * png_size;
+    png_adjust.x = png_adjust.x * -png_width/2;
+    png_adjust.y = png_adjust.y * png_height;
     
     return(original + png_adjust);
 }

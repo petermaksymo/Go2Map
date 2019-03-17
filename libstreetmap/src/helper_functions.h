@@ -40,4 +40,4 @@ double distance_from_points(double x1, double y1, double x2, double y2);
 ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, int png_size);
 
 //returns the bottom (y) and middle (x) point to draw the png with
-ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_size);
+ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_height, int png_width);

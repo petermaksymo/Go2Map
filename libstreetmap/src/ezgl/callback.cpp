@@ -388,4 +388,39 @@ gboolean press_find(GtkWidget *widget, gpointer data) {
     return TRUE;
 }
 
+gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
+    auto application = static_cast<ezgl::application *>(data);
+    
+    //gives us event: "Directions To" or "Directions From"
+    std::string suggestion = gtk_menu_item_get_label(menu_item);
+    
+    //populate to respective text entry with closest intersection, and set
+    //icon to be there through changing MAP.route_data
+    if(suggestion == "Directions From") {
+       GtkEntry* text_entry = (GtkEntry *) application->get_object("SearchBar"); 
+       int id = MAP.state.directions_intersection_id;
+       gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
+       MAP.route_data.start_intersection = (unsigned)id;
+    } else if (suggestion == "Directions To") {
+       GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar");
+       int id = MAP.state.directions_intersection_id;
+       gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
+       MAP.route_data.end_intersection = (unsigned)id;
+    }
+    
+    application->refresh_drawing();
+    
+    return TRUE;
+}
+
+gboolean press_directions(GtkWidget *widget, gpointer data) {
+    auto application = static_cast<ezgl::application *>(data);
+    
+    if(application->directions_callback != nullptr) {
+        application->directions_callback(widget, data);
+    }
+    
+    return TRUE;
+}
+
 }

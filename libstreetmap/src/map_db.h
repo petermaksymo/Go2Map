@@ -83,11 +83,13 @@ struct Map_State {
     std::pair<double, double> current_view_x_buffered;
     int zoom_level; // 0: ('scale' < 4) most zoomed out, 1: ('scale' > 4 & 'scale' < 10) middle, 2: ('scale > 10) most zoomed in
     std::string search_word;
+    int directions_intersection_id; //populated on right click for setting to/from
     int search_index = 0;
     bool is_transit_on = false;
     bool is_bikes_on = false;
     bool is_poi_on = true;
     bool search_changed = false;
+    bool displaying_search_results = true; // true if results in dropdown correspond to "SearchBar", false if for "ToBar"
     double current_width;
 };
 

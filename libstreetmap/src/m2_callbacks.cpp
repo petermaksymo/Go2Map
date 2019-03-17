@@ -43,6 +43,9 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
         app->refresh_drawing();
         //end of use from tutorial slides
     } else if (event->button == RIGHT_MOUSE_BUTTON) {
+        //find closest intersection and update state with it
+        LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
+        MAP.state.directions_intersection_id = find_closest_intersection(position);;
         
         //give menu popup on right click
         GtkMenu *popup = (GtkMenu *)app->get_object("RightClickPopUp");
@@ -72,17 +75,29 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
         
         // Predict searching as user types
         if (MAP.state.search_changed && event->keyval == GDK_KEY_Return) {
-            GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
+            GtkEntry* text_entry;
+            
+            // Pick which search bar to get text from depending on which has focus
+            if(gtk_widget_is_focus((GtkWidget *) app->get_object("SearchBar"))) {
+                text_entry = (GtkEntry *) app->get_object("SearchBar");
+                MAP.state.displaying_search_results = true;
+            }
+            else if(gtk_widget_is_focus((GtkWidget *) app->get_object("ToBar"))) {
+                text_entry = (GtkEntry *) app->get_object("ToBar");
+                MAP.state.displaying_search_results = false;
+            }
+            else return;
+
             std::string text = gtk_entry_get_text(text_entry);
             boost::algorithm::to_lower(text);
-            
+                        
             std::string entry;
             if (text.find('&') == std::string::npos) {
                 entry = text;
             } else {
                 entry = text.substr(0, text.find('&') - 1);
             }
-            
+                        
             std::vector<unsigned> result;
             if (!entry.empty()) {
                 if(check_and_switch_map(app, text)) {
@@ -227,7 +242,12 @@ void act_on_poi_toggle(ezgl::application *app, bool isToggled) {
 
 
 void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
-    GtkEntry* text_entry = (GtkEntry *) app->get_object("SearchBar");
+    GtkEntry* text_entry;
+    
+    // Set text_entry based on which TextEntry the results correspond to
+    if(MAP.state.displaying_search_results) text_entry = (GtkEntry *) app->get_object("SearchBar");
+    else text_entry = (GtkEntry *) app->get_object("ToBar");
+    
     std::string text = gtk_entry_get_text(text_entry);
     // Place in different formats depending whether it is the first or second street-
     if (text.find('&') == std::string::npos) suggestion = " & " + suggestion;
@@ -237,6 +257,19 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
+
+void act_on_directions(GtkWidget *widget, gpointer data) {
+    (void) widget;
+    
+    auto app = static_cast<ezgl::application *>(data);
+    GtkDialog* dialog = (GtkDialog *) app->get_object("DirectionsDialog");
+    GtkGrid* grid = (GtkGrid *) app->get_object("DirectionsGrid");
+    
+    gtk_dialog_run(dialog);
+    
+    
+    std::cout << "done in m2_callback\n";
+}
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {
     auto map_choice = valid_map_paths.find(choice);
