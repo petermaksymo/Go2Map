@@ -142,5 +142,8 @@ void load_features ();
 
 int get_street_segment_importance(unsigned street_db_id);
 
+// Clear time and edge information after a route search
+void clear_intersection_node();
+
 //clears all data for reloading maps
 void clear_map_data();

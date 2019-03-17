@@ -237,6 +237,13 @@ int get_street_segment_importance(unsigned street_db_id) {
     return 4;
 }
 
+void clear_intersection_node() {
+    for(int i = 0; i < getNumIntersections(); i++) {
+        MAP.intersection_node[i]->best_time = 0;
+        MAP.intersection_node[i]->edge_in = -1;
+    }
+    
+}
 
 void clear_map_data() {
     MAP.intersection_db.clear();
