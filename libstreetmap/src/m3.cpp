@@ -175,8 +175,8 @@ bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double lef
                     ? MAP.intersection_node[edgeInfo.to]
                     : MAP.intersection_node[edgeInfo.from];
                 if (currentNode->edge_in != -1) {
-                   if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty/60;
-                   else if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::RIGHT) turn_penalty = right_turn_penalty/60;
+                   if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty;
+                   else if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::RIGHT) turn_penalty = right_turn_penalty;
                    else turn_penalty = 0; 
                 }
                 
@@ -206,7 +206,7 @@ bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double lef
 std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) { 
     std::vector<unsigned> route;
     Node* currentNode = MAP.intersection_node[intersect_id_end];
-    std::cout << currentNode->best_time * 60 << std::endl;
+    //std::cout << currentNode->best_time * 60 << std::endl;
     while (currentNode->intersection_id != intersect_id_start) {
         int prevEdge = currentNode->edge_in;
         route.insert(route.begin(), prevEdge);
@@ -228,6 +228,6 @@ std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) {
     MAP.route_data.start_intersection = intersect_id_start;
     MAP.route_data.end_intersection = intersect_id_end;
     clear_intersection_node();
-    std::cout << compute_path_travel_time(route, 15, 25) << std::endl;
+    //std::cout << compute_path_travel_time(route, 15, 25) << std::endl;
     return route;
 }

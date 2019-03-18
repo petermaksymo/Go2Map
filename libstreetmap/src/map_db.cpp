@@ -49,7 +49,7 @@ void load_street_segments () {
         InfoStreetSegmentsLocal to_load;
         to_load.street_segment_length = street_segment_length_helper(i);
         to_load.street_segment_speed_limit = segment.speedLimit;
-        to_load.travel_time = to_load.street_segment_length / to_load.street_segment_speed_limit;
+        to_load.travel_time = to_load.street_segment_length / (to_load.street_segment_speed_limit / 3.6);
         to_load.importance_level = get_street_segment_importance(i);
         MAP.LocalStreetSegments.push_back(to_load);
         
