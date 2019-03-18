@@ -400,14 +400,24 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
        GtkEntry* text_entry = (GtkEntry *) application->get_object("SearchBar"); 
        int id = MAP.state.directions_intersection_id;
        gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
-       MAP.route_data.start_intersection = (unsigned)id;
+       MAP.route_data.start_intersection = (unsigned)id;    
+       MAP.state.is_from_set_right_click = true;
     } else if (suggestion == "Directions To") {
        GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar");
        int id = MAP.state.directions_intersection_id;
        gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
        MAP.route_data.end_intersection = (unsigned)id;
+       MAP.state.is_to_set_right_click = true;
     }
-    MAP.state.is_directions_typed = false;
+    //clear the current route so it doesn't look funny
+    MAP.route_data.route_segments.clear();
+    
+    //if both to/from set from right click, automatically search
+    if(MAP.state.is_from_set_right_click && MAP.state.is_to_set_right_click) {
+        GtkButton * directions_button = (GtkButton* ) application->get_object("DirectionsButton");
+        gtk_button_clicked(directions_button);
+    }
+        
     
     application->refresh_drawing();
     

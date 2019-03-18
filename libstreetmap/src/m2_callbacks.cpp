@@ -74,7 +74,9 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             default: break;
         }
         
-        MAP.state.is_directions_typed = true;
+        //typing so can't trust these... reset
+        MAP.state.is_from_set_right_click = false;
+        MAP.state.is_to_set_right_click = false;
         
         // Predict searching as user types
         if (MAP.state.search_changed && event->keyval == GDK_KEY_Return) {
@@ -269,12 +271,12 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
 
 //Generate directions
 bool act_on_directions(GtkWidget *widget, gpointer data) {
-    (void *)widget;
+    (void) widget;
     auto ezgl_app = static_cast<ezgl::application *>(data);
     
     //get intersections from search bars if they were typed in, else it was from right click
     //and already populated in MAP
-    if(MAP.state.is_directions_typed) {
+    if(!MAP.state.is_from_set_right_click || !MAP.state.is_to_set_right_click) {
         // Check SearchBar for valid intersections
         GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
         std::string text = gtk_entry_get_text(text_entry);
@@ -322,6 +324,10 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
                 MAP.directions_data.push_back(to_add);
         }
     }
+    
+    //reset these so they don't auto search on next from/to... make user do both
+    MAP.state.is_from_set_right_click = false;
+    MAP.state.is_to_set_right_click = false;
     
     ezgl_app->refresh_drawing();
     

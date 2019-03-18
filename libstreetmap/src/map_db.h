@@ -98,7 +98,8 @@ struct Map_State {
     bool search_changed = false;
     bool displaying_search_results = true; // true if results in dropdown correspond to "SearchBar", false if for "ToBar"
     double current_width;
-    bool is_directions_typed = true; //set to false when using right click for to/from
+    bool is_from_set_right_click = false;
+    bool is_to_set_right_click = false;
 };
 
 struct SubwayRouteData {
