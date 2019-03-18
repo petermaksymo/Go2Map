@@ -296,11 +296,23 @@ void act_on_directions(GtkWidget *widget, gpointer data) {
     MAP.route_data.route_segments.clear();
     std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
                                                                     MAP.route_data.end_intersection, 0, 0);
-    MAP.route_data.route_segments.insert(MAP.route_data.route_segments.end(), results.begin(), results.end());
+    MAP.route_data.route_segments = results;
+
+    //generate written directions
+    MAP.directions_data.clear();
+    for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
+        TurnType turn = find_turn_type(*it, *(it+1));
+        if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
+            DirectionsData to_add;
+            to_add.turn_type = turn;
+            InfoStreetSegment segment = getInfoStreetSegment(*it);
+            to_add.written_directions = getStreetName(segment.streetID);
+            
+            MAP.directions_data.push_back(to_add);
+        }
+    }
     
     ezgl_app->refresh_drawing();
-    
-    results.clear();
 }
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {

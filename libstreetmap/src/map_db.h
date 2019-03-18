@@ -11,6 +11,7 @@
 #include "KD2Tree.h"
 #include <unordered_map>
 #include <ezgl/point.hpp>
+#include "m3.h"
 
 //The definition of the global MAP object
 //used as the main database
@@ -72,6 +73,12 @@ struct RouteData {
     unsigned int end_intersection;            // id of end of route
 };
 
+//Data string and turn type used for generating the directions
+struct DirectionsData {
+    std::string written_directions;
+    TurnType turn_type;
+};
+
 //Values that change throughout map navigation
 struct Map_State {
     int last_selected_intersection;  //last selected intersection to wipe selected
@@ -122,6 +129,7 @@ struct MapInfo {
     KD2Tree feature_k2tree;
     OSMData OSM_data;
     RouteData   route_data;
+    std::vector<DirectionsData> directions_data;
 };
 
 //tells compiler that MAP exists (so we can use it in all files)
