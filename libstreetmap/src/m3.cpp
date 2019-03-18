@@ -45,7 +45,7 @@ class comparator {
     } 
 }; 
 // Forward declaration of functions
-bool bfsPath(Node* sourceNode, int destID);
+bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double left_turn_penalty);
 std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end);
 
 TurnType find_turn_type(unsigned segment1_id, unsigned segment2_id) {
@@ -133,18 +133,19 @@ std::vector<unsigned> find_path_between_intersections(
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
     // Initialize the starting intersection 
-    if (bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end)) {
-        std::cout << "hell yeah bud" << std::endl;
+    if (bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end, right_turn_penalty, left_turn_penalty)) {
+        //std::cout << "hell yeah bud" << std::endl;
         return backtrace(intersect_id_start, intersect_id_end);
     }
     else {
-        std::cout<< "oh no" << std::endl;
+        //std::cout<< "oh no" << std::endl;
         std::vector<unsigned> empty;
+        clear_intersection_node();
         return empty;
     }
 }
 
-bool bfsPath(Node* sourceNode, int destID) {
+bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double left_turn_penalty) {
     // Initialize queue for BFS
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
    
@@ -165,6 +166,7 @@ bool bfsPath(Node* sourceNode, int destID) {
             InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
             double travel_time = MAP.LocalStreetSegments[currentEdge].travel_time;
             Node* nextNode;
+            double turn_penalty;
             
             // Assign the next node of the current edge
             // If state prevents going back to previous node or going through one way street
@@ -172,12 +174,19 @@ bool bfsPath(Node* sourceNode, int destID) {
                 nextNode = (edgeInfo.from == currentNode->intersection_id)
                     ? MAP.intersection_node[edgeInfo.to]
                     : MAP.intersection_node[edgeInfo.from];
+                if (currentNode->edge_in != -1) {
+                   if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty/60;
+                   else if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::RIGHT) turn_penalty = right_turn_penalty/60;
+                   else turn_penalty = 0; 
+                }
                 
+                    
             // Only update the node data and wavefront if it is a faster solution
-            if (nextNode->best_time == 0 || currentNode->best_time + travel_time < nextNode->best_time) {
+            if (nextNode->best_time == 0 || currentNode->best_time + travel_time + turn_penalty < nextNode->best_time) {
                 
                 nextNode->edge_in = currentEdge;
-                nextNode->best_time = currentNode->best_time + travel_time; 
+                nextNode->best_time = currentNode->best_time + travel_time + turn_penalty;
+                
                 //std::cout << nextNode->intersection_id << std::endl;
                 //std::cout << nextNode->edge_in << std::endl;
                 
@@ -197,6 +206,7 @@ bool bfsPath(Node* sourceNode, int destID) {
 std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) { 
     std::vector<unsigned> route;
     Node* currentNode = MAP.intersection_node[intersect_id_end];
+    std::cout << currentNode->best_time * 60 << std::endl;
     while (currentNode->intersection_id != intersect_id_start) {
         int prevEdge = currentNode->edge_in;
         route.insert(route.begin(), prevEdge);
@@ -204,12 +214,12 @@ std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) {
         currentNode = (edgeInfo.from == currentNode->intersection_id)
             ? MAP.intersection_node[edgeInfo.to]
             : MAP.intersection_node[edgeInfo.from];  
-        std::cout << currentNode->intersection_id << std::endl;
+        //std::cout << currentNode->intersection_id << std::endl;
     }
     
     // Store all the data to MAP for display
     for (auto it = route.begin(); it != route.end(); it++) {
-        std::cout << *it << std::endl;
+        //std::cout << *it << std::endl;
         MAP.route_data.route_segments.push_back(*it);
         
     }
@@ -217,5 +227,7 @@ std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) {
     //MAP.route_data.route_segments.push_back(142146);
     MAP.route_data.start_intersection = intersect_id_start;
     MAP.route_data.end_intersection = intersect_id_end;
+    clear_intersection_node();
+    std::cout << compute_path_travel_time(route, 15, 25) << std::endl;
     return route;
 }

@@ -266,6 +266,12 @@ void clear_map_data() {
     if(MAP.feature_k2tree.root != nullptr) delete MAP.feature_k2tree.root;
         MAP.feature_k2tree.root = nullptr;
     
+    // Clear every node intersection
+    for(int i = 0; i < getNumIntersections(); i++) {
+        delete MAP.intersection_node[i];
+    }
+        MAP.intersection_node.clear();
+        
     MAP.OSM_data.bike_parking.clear();
     MAP.OSM_data.bike_routes.clear();
     MAP.OSM_data.node_by_OSMID.clear();
