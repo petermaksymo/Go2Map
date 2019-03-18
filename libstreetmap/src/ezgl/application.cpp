@@ -127,7 +127,7 @@ int application::run(setup_callback_fn initial_setup_user_callback,
     checkbox_fn poi_toggled_user_callback,
     suggestion_fn search_suggestion_user_callback,
     find_fn find_user_callback,
-    find_fn directions_user_callback
+    directions_fn directions_user_callback
         )
 {
   if(disable_event_loop)

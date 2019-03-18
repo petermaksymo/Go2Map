@@ -75,7 +75,7 @@ struct RouteData {
 
 //Data string and turn type used for generating the directions
 struct DirectionsData {
-    std::string written_directions;
+    std::string street;
     TurnType turn_type;
 };
 
@@ -98,6 +98,7 @@ struct Map_State {
     bool search_changed = false;
     bool displaying_search_results = true; // true if results in dropdown correspond to "SearchBar", false if for "ToBar"
     double current_width;
+    bool is_directions_typed = true; //set to false when using right click for to/from
 };
 
 struct SubwayRouteData {

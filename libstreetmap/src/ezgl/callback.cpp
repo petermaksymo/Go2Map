@@ -407,6 +407,7 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
        gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
        MAP.route_data.end_intersection = (unsigned)id;
     }
+    MAP.state.is_directions_typed = false;
     
     application->refresh_drawing();
     
@@ -419,10 +420,13 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     GtkWidget *dialog;
     auto application = static_cast<ezgl::application *>(data);
     
-    //go to user-defined callback first to generate the directions in MAP
-    if(application->directions_callback != nullptr) {
-        application->directions_callback(widget, data);
-    }
+    //NEED the user-defined callback to generate directions, don't do anything
+    //if its not there
+    if(application->directions_callback == nullptr) return TRUE;
+    
+    //generate directions un user-defined callback, if issue in generating instructions
+    //just return and don't act on it
+    if(not application->directions_callback(widget, data)) return TRUE;
     
     //get pointer to main application window
     window = application->get_object(application->get_main_window_id().c_str());
@@ -453,19 +457,29 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     //add directions
     for(int i = 0; i < MAP.directions_data.size(); i++) {
         gtk_grid_insert_row(grid, i);
+        std::string directions = "Turn ";
         
         //assign image based on turn type
         GtkWidget * image;
         switch(MAP.directions_data[i].turn_type){
-        case TurnType::RIGHT    : image = gtk_image_new_from_file("./libstreetmap/resources/arrow_right_1.png");
+        case TurnType::RIGHT    : 
+            directions += "right onto ";
+            image = gtk_image_new_from_file("./libstreetmap/resources/right_turn_icon.png");
             break;
-        case TurnType::LEFT     : image = gtk_image_new_from_file("./libstreetmap/resources/arrow_left_1.png");
+        case TurnType::LEFT     : 
+            directions += "left onto ";
+            image = gtk_image_new_from_file("./libstreetmap/resources/left_turn_icon.png");
             break;
         //default to STRAIGHT
-        default: image = gtk_image_new_from_file("./libstreetmap/resources/arrow_up_1.png");
+        default: image = gtk_image_new_from_file("./libstreetmap/resources/straight_icon.png");
         }
         
-        GtkWidget * label = gtk_label_new(MAP.directions_data[i].written_directions.c_str());
+        directions += MAP.directions_data[i].street;
+        GtkWidget * label = gtk_label_new(directions.c_str());
+        gtk_widget_set_size_request(label, 300, -1);
+        gtk_label_set_line_wrap((GtkLabel *) label, true);
+        gtk_label_set_justify((GtkLabel *)label, GtkJustification::GTK_JUSTIFY_LEFT);
+        gtk_widget_set_halign(label, GtkAlign::GTK_ALIGN_START);
         
         gtk_grid_attach(grid, image, 0, i, 1, 1);
         gtk_grid_attach(grid, label, 1, i, 1, 1);
