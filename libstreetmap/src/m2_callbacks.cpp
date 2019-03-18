@@ -6,6 +6,7 @@
 #include "helper_functions.h"
 #include "m1.h"
 #include "m2_callbacks.h"
+#include <m3.h>
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include <iostream>
@@ -190,11 +191,7 @@ void act_on_find(GtkWidget *widget, gpointer data) {
              
         }
     } else MAP.state.search_index += 1;
-    
-    //Constant for reconstruct current view after zoom in after search
-    const double margin = 0.0002;
-    
-   
+       
     if (MAP.state.search_index == (int)MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
     int index = MAP.state.search_index;
     
@@ -262,7 +259,15 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
 
 //Generate directions
 void act_on_directions(GtkWidget *widget, gpointer data) {
+    auto ezgl_app = static_cast<ezgl::application *>(data);
+    MAP.route_data.route_segments.clear();
+    std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
+                                                                    MAP.route_data.end_intersection, 0, 0);
+    MAP.route_data.route_segments.insert(MAP.route_data.route_segments.end(), results.begin(), results.end());
     
+    ezgl_app->refresh_drawing();
+    
+    results.clear();
 }
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {
