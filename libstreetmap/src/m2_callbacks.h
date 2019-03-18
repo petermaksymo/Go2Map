@@ -36,7 +36,10 @@ void act_on_directions(GtkWidget *widget, gpointer data);
 //used in searching to check if we should switch and do it if possible
 bool check_and_switch_map(ezgl::application *app, std::string choice);
 
-// Search all possible intersections between two roads return a vector to MAP data structure
-void search_intersection(std::string street1, std::string street2);
+// Search all possible intersections between two roads return a vector of resulting intersections
+std::vector<unsigned> search_intersection(std::string street1, std::string street2);
+
+// Parses streets from text (with &) and returns corresponding street segments or prints the appropriate errors
+std::vector<unsigned> find_intersections_from_text(std::string &text, std::string &street1, std::string &street2, ezgl::application *ezgl_app);
 
 
