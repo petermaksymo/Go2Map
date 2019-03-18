@@ -192,7 +192,7 @@ void act_on_find(GtkWidget *widget, gpointer data) {
     } else MAP.state.search_index += 1;
     
     //Constant for reconstruct current view after zoom in after search
-    const double margin = 0.0001;
+    const double margin = 0.0002;
     
    
     if (MAP.state.search_index == (int)MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
@@ -204,13 +204,16 @@ void act_on_find(GtkWidget *widget, gpointer data) {
         
     } 
     else {
+        // Translate to center intersection on screen
         LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[index]);
-        ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
-        ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
+        ezgl::translate(canvas,
+                        x_from_lon(pos.lon()) - (MAP.state.current_view_x.first + (MAP.state.current_view_x.second - MAP.state.current_view_x.first)/2),
+                        y_from_lat(pos.lat()) - (MAP.state.current_view_y.first + (MAP.state.current_view_y.second - MAP.state.current_view_y.first)/2));
+        // Zoom to 1km
+        double zoom_scale = MAP.state.current_width / 1000; // Zoom into a width of 1km
+        ezgl::zoom_in(canvas, zoom_scale);
         
-        // Construct new view of the canvas
-        ezgl::rectangle view(origin, top_right);
-        ezgl::zoom_fit(canvas, view);
+        // Update global intersection
         MAP.state.last_selected_intersection = MAP.state.intersection_search_result[index];
         
         // Update detail information of intersection and refresh the canvas
