@@ -6,6 +6,7 @@
 #include "helper_functions.h"
 #include "m1.h"
 #include "m2_callbacks.h"
+#include <m3.h>
 #include "ezgl/application.hpp"
 #include "ezgl/graphics.hpp"
 #include <iostream>
@@ -142,7 +143,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
 
 
 // Search for common intersections among all possible street results
-void search_intersection(std::string street1, std::string street2) {
+std::vector<unsigned> search_intersection(std::string street1, std::string street2) {
     std::vector<unsigned> streetID1 = find_street_ids_from_partial_street_name(street1);
     std::vector<unsigned> streetID2 = find_street_ids_from_partial_street_name(street2);
     std::vector<unsigned> intersectionID, current_intersection;
@@ -155,8 +156,28 @@ void search_intersection(std::string street1, std::string street2) {
         }
     }
 
-    MAP.state.intersection_search_result = intersectionID;
+    return intersectionID;
 }
+
+std::vector<unsigned> find_intersections_from_text(std::string &text, std::string &street1, std::string &street2, ezgl::application *ezgl_app) {
+    // Parse the search result
+    if (text.find('&') != std::string::npos) {
+        std::stringstream ss(text.substr(text.find('&')));
+        std::string second_street;
+        ss >> second_street;
+        ss >> second_street;
+        if (text.find('&') == text.size() - 1 || text.find('&') == text.size() - 2) {
+            ezgl_app->update_message("Second street needed");
+            return {};
+        //if (second_street == NULL) ezgl_app->update_message("Second street needed");
+        } else {
+            street1 = text.substr(0, text.find('&') - 1);
+            street2 = text.substr(text.find('&') + 2);
+            return search_intersection(street1, street2);
+        }
+
+    }
+ }
 
 void act_on_find(GtkWidget *widget, gpointer data) {
     (void) widget;
@@ -175,26 +196,9 @@ void act_on_find(GtkWidget *widget, gpointer data) {
         MAP.state.search_index = 0;
         
         // Parse the search result
-         if (text.find('&') != std::string::npos) {
-             std::stringstream ss(text.substr(text.find('&')));
-             std::string second_street;
-             ss >> second_street;
-             ss >> second_street;
-             if (text.find('&') == text.size() - 1 || text.find('&') == text.size() - 2) ezgl_app->update_message("Second street needed");
-             //if (second_street == NULL) ezgl_app->update_message("Second street needed");
-             else {
-                 street1 = text.substr(0, text.find('&') - 1);
-                 street2 = text.substr(text.find('&') + 2);
-                 search_intersection(street1, street2);
-             }
-             
-        }
+        MAP.state.intersection_search_result = find_intersections_from_text(text, street1, street2, ezgl_app);
     } else MAP.state.search_index += 1;
-    
-    //Constant for reconstruct current view after zoom in after search
-    const double margin = 0.0001;
-    
-   
+       
     if (MAP.state.search_index == (int)MAP.state.intersection_search_result.size()) MAP.state.search_index = 0;
     int index = MAP.state.search_index;
     
@@ -204,13 +208,16 @@ void act_on_find(GtkWidget *widget, gpointer data) {
         
     } 
     else {
+        // Translate to center intersection on screen
         LatLon pos = getIntersectionPosition(MAP.state.intersection_search_result[index]);
-        ezgl::point2d origin(x_from_lon(pos.lon()) - margin, y_from_lat(pos.lat()) - margin);
-        ezgl::point2d top_right(x_from_lon(pos.lon()) + margin, y_from_lat(pos.lat()) + margin);
+        ezgl::translate(canvas,
+                        x_from_lon(pos.lon()) - (MAP.state.current_view_x.first + (MAP.state.current_view_x.second - MAP.state.current_view_x.first)/2),
+                        y_from_lat(pos.lat()) - (MAP.state.current_view_y.first + (MAP.state.current_view_y.second - MAP.state.current_view_y.first)/2));
+        // Zoom to 1km
+        double zoom_scale = MAP.state.current_width / 1000; // Zoom into a width of 1km
+        ezgl::zoom_in(canvas, zoom_scale);
         
-        // Construct new view of the canvas
-        ezgl::rectangle view(origin, top_right);
-        ezgl::zoom_fit(canvas, view);
+        // Update global intersection and start global
         MAP.state.last_selected_intersection = MAP.state.intersection_search_result[index];
         
         // Update detail information of intersection and refresh the canvas
@@ -259,7 +266,53 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
 
 //Generate directions
 void act_on_directions(GtkWidget *widget, gpointer data) {
+    auto ezgl_app = static_cast<ezgl::application *>(data);
     
+    // Check SearchBar for valid intersections
+    GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
+    std::string text = gtk_entry_get_text(text_entry);
+    std::string street1, street2;
+    std::vector<unsigned> intersections_from = find_intersections_from_text(text, street1, street2, ezgl_app);
+    if(intersections_from.size() == 0) {
+        ezgl_app->update_message("Unable to find the \"from\" intersection. Please follow format \"street 1 & street 2\" ");
+        ezgl_app->refresh_drawing();
+        return;
+    }
+    
+    // Check ToBar for valid intersections
+    text_entry = (GtkEntry *) ezgl_app->get_object("ToBar");
+    text = gtk_entry_get_text(text_entry);
+    std::vector<unsigned> intersections_to = find_intersections_from_text(text, street1, street2, ezgl_app);
+    if(intersections_to.size() == 0) {
+        ezgl_app->update_message("Unable to find intersection \"to\" intersection. Please follow format \"street 1 & street 2\" ");
+        ezgl_app->refresh_drawing();
+        return;
+    }
+    
+    // intersection vectors now have size > 1
+    MAP.route_data.start_intersection = intersections_from[0];
+    MAP.route_data.end_intersection = intersections_to[0];
+    
+    MAP.route_data.route_segments.clear();
+    std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
+                                                                    MAP.route_data.end_intersection, 0, 0);
+    MAP.route_data.route_segments = results;
+
+    //generate written directions
+    MAP.directions_data.clear();
+    for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
+        TurnType turn = find_turn_type(*it, *(it+1));
+        if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
+            DirectionsData to_add;
+            to_add.turn_type = turn;
+            InfoStreetSegment segment = getInfoStreetSegment(*it);
+            to_add.written_directions = getStreetName(segment.streetID);
+            
+            MAP.directions_data.push_back(to_add);
+        }
+    }
+    
+    ezgl_app->refresh_drawing();
 }
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {

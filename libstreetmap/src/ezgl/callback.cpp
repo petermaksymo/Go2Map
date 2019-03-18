@@ -451,12 +451,21 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     GtkGrid* grid = (GtkGrid* ) gtk_grid_new();
     
     //add directions
-    for(int i = 0; i < 20; i++) {
+    for(int i = 0; i < MAP.directions_data.size(); i++) {
         gtk_grid_insert_row(grid, i);
-        GtkWidget * image = gtk_image_new_from_file("./libstreetmap/resources/search.png");
         
-        std::string direction = "testcase ";
-        GtkWidget * label = gtk_label_new(direction.c_str());
+        //assign image based on turn type
+        GtkWidget * image;
+        switch(MAP.directions_data[i].turn_type){
+        case TurnType::RIGHT    : image = gtk_image_new_from_file("./libstreetmap/resources/arrow_right_1.png");
+            break;
+        case TurnType::LEFT     : image = gtk_image_new_from_file("./libstreetmap/resources/arrow_left_1.png");
+            break;
+        //default to STRAIGHT
+        default: image = gtk_image_new_from_file("./libstreetmap/resources/arrow_up_1.png");
+        }
+        
+        GtkWidget * label = gtk_label_new(MAP.directions_data[i].written_directions.c_str());
         
         gtk_grid_attach(grid, image, 0, i, 1, 1);
         gtk_grid_attach(grid, label, 1, i, 1, 1);
