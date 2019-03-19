@@ -238,10 +238,19 @@ int get_street_segment_importance(unsigned street_db_id) {
 }
 
 void clear_intersection_node() {
+    
     for(int i = 0; i < getNumIntersections(); i++) {
         MAP.intersection_node[i]->best_time = 0;
         MAP.intersection_node[i]->edge_in = -1;
     }
+    
+    /*
+    for (auto it = MAP.state.visited_node.begin(); it != MAP.state.visited_node.end(); it++) {
+        MAP.intersection_node[*it]->best_time = 0;
+        MAP.intersection_node[*it]->edge_in = -1;
+    }
+    MAP.state.visited_node.clear();
+    */
     
 }
 

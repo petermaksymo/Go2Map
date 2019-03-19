@@ -8,6 +8,7 @@
 
 #include "StreetsDatabaseAPI.h"
 #include <map>
+#include <list>
 #include "KD2Tree.h"
 #include <unordered_map>
 #include <ezgl/point.hpp>
@@ -100,6 +101,7 @@ struct Map_State {
     double current_width;
     bool is_from_set_right_click = false;
     bool is_to_set_right_click = false;
+    std::list<unsigned> visited_node;
 };
 
 struct SubwayRouteData {

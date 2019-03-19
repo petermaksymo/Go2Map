@@ -137,21 +137,15 @@ std::vector<unsigned> find_path_between_intersections(
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
     // Initialize the starting intersection 
-    auto const start = std::chrono::high_resolution_clock::now();
     
     if (bfsPath(MAP.intersection_node[intersect_id_start], intersect_id_end, right_turn_penalty, left_turn_penalty)) {
-        //std::cout << "hell yeah bud" << std::endl;
         return backtrace(intersect_id_start, intersect_id_end);
     }
     else {
-        //std::cout<< "oh no" << std::endl;
         std::vector<unsigned> empty;
         clear_intersection_node();
         return empty;
     }
-    auto const end = std::chrono::high_resolution_clock::now;
-    //double delta_time = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    //std::cout << std::put_time(end-start) << std::endl;
 }
 
 bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double left_turn_penalty) {
@@ -194,14 +188,17 @@ bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double lef
             if (nextNode->best_time == 0 || currentNode->best_time + travel_time + turn_penalty < nextNode->best_time) {
                 
                 nextNode->edge_in = currentEdge;
+                /*
+                if (nextNode->best_time == 0) {
+                    MAP.state.visited_node.push_front(nextNode->intersection_id);
+                }
+                */
                 nextNode->best_time = currentNode->best_time + travel_time + turn_penalty;
                 
-                //std::cout << nextNode->intersection_id << std::endl;
-                //std::cout << nextNode->edge_in << std::endl;
-                
                 // Queue the new wave element with newly approximated travel_time
-                wavefront.push(waveElem(nextNode, currentEdge, currentElem.travel_time 
-                        + travel_time + turn_penalty));
+                wavefront.push(waveElem(nextNode, currentEdge, currentNode->best_time 
+                        + travel_time + turn_penalty + find_distance_between_two_points(
+                        getIntersectionPosition(nextNode->intersection_id), getIntersectionPosition(destID)) / 29.1));
                 }
             }
         }
@@ -228,15 +225,13 @@ std::vector<unsigned> backtrace(int intersect_id_start, int intersect_id_end) {
     
     // Store all the data to MAP for display
     for (auto it = route.begin(); it != route.end(); it++) {
-        //std::cout << *it << std::endl;
         MAP.route_data.route_segments.push_back(*it);
-        
     }
     
     //MAP.route_data.route_segments.push_back(142146);
     MAP.route_data.start_intersection = intersect_id_start;
     MAP.route_data.end_intersection = intersect_id_end;
     clear_intersection_node();
-    std::cout << compute_path_travel_time(route, 15, 25) << std::endl;
+    //std::cout << compute_path_travel_time(route, 15, 25) << std::endl;
     return route;
 }
