@@ -168,14 +168,14 @@ void draw_route (ezgl::renderer &g) {
 // Draw the start/end markers for global route
 void draw_route_start_end (ezgl::renderer &g) {
     // Draw start marker
-    if(MAP.route_data.start_intersection >= MAP.intersection_db.size()) {
+    if(MAP.route_data.start_intersection < MAP.intersection_db.size()) {
         ezgl::surface *start_png = g.load_png("./libstreetmap/resources/GreenLocationMarkerDouble.png");
         double x = x_from_lon(getIntersectionPosition(MAP.route_data.start_intersection).lon());
         double y = y_from_lat(getIntersectionPosition(MAP.route_data.start_intersection).lat());
         g.draw_surface(start_png, png_draw_bottom_middle(g, ezgl::point2d(x,y), 48, 30));
     }
     // Draw end marker
-    if(MAP.route_data.end_intersection >= MAP.intersection_db.size()) {
+    if(MAP.route_data.end_intersection < MAP.intersection_db.size()) {
         ezgl::surface *end_png = g.load_png("./libstreetmap/resources/BlueLocationMarkerDouble.png");
         double x2 = x_from_lon(getIntersectionPosition(MAP.route_data.end_intersection).lon());
         double y2 = y_from_lat(getIntersectionPosition(MAP.route_data.end_intersection).lat());
