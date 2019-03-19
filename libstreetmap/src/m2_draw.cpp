@@ -447,6 +447,78 @@ void draw_bike_data(ezgl::renderer &g) {
     g.free_surface(parking_png);
 }
 
+// Draw instruction points
+void draw_instruction_points(ezgl::renderer &g) {
+    g.set_color(ezgl::WHITE);
+    for(auto it = MAP.directions_data.begin(); it != MAP.directions_data.end(); it++) {
+        //set width before drawing
+        float radius = 0.75 * 120 / (MAP.state.scale * 2000000); // Radius of circle that looks appropriate on the screen
+        g.fill_arc(ezgl::point2d(x_from_lon((*it).lon), y_from_lat((*it).lat)), radius, 0, 360);
+    }
+}
+
+// Draw instruction points
+void draw_instruction_popup(ezgl::renderer &g) {
+    g.set_color(ezgl::WHITE);
+    g.set_coordinate_system(ezgl::SCREEN);
+    
+    if(MAP.highlighted_direction >= 0 && MAP.highlighted_direction < MAP.directions_data.size()) {
+        // convert the x and y position to screen coordinates
+        
+        double current_x_width = MAP.state.current_view_x.second - MAP.state.current_view_x.first;
+        double current_y_height = MAP.state.current_view_y.second - MAP.state.current_view_y.first;
+        
+        double pos_x = x_from_lon(MAP.directions_data[MAP.highlighted_direction].lon);
+        double pos_y = y_from_lat(MAP.directions_data[MAP.highlighted_direction].lat);
+        
+        
+        double diff_x = pos_x - MAP.state.current_view_x.first;
+        double diff_y = MAP.state.current_view_y.second - pos_y;
+        
+        double perc_x = diff_x / current_x_width;
+        double perc_y = diff_y / current_y_height;
+ 
+        double sc_pos_x = MAP.screen_width * perc_x;
+        double sc_pos_y = MAP.screen_height * perc_y;
+        
+        // Draw background
+        g.fill_rectangle(ezgl::point2d(sc_pos_x, sc_pos_y), ezgl::point2d(sc_pos_x + 48 + 48*5 + 5, sc_pos_y + 48));
+        
+        // Draw directions
+        std::string directions;
+        ezgl::surface *dir_png;
+        switch(MAP.directions_data[MAP.highlighted_direction].turn_type){
+        case TurnType::RIGHT    : 
+            directions += "Turn right onto ";
+            dir_png = g.load_png("./libstreetmap/resources/right_turn_icon.png");
+            break;
+        case TurnType::LEFT     : 
+            directions += "Turn left onto ";
+            dir_png = g.load_png("./libstreetmap/resources/left_turn_icon.png");
+            break;
+        //default to STRAIGHT
+        default: directions += "Continue straight onto ";
+                 dir_png = g.load_png("./libstreetmap/resources/straight_icon.png");
+                 break;
+        }
+        directions += MAP.directions_data[MAP.highlighted_direction].street;
+        
+        // Draw instruction icon
+        g.draw_surface(dir_png, png_draw_center_point(g, ezgl::point2d(sc_pos_x, sc_pos_y), 48));
+        
+        // Limit size of directions
+        if(directions.length() > 40) {
+            directions = directions.substr(0, 40); // 40 is about the maximum size that will fit in the box
+            directions += "...";
+        }
+        
+        // Draw instruction
+        g.set_color(ezgl::BLACK);
+        g.set_text_rotation(0);
+        g.draw_text(ezgl::point2d(sc_pos_x + 48 + 48*5/2, sc_pos_y + 24),directions);
+    }
+}
+
 
 //helper function to draw curves from LatLon point vector
 void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points) {

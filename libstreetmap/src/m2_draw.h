@@ -51,3 +51,9 @@ void draw_curve(ezgl::renderer &g, std::vector<LatLon> &points);
 //helper function to draw curves from a point2d vector
 void draw_curve(ezgl::renderer &g, std::vector<ezgl::point2d> &points);
 
+// Draw instruction points
+void draw_instruction_points(ezgl::renderer &g);
+
+// Draws the instruction popup
+void draw_instruction_popup(ezgl::renderer &g);
+

@@ -11,6 +11,9 @@
 //Used for highlighting an intersection when clicked on
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y);
 
+// Used for highlighting a direction when moving the mouse
+void act_on_mouse_move(ezgl::application* app, GdkEventButton* event, double x, double y);
+
 //Used for shortcut keys and handling search
 void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name);
 

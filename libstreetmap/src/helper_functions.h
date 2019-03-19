@@ -42,8 +42,17 @@ ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, i
 //returns the bottom (y) and middle (x) point to draw the png with
 ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_height, int png_width);
 
+//converts time in seconds to approximate time
+std::string get_approximate_time(double time);
+
 //converts time in seconds to readable time
-std::string get_readable_time(double time);
+std::string get_readable_time(int time);
 
 //converts distance in meters to readable distance
 std::string get_readable_distance(int distance);
+
+//finds the common intersection between two connected street segments
+unsigned find_common_intersection(unsigned street_segment1_id, unsigned street_segment2_id);
+
+// Checks if one point is within a tolerance of another
+bool check_intersection(double x1, double y1, double tolerance, double x2, double y2);

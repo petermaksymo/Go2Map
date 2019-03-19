@@ -18,6 +18,32 @@
 #define LEFT_MOUSE_BUTTON 1
 #define RIGHT_MOUSE_BUTTON 3
 
+void act_on_mouse_move(ezgl::application* app, GdkEventButton* event, double x, double y) {
+    int count = 0;
+    
+    // Loop over all the intersections checking if the mouse is within 1% of the total screen to it
+    for(auto it = MAP.directions_data.begin(); it != MAP.directions_data.end(); it++) {
+        double tolerance = (MAP.state.current_view_x.second-MAP.state.current_view_x.first) / 100; // 1% of screen view
+        if(check_intersection(x, y, tolerance, x_from_lon((*it).lon), y_from_lat((*it).lat))) {
+            // Set data for pop up
+            MAP.screen_width = (app->get_canvas(app->get_main_canvas_id()))->width();
+            MAP.screen_height = (app->get_canvas(app->get_main_canvas_id()))->height();
+            MAP.highlighted_direction = count;
+            app->refresh_drawing();
+            return;
+        }
+        count++;
+    }
+    // If an intersection is highlighted when the mouse no longer intersects, then
+    // delete global data and refresh
+    if(MAP.highlighted_direction >= 0) {
+        MAP.screen_height = 0;
+        MAP.screen_width = 0;
+        MAP.highlighted_direction = -1;
+        app->refresh_drawing();
+    }
+}
+
 void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x, double y) {
     
     //highlight intersection when clicked on
@@ -341,7 +367,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
     //generate written directions
     MAP.directions_data.clear();
     double distance_on_path = 0, total_distance = 0;
-    double time_on_path = 0, total_time = 0;
+    double time_on_path = 0;
     if(MAP.route_data.route_segments.size() > 1) {
         for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
             distance_on_path += find_street_segment_length(*it);
@@ -353,13 +379,18 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
                 to_add.turn_type = turn;
                 InfoStreetSegment segment = getInfoStreetSegment(*(it+1) );
                 to_add.street = getStreetName(segment.streetID);
-                to_add.path_time = get_readable_time(time_on_path);
+                to_add.path_time = get_approximate_time(time_on_path);
                 to_add.path_distance = get_readable_distance((int)distance_on_path);
 
+                // Set the location of the direction
+                unsigned common_int = find_common_intersection(*it, *(it+1));
+                to_add.lat = getIntersectionPosition(common_int).lat();
+                to_add.lon = getIntersectionPosition(common_int).lon();
+                
+                
                 //reset/set times/distances
                 total_distance += distance_on_path;
                 distance_on_path = 0;
-                total_time += time_on_path;
                 time_on_path = 0;
 
                 //avoid unknown streets for aesthetics
@@ -368,7 +399,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
             }
         }
     }
-    MAP.travel_time = get_readable_time(total_time);
+    MAP.travel_time = get_readable_time((int)compute_path_travel_time(MAP.route_data.route_segments,15.0, 25.0));
     MAP.travel_distance = get_readable_distance((int)total_distance);
     
     //reset these so they don't auto search on next from/to; make user do both each time
