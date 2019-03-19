@@ -114,7 +114,9 @@ void load_intersections () {
     }
     
     //initialize out of bounds
-    MAP.state.last_selected_intersection = getNumIntersections() + 1;
+    MAP.state.last_selected_intersection = MAP.intersection_db.size() + 1;
+    MAP.route_data.start_intersection = MAP.intersection_db.size() + 1;
+    MAP.route_data.end_intersection = MAP.intersection_db.size() + 1;
 }
 
 
