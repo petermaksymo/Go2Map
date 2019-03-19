@@ -32,7 +32,6 @@ class Node {
         
         // Insert every single connected street segment into outgoing_
         for (int i = 0; i < getIntersectionStreetSegmentCount(intersection_id); i++) {
-            // Handling of single-way case is needed 
             edge_out.push_back(getIntersectionStreetSegment(i, intersection_id));
         }
         
