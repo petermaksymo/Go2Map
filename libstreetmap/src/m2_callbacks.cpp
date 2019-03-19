@@ -74,6 +74,10 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             default: break;
         }
         
+        //typing so can't trust these... reset
+        MAP.state.is_from_set_right_click = false;
+        MAP.state.is_to_set_right_click = false;
+        
         // Predict searching as user types
         if (MAP.state.search_changed && event->keyval == GDK_KEY_Return) {
             GtkEntry* text_entry;
@@ -177,6 +181,7 @@ std::vector<unsigned> find_intersections_from_text(std::string &text, std::strin
         }
 
     }
+    return {};
  }
 
 void act_on_find(GtkWidget *widget, gpointer data) {
@@ -265,33 +270,39 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
 }
 
 //Generate directions
-void act_on_directions(GtkWidget *widget, gpointer data) {
+bool act_on_directions(GtkWidget *widget, gpointer data) {
+    (void) widget;
     auto ezgl_app = static_cast<ezgl::application *>(data);
     
-    // Check SearchBar for valid intersections
-    GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
-    std::string text = gtk_entry_get_text(text_entry);
-    std::string street1, street2;
-    std::vector<unsigned> intersections_from = find_intersections_from_text(text, street1, street2, ezgl_app);
-    if(intersections_from.size() == 0) {
-        ezgl_app->update_message("Unable to find the \"from\" intersection. Please follow format \"street 1 & street 2\" ");
-        ezgl_app->refresh_drawing();
-        return;
+    //get intersections from search bars if they were typed in, else it was from right click
+    //and already populated in MAP
+    if(!MAP.state.is_from_set_right_click || !MAP.state.is_to_set_right_click) {
+        // Check SearchBar for valid intersections
+        GtkEntry* text_entry = (GtkEntry *) ezgl_app->get_object("SearchBar");
+        std::string text = gtk_entry_get_text(text_entry);
+        std::string street1, street2;
+        std::vector<unsigned> intersections_from = find_intersections_from_text(text, street1, street2, ezgl_app);
+        if(text.find('&') == std::string::npos || intersections_from.size() == 0) {
+            ezgl_app->update_message("Unable to find the \"from\" intersection. Please follow format \"street 1 & street 2\" ");
+            ezgl_app->refresh_drawing();
+            return false;
+        }
+
+        // Check ToBar for valid intersections
+        text_entry = (GtkEntry *) ezgl_app->get_object("ToBar");
+        text = gtk_entry_get_text(text_entry);
+        std::vector<unsigned> intersections_to = find_intersections_from_text(text, street1, street2, ezgl_app);
+        if(text.find('&') == std::string::npos || intersections_to.size() == 0) {
+            ezgl_app->update_message("Unable to find intersection \"to\" intersection. Please follow format \"street 1 & street 2\" ");
+            ezgl_app->refresh_drawing();
+            return false;
+        }
+
+        // intersection vectors now have size > 1
+        MAP.route_data.start_intersection = intersections_from[0];
+        MAP.route_data.end_intersection = intersections_to[0];
+        
     }
-    
-    // Check ToBar for valid intersections
-    text_entry = (GtkEntry *) ezgl_app->get_object("ToBar");
-    text = gtk_entry_get_text(text_entry);
-    std::vector<unsigned> intersections_to = find_intersections_from_text(text, street1, street2, ezgl_app);
-    if(intersections_to.size() == 0) {
-        ezgl_app->update_message("Unable to find intersection \"to\" intersection. Please follow format \"street 1 & street 2\" ");
-        ezgl_app->refresh_drawing();
-        return;
-    }
-    
-    // intersection vectors now have size > 1
-    MAP.route_data.start_intersection = intersections_from[0];
-    MAP.route_data.end_intersection = intersections_to[0];
     
     MAP.route_data.route_segments.clear();
     std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
@@ -306,13 +317,21 @@ void act_on_directions(GtkWidget *widget, gpointer data) {
             DirectionsData to_add;
             to_add.turn_type = turn;
             InfoStreetSegment segment = getInfoStreetSegment(*it);
-            to_add.written_directions = getStreetName(segment.streetID);
+            to_add.street = getStreetName(segment.streetID);
             
-            MAP.directions_data.push_back(to_add);
+            //avoid unknown streets for aesthetics
+            if(getStreetName(segment.streetID) != "<unknown>") 
+                MAP.directions_data.push_back(to_add);
         }
     }
     
+    //reset these so they don't auto search on next from/to... make user do both
+    MAP.state.is_from_set_right_click = false;
+    MAP.state.is_to_set_right_click = false;
+    
     ezgl_app->refresh_drawing();
+    
+    return true;
 }
 
 bool check_and_switch_map(ezgl::application *app, std::string choice) {
