@@ -34,7 +34,7 @@ constexpr int ERROR_EXIT_CODE = 1;          //An error occured
 constexpr int BAD_ARGUMENTS_EXIT_CODE = 2;  //Invalid command-line usage
 
 //The default map to load if none is specified
-std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
+std::string default_map_path = "/cad2/ece297s/public/maps/london_england.streets.bin";
 
 int main(int argc, char** argv) {
 
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     }
     
     std::cout << "Successfully loaded map '" << map_path << "'\n";
-    find_path_between_intersections(31136, 56617, 15, 25);
+    find_path_between_intersections(331033, 77485, 15, 25);
     //You can now do something with the map data
     draw_map();
     
