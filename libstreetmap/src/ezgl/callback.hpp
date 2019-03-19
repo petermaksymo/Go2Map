@@ -184,4 +184,10 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data);
 gboolean press_directions(GtkWidget *widget, gpointer data);
 }
 
+//adds a new row with and image and a label with font size * scale_factor
+void gtk_grid_new_row_primary(GtkGrid* grid, int row, double scale_factor, GtkWidget* image, std::string text);
+
+//adds a new row with two labels
+void gtk_grid_new_row_secondary(GtkGrid* grid, int row, std::string text_1, std::string text_2);
+
 #endif //EZGL_CALLBACK_HPP
