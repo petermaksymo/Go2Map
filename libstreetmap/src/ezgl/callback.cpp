@@ -272,11 +272,11 @@ gboolean press_proceed(GtkWidget *, gpointer data)
 
 //Help dialog, much of this code was used from the ezgl quickstart guide on the ECE297 website
 //http://www.eecg.toronto.edu/~vaughn/ece297/ECE297/assignments/ezgl/ezgl.pdf
+//has been updated with a lot of our own code for m3
 gboolean press_help(GtkWidget *, gpointer data)
 {
     GObject *window;
     GtkWidget *content_area;
-    GtkLabel *label;
     GtkWidget *dialog;
     auto application = static_cast<ezgl::application *>(data);
     
@@ -293,11 +293,36 @@ gboolean press_help(GtkWidget *, gpointer data)
         NULL
     );
     
-    // Create a label and attach it to the content area of the dialog
+    gtk_widget_set_size_request((GtkWidget *)dialog, 400, 400);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    label = (GtkLabel *)gtk_label_new(HELP_TEXT.c_str());
-    gtk_label_set_max_width_chars(label, 80);
-    gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)label);
+    
+    //create a grid to store the data in
+    GtkGrid* grid = (GtkGrid* ) gtk_grid_new();
+    gtk_grid_set_row_spacing(grid, 15);
+    
+    //row counter
+    int row = 0;
+    
+    GtkWidget * image_subway = gtk_image_new_from_file("./libstreetmap/resources/subway.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_subway, HELP_TEXT_SUBWAY.c_str());
+    
+    row++;
+    GtkWidget * image_mouse = gtk_image_new_from_file("./libstreetmap/resources/baseline_mouse_black_36dp.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_mouse, HELP_TEXT_MOUSE.c_str());
+    
+    row++;
+    GtkWidget * image_search = gtk_image_new_from_file("./libstreetmap/resources/search.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_search, HELP_TEXT_SEARCH.c_str());
+    
+    row++;
+    GtkWidget * image_maps = gtk_image_new_from_file("./libstreetmap/resources/baseline_language_black_36dp.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_maps, HELP_TEXT_MAPS.c_str());
+    
+    row++;
+    GtkWidget * image_direction = gtk_image_new_from_file("./libstreetmap/resources/baseline-directions-24px.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_direction, HELP_TEXT_DIRECTION.c_str());
+    
+    gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)grid);
     
     //show the dialog
     gtk_widget_show_all(dialog);
@@ -574,6 +599,7 @@ void gtk_grid_new_row_primary(GtkGrid* grid, int row, double scale_factor, GtkWi
     
     //create and insert the label
     GtkWidget * label = gtk_label_new(text.c_str());
+    gtk_label_set_max_width_chars((GtkLabel *)label, 80);
     gtk_label_set_line_wrap((GtkLabel *) label, true);
     gtk_label_set_xalign((GtkLabel *)label, 0);
     gtk_label_set_attributes((GtkLabel *)label, text_attributes);
