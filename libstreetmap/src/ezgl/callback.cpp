@@ -469,6 +469,8 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
     
     //clear the current route so it doesn't look funny
     MAP.route_data.route_segments.clear();
+    MAP.directions_data.clear();
+    MAP.highlighted_direction = -1;
     
     //if both to/from set from right click, automatically search
     if(MAP.state.is_from_set_right_click && MAP.state.is_to_set_right_click) {

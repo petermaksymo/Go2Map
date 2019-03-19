@@ -71,7 +71,7 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
     } else if (event->button == RIGHT_MOUSE_BUTTON) {
         //find closest intersection and update state with it
         LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
-        MAP.state.directions_intersection_id = find_closest_intersection(position);;
+        MAP.state.directions_intersection_id = find_closest_intersection(position);
         
         //give menu popup on right click
         GtkMenu *popup = (GtkMenu *)app->get_object("RightClickPopUp");
