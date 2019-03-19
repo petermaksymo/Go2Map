@@ -177,3 +177,18 @@ std::string get_readable_distance(int distance) {
     
     return ss.str();
 }
+
+unsigned find_common_intersection(unsigned street_segment1_id, unsigned street_segment2_id) {
+    unsigned to1 = getInfoStreetSegment(street_segment1_id).to;
+    unsigned from1 = getInfoStreetSegment(street_segment1_id).from;
+    unsigned to2 = getInfoStreetSegment(street_segment2_id).to;
+    unsigned from2 = getInfoStreetSegment(street_segment2_id).from;
+    if(to1 == to2) return to1;
+    else if (to1 == from2) return to1;
+    else return from1;
+}
+
+// Checks if one point is within a tolerance of another
+bool check_intersection(double x1, double y1, double tolerance, double x2, double y2) {
+    return (x2 > x1 - tolerance && x2 < x1 + tolerance  && y2 > y1 - tolerance && y2 < y1 + tolerance);
+}

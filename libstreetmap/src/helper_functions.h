@@ -50,3 +50,9 @@ std::string get_readable_time(int time);
 
 //converts distance in meters to readable distance
 std::string get_readable_distance(int distance);
+
+//finds the common intersection between two connected street segments
+unsigned find_common_intersection(unsigned street_segment1_id, unsigned street_segment2_id);
+
+// Checks if one point is within a tolerance of another
+bool check_intersection(double x1, double y1, double tolerance, double x2, double y2);

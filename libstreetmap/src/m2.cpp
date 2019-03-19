@@ -29,7 +29,7 @@ void draw_map () {
     
     
     application.run(nullptr, act_on_mouse_click, 
-                    nullptr, act_on_key_press,
+                    act_on_mouse_move, act_on_key_press,
                     act_on_transit_toggle, act_on_bikes_toggle,
                     act_on_poi_toggle, act_on_suggested_clicked,
                     act_on_find, act_on_directions);
@@ -89,6 +89,8 @@ void draw_main_canvas (ezgl::renderer &g) {
     if(MAP.state.is_transit_on) draw_subway_data(g);
     draw_route(g);
     draw_street_name(g);
+    if(MAP.directions_data.size() > 0) draw_instruction_points(g);
     if(MAP.state.is_poi_on) draw_points_of_interest(g);
     draw_route_start_end(g);
+    draw_instruction_popup(g);
 }

@@ -80,6 +80,8 @@ struct DirectionsData {
     TurnType turn_type;
     std::string path_time;
     std::string path_distance;
+    double lat;
+    double lon;
 };
 
 //Values that change throughout map navigation
@@ -138,6 +140,9 @@ struct MapInfo {
     std::vector<DirectionsData> directions_data;
     std::string travel_time;
     std::string travel_distance;
+    int highlighted_direction = -1;
+    double screen_width;
+    double screen_height;
 };
 
 //tells compiler that MAP exists (so we can use it in all files)
