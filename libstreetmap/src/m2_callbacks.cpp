@@ -20,9 +20,10 @@
 
 void act_on_mouse_move(ezgl::application* app, GdkEventButton* event, double x, double y) {
     (void) event;
-    int count = 0;
     
+    // Highlight directions
     // Loop over all the intersections checking if the mouse is within 1% of the total screen to it
+    int count = 0;
     for(auto it = MAP.directions_data.begin(); it != MAP.directions_data.end(); it++) {
         double tolerance = (MAP.state.current_view_x.second-MAP.state.current_view_x.first) / 100; // 1% of screen view
         if(check_intersection(x, y, tolerance, x_from_lon((*it).lon), y_from_lat((*it).lat))) {

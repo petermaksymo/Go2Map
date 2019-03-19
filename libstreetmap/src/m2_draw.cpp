@@ -450,10 +450,10 @@ void draw_bike_data(ezgl::renderer &g) {
 // Draw instruction points
 void draw_instruction_points(ezgl::renderer &g) {
     g.set_color(ezgl::WHITE);
+    ezgl::surface *inst_marker = g.load_png("./libstreetmap/resources/DirectionMarker.png");
     for(auto it = MAP.directions_data.begin(); it != MAP.directions_data.end(); it++) {
         //set width before drawing
-        float radius = 0.75 * 120 / (MAP.state.scale * 2000000); // Radius of circle that looks appropriate on the screen
-        g.fill_arc(ezgl::point2d(x_from_lon((*it).lon), y_from_lat((*it).lat)), radius, 0, 360);
+        g.draw_surface(inst_marker, png_draw_center_point(g, ezgl::point2d(x_from_lon((*it).lon), y_from_lat((*it).lat)), 14));
     }
 }
 
