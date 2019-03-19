@@ -20,16 +20,6 @@ MapInfo MAP;
 
 // load extra street segment related info into MAP
 void load_street_segments () {
-    // Pre-load map for testing
-    MAP.route_data.route_segments.push_back(3497);
-    MAP.route_data.route_segments.push_back(152399);
-    MAP.route_data.route_segments.push_back(152400);
-    MAP.route_data.route_segments.push_back(86419);
-    MAP.route_data.route_segments.push_back(5905);
-    MAP.route_data.route_segments.push_back(97652);
-    
-    MAP.route_data.start_intersection = 4180;
-    MAP.route_data.end_intersection = 4166;
     
     // Resize for tiny performance benefit
     MAP.street_db.resize(getNumStreets());
@@ -124,7 +114,9 @@ void load_intersections () {
     }
     
     //initialize out of bounds
-    MAP.state.last_selected_intersection = getNumIntersections() + 1;
+    MAP.state.last_selected_intersection = MAP.intersection_db.size() + 1;
+    MAP.route_data.start_intersection = MAP.intersection_db.size() + 1;
+    MAP.route_data.end_intersection = MAP.intersection_db.size() + 1;
 }
 
 
@@ -286,4 +278,8 @@ void clear_map_data() {
     MAP.OSM_data.node_by_OSMID.clear();
     MAP.OSM_data.subway_routes.clear();
     MAP.OSM_data.way_by_OSMID.clear();
+    
+    MAP.route_data.route_segments.clear();
+    
+    MAP.directions_data.clear();
 }

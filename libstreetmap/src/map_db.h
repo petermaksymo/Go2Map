@@ -78,6 +78,8 @@ struct RouteData {
 struct DirectionsData {
     std::string street;
     TurnType turn_type;
+    std::string path_time;
+    std::string path_distance;
 };
 
 //Values that change throughout map navigation
@@ -134,6 +136,8 @@ struct MapInfo {
     OSMData OSM_data;
     RouteData   route_data;
     std::vector<DirectionsData> directions_data;
+    std::string travel_time;
+    std::string travel_distance;
 };
 
 //tells compiler that MAP exists (so we can use it in all files)

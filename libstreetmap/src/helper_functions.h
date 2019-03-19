@@ -41,3 +41,9 @@ ezgl::point2d png_draw_center_point(ezgl::renderer &g, ezgl::point2d original, i
 
 //returns the bottom (y) and middle (x) point to draw the png with
 ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, int png_height, int png_width);
+
+//converts time in seconds to readable time
+std::string get_readable_time(double time);
+
+//converts distance in meters to readable distance
+std::string get_readable_distance(int distance);

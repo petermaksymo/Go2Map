@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <ezgl/point.hpp>
 #include "ezgl/graphics.hpp"
+#include "sstream"
+#include <iomanip>
 
 
 //sorts and removes all duplicates in a vector
@@ -115,4 +117,52 @@ ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, 
     png_adjust.y = png_adjust.y * png_height;
     
     return(original + png_adjust);
+}
+
+//converts time in seconds to readable time
+std::string get_readable_time(double time) {
+    if(time < 10)               return "less than 10 seconds";
+    else if(time < 30)          return "less than 30 seconds";
+    else if(time < 60)          return "less than one minute";
+    else if(time < 2*60)        return "about one minute";
+    else if(time < 4*60)        return "less than five minutes";
+    else if(time < 6*60)        return "about five minutes";
+    else if(time < 8*60)        return "less than ten minutes";
+    else if(time < 12*60)       return "about ten minutes";
+    else if(time < 17*60)       return "about fifteen minutes";
+    else if(time < 25*60)       return "about twenty minutes";
+    else if(time < 37*60)       return "about thirty minutes";
+    else if(time < 50*60)       return "about forty-five minutes";
+    else if(time < 1.1*60*60)   return "about an hour";
+    else if(time < 1.7*60*60)   return "about an hour and a half";
+    else if(time < 2.2*60*60)   return "about two hours";
+    else if(time < 3.3*60*60)   return "about three hours";
+    else if(time < 4.4*60*60)   return "about four hours";
+    else if(time < 6*60*60)     return "about five hours";
+    else if(time < 11*60*60)    return "about ten hours";
+    else return "more than ten hours";
+}
+
+//converts distance in meters to readable distance
+std::string get_readable_distance(int distance) {  
+    std::stringstream ss("~");
+    ss << std::fixed << std::setprecision(1);
+    
+    if(distance < 100) {
+        distance = (distance + 5) / 10 * 10;
+        ss << distance << "m";
+    } else if(distance < 949) {
+        distance = (distance +50) /100 *100;
+        ss << distance << "m";
+    } else if(distance < 10000) {
+        distance = distance / 100;
+        ss << (double)distance/10.0 << "km";
+    } else if(distance < 100000) {
+        distance = distance / 1000;
+        ss << (double)distance/10.0 << "km";
+    } else { 
+        ss << distance/1000 << "km";
+    }
+    
+    return ss.str();
 }
