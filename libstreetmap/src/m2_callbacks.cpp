@@ -74,7 +74,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             default: break;
         }
         
-        //typing so can't trust these... reset
+        //we are typing now so can't trust these; reset them
         MAP.state.is_from_set_right_click = false;
         MAP.state.is_to_set_right_click = false;
         
@@ -86,12 +86,10 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             if(gtk_widget_is_focus((GtkWidget *) app->get_object("SearchBar"))) {
                 text_entry = (GtkEntry *) app->get_object("SearchBar");
                 MAP.state.displaying_search_results = true;
-            }
-            else if(gtk_widget_is_focus((GtkWidget *) app->get_object("ToBar"))) {
+            } else if(gtk_widget_is_focus((GtkWidget *) app->get_object("ToBar"))) {
                 text_entry = (GtkEntry *) app->get_object("ToBar");
                 MAP.state.displaying_search_results = false;
-            }
-            else return;
+            } else return;
 
             std::string text = gtk_entry_get_text(text_entry);
             boost::algorithm::to_lower(text);
@@ -105,18 +103,20 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
                         
             std::vector<unsigned> result;
             if (!entry.empty()) {
-                if(check_and_switch_map(app, text)) {
-                   return; 
-                } else {
-                    result = find_street_ids_from_partial_street_name(entry);
-                }
+                // try to switch maps, otherwise find street ids to suggest intersections
+                if(check_and_switch_map(app, text)) return;
+                else result = find_street_ids_from_partial_street_name(entry);
             }
             
+            // Check if parital city name for suggestions
+            auto it = valid_map_paths.lower_bound(text);
+            
+            // Limit search results shown to fit screen
             int num_result_shown = MAX_SUGGESTIONS;
-            // Limit search results shown
             if (result.size() < MAX_SUGGESTIONS) num_result_shown = result.size();
             
-            if (num_result_shown != 0) {                 
+            // Display results if there are streets or city suggestions to show
+            if (num_result_shown != 0 || (it != valid_map_paths.end() && (it->first).rfind(text, 0) == 0)) {                 
                 //loads the popup menu
                 GtkMenu *popup = (GtkMenu *)app->get_object("SearchPopUp");
                 GtkWidget *to_bar = (GtkWidget *)app->get_object("ToBar");
@@ -124,15 +124,30 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
                 //creates the popup menu under the search bar
                 gtk_menu_popup_at_widget(popup, to_bar, GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,  NULL);
                 
-                //populate the menu with suggestions
-                for (int i = 0; i < MAX_SUGGESTIONS; i++) {
+                
+                int num_suggested_cities = 0; // Variable to count how many cities suggestions are displayed
+                
+                // Check for suggested city using lower_bound on the map in consts.h
+                if(it != valid_map_paths.end() && (it->first).rfind(text, 0) == 0) { // rfind checks if text is the prefix of the lower_bound result
                     std::string menu_item_id = "suggestion";
-                    menu_item_id += std::to_string(i);
-
+                    menu_item_id += std::to_string(num_suggested_cities);
+                    
                     GtkWidget *suggestion = (GtkWidget *)app->get_object(menu_item_id.c_str());
                     
+                    std::string city_label = "City: " + it->first;
+                    gtk_menu_item_set_label((GtkMenuItem *)suggestion, city_label.c_str());
+                    
+                    // Increment the number of cities suggested
+                    num_suggested_cities++;
+                }
+                
+                // Populate the menu with suggestions
+                for (int i = 0; i < num_result_shown - num_suggested_cities; i++) {
+                    std::string menu_item_id = "suggestion";
+                    menu_item_id += std::to_string((i + num_suggested_cities));
+                    GtkWidget *suggestion = (GtkWidget *)app->get_object(menu_item_id.c_str());
                     if(i >= (int)result.size()) {
-                        //if no result, populate menu with a blank
+                        // If no result, populate menu with a blank
                         gtk_menu_item_set_label((GtkMenuItem *)suggestion, "");
                     } else {
                         gtk_menu_item_set_label((GtkMenuItem *)suggestion, getStreetName(result[i]).c_str());
@@ -173,7 +188,6 @@ std::vector<unsigned> find_intersections_from_text(std::string &text, std::strin
         if (text.find('&') == text.size() - 1 || text.find('&') == text.size() - 2) {
             ezgl_app->update_message("Second street needed");
             return {};
-        //if (second_street == NULL) ezgl_app->update_message("Second street needed");
         } else {
             street1 = text.substr(0, text.find('&') - 1);
             street2 = text.substr(text.find('&') + 2);
@@ -260,12 +274,23 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     if(MAP.state.displaying_search_results) text_entry = (GtkEntry *) app->get_object("SearchBar");
     else text_entry = (GtkEntry *) app->get_object("ToBar");
     
+    // Check if clicked suggestion is a city and switch maps accordingly
+    if(suggestion.rfind("City:", 0) == 0) {
+        suggestion = suggestion.substr(suggestion.find(' ') + 1);
+        gtk_entry_set_text(text_entry, suggestion.c_str());
+        app->refresh_drawing();
+        check_and_switch_map(app, suggestion);
+        return;
+    }
+    
+    // Otherwise treat as intersection search
     std::string text = gtk_entry_get_text(text_entry);
     // Place in different formats depending whether it is the first or second street-
     if (text.find('&') == std::string::npos) suggestion = " & " + suggestion;
     else {
         suggestion = suggestion + " " + text.substr(text.find('&'));
     }
+    
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
@@ -298,7 +323,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
             return false;
         }
 
-        // intersection vectors now have size > 1
+        // intersection vectors now have size > 1, use first
         MAP.route_data.start_intersection = intersections_from[0];
         MAP.route_data.end_intersection = intersections_to[0];
         
@@ -308,39 +333,48 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
     std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
                                                                     MAP.route_data.end_intersection, 0, 0);
     MAP.route_data.route_segments = results;
+    
+    //check if path found
+    if(MAP.route_data.route_segments.size() == 0) {
+        ezgl_app->update_message("Unable to find directions for you, sorry for the inconvenience ");
+            ezgl_app->refresh_drawing();
+            return false;
+    }
 
     //generate written directions
     MAP.directions_data.clear();
     double distance_on_path = 0, total_distance = 0;
     double time_on_path = 0, total_time = 0;
-    for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
-        distance_on_path += find_street_segment_length(*it);
-        time_on_path += find_street_segment_travel_time(*it);
-        
-        TurnType turn = find_turn_type(*it, *(it+1));
-        if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
-            DirectionsData to_add;
-            to_add.turn_type = turn;
-            InfoStreetSegment segment = getInfoStreetSegment(*it);
-            to_add.street = getStreetName(segment.streetID);
-            to_add.path_time = get_readable_time(time_on_path);
-            to_add.path_distance = get_readable_distance((int)distance_on_path);
-            
-            //reset/set times/distances
-            total_distance += distance_on_path;
-            distance_on_path = 0;
-            total_time += time_on_path;
-            time_on_path = 0;
-            
-            //avoid unknown streets for aesthetics
-            if(getStreetName(segment.streetID) != "<unknown>") 
-                MAP.directions_data.push_back(to_add);
+    if(MAP.route_data.route_segments.size() > 1) {
+        for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
+            distance_on_path += find_street_segment_length(*it);
+            time_on_path += find_street_segment_travel_time(*it);
+
+            TurnType turn = find_turn_type(*it, *(it+1));
+            if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
+                DirectionsData to_add;
+                to_add.turn_type = turn;
+                InfoStreetSegment segment = getInfoStreetSegment(*it);
+                to_add.street = getStreetName(segment.streetID);
+                to_add.path_time = get_readable_time(time_on_path);
+                to_add.path_distance = get_readable_distance((int)distance_on_path);
+
+                //reset/set times/distances
+                total_distance += distance_on_path;
+                distance_on_path = 0;
+                total_time += time_on_path;
+                time_on_path = 0;
+
+                //avoid unknown streets for aesthetics
+                if(getStreetName(segment.streetID) != "<unknown>") 
+                    MAP.directions_data.push_back(to_add);
+            }
         }
     }
     MAP.travel_time = get_readable_time(total_time);
     MAP.travel_distance = get_readable_distance((int)total_distance);
     
-    //reset these so they don't auto search on next from/to... make user do both
+    //reset these so they don't auto search on next from/to; make user do both each time
     MAP.state.is_from_set_right_click = false;
     MAP.state.is_to_set_right_click = false;
     
@@ -357,7 +391,7 @@ bool check_and_switch_map(ezgl::application *app, std::string choice) {
         //should work but normally doesnt
         app->update_message("Loading " + map_choice->first + " (it may take several seconds)");
         app->refresh_drawing();
-
+        
         close_map();
 
         load_map(map_choice->second);
@@ -376,7 +410,7 @@ bool check_and_switch_map(ezgl::application *app, std::string choice) {
 
         app->update_message("Successfully loaded  " + map_choice->first);
         app->refresh_drawing();
-        
+
         return true;
     }
     

@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <unordered_map>
+#include <map>
 #include <string>
 
 //currently "hard-coded" since menu items are created in glade
 #define MAX_SUGGESTIONS 5
 
-const std::unordered_map<std::string, std::string> valid_map_paths {
+const std::map<std::string, std::string> valid_map_paths {
     std::make_pair("beijing" ,"/cad2/ece297s/public/maps/beijing_china.streets.bin"),
     std::make_pair("cairo"   ,"/cad2/ece297s/public/maps/cairo_egypt.streets.bin"),
     std::make_pair("cape-town", "/cad2/ece297s/public/maps/cape-town_south-africa.streets.bin"),
@@ -32,13 +32,25 @@ const std::unordered_map<std::string, std::string> valid_map_paths {
     std::make_pair("toronto", "/cad2/ece297s/public/maps/toronto_canada.streets.bin")
 };
 
-const std::string HELP_TEXT =
-    "Pick between transit and cycling data in the layers menu on the right.\n\n"
-    "Click and drag to move around the map and scroll to zoom. Or use the navigation\n"
-    "buttons on the right.\n\n"
-    "Search for intersections by typing in \"street 1 & street 2\" and then pressing\n"
-    "the Find button. Hit the \"enter\" key along the way for suggestions.\n\n"
-    "Change maps by typing the name of the new map in the search bar and then pressing\n"
-    "enter. See what maps are available by typing \"map-list\"."
+const std::string HELP_TEXT_SUBWAY =
+    "Pick between transit, cycling, and point of interests (POI) data in the layers menu on the right."
 ;
 
+const std::string HELP_TEXT_MOUSE =
+    "Click and drag to move around the map and scroll to zoom. Or use the navigation buttons on the right."
+;
+
+const std::string HELP_TEXT_SEARCH = 
+    "Search for intersections by typing in \"street 1 & street 2\" and the pressing the Search button."
+    " Hit the \"Enter\" key along the way for suggestions. Keep pressing the Search button to find multiple intersections"
+;
+
+const std::string HELP_TEXT_MAPS =
+    "Change maps by typing the name of the new map in the search bar and then pressing \"Enter\"."
+    " Again, you can hit \"Enter\" along the way for suggestions."
+;
+
+const std::string HELP_TEXT_DIRECTION =
+    "Right click to set the \"to\" and \"from\" intersections for directions."
+    " Or, you can fill in the search bars yourself, and then hit the directions button"
+;

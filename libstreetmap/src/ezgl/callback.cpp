@@ -6,6 +6,17 @@
 
 #define LARGE_FONT 1.2
 #define NORMAL_FONT 1.0
+#define DIALOG_SIZE_X 400
+#define DIALOG_SIZE_Y 400
+#define HELP_ROW_SPACING 15
+#define LABEL_MAX_WIDTH 80
+#define IMAGE_SIZE 50 //both x and y
+#define ALIGN_LEFT 0
+#define ALIGN_RIGHT 1
+#define ALIGN_TOP 0
+#define ALIGN_BOTTOM 0 
+#define SECONDARY_ROW_HEIGHT 25 
+#define DEFAULT -1 //gtk default value for size attributes
 
 namespace ezgl {
 
@@ -74,24 +85,24 @@ gboolean release_mouse(GtkWidget *, GdkEventButton *event, gpointer data )
       application->mouse_press_callback(application, event, world.x, world.y);
     }
     
-    //implement inertial scrolling
-    if(was_panning) {
-        std::string main_canvas_id = application->get_main_canvas_id();
-        auto canvas = application->get_canvas(main_canvas_id);
-        
-        
-        //translate by 1/10th prev_dx/dy each time for a max of 5 times
-        //or when very small
-        int counter = 0;
-        while((prev_dx > 0.00000001 && prev_dy > 0.00000001) || counter < 5) {
-            translate(canvas, -prev_dx, -prev_dy);
-            application->refresh_drawing();
-            
-            prev_dx = prev_dx/10.0;
-            prev_dy = prev_dy/10.0;
-            counter ++;
-        }
-    }
+//    //implement inertial panning (doesn't work because refresh_drawing refreshes a buffer...)
+//    if(was_panning) {
+//        std::string main_canvas_id = application->get_main_canvas_id();
+//        auto canvas = application->get_canvas(main_canvas_id);
+//        
+//        
+//        //translate by 1/10th prev_dx/dy each time for a max of 5 times
+//        //or when very small
+//        int counter = 0;
+//        while((prev_dx > 0.00000001 && prev_dy > 0.00000001) || counter < 5) {
+//            translate(canvas, -prev_dx, -prev_dy);
+//            application->refresh_drawing();
+//            
+//            prev_dx = prev_dx/10.0;
+//            prev_dy = prev_dy/10.0;
+//            counter ++;
+//        }
+//    }
     
   }
 
@@ -272,11 +283,11 @@ gboolean press_proceed(GtkWidget *, gpointer data)
 
 //Help dialog, much of this code was used from the ezgl quickstart guide on the ECE297 website
 //http://www.eecg.toronto.edu/~vaughn/ece297/ECE297/assignments/ezgl/ezgl.pdf
+//has been updated with a lot of our own code for m3
 gboolean press_help(GtkWidget *, gpointer data)
 {
     GObject *window;
     GtkWidget *content_area;
-    GtkLabel *label;
     GtkWidget *dialog;
     auto application = static_cast<ezgl::application *>(data);
     
@@ -293,11 +304,36 @@ gboolean press_help(GtkWidget *, gpointer data)
         NULL
     );
     
-    // Create a label and attach it to the content area of the dialog
+    gtk_widget_set_size_request((GtkWidget *)dialog, DIALOG_SIZE_X, DIALOG_SIZE_Y);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-    label = (GtkLabel *)gtk_label_new(HELP_TEXT.c_str());
-    gtk_label_set_max_width_chars(label, 80);
-    gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)label);
+    
+    //create a grid to store the data in
+    GtkGrid* grid = (GtkGrid* ) gtk_grid_new();
+    gtk_grid_set_row_spacing(grid, HELP_ROW_SPACING);
+    
+    //row counter
+    int row = 0;
+    
+    GtkWidget * image_subway = gtk_image_new_from_file("./libstreetmap/resources/subway.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_subway, HELP_TEXT_SUBWAY.c_str());
+    
+    row++;
+    GtkWidget * image_mouse = gtk_image_new_from_file("./libstreetmap/resources/baseline_mouse_black_36dp.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_mouse, HELP_TEXT_MOUSE.c_str());
+    
+    row++;
+    GtkWidget * image_search = gtk_image_new_from_file("./libstreetmap/resources/search.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_search, HELP_TEXT_SEARCH.c_str());
+    
+    row++;
+    GtkWidget * image_maps = gtk_image_new_from_file("./libstreetmap/resources/baseline_language_black_36dp.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_maps, HELP_TEXT_MAPS.c_str());
+    
+    row++;
+    GtkWidget * image_direction = gtk_image_new_from_file("./libstreetmap/resources/baseline-directions-24px.png");
+    gtk_grid_new_row_primary(grid, row, NORMAL_FONT, image_direction, HELP_TEXT_DIRECTION.c_str());
+    
+    gtk_container_add(GTK_CONTAINER(content_area), (GtkWidget *)grid);
     
     //show the dialog
     gtk_widget_show_all(dialog);
@@ -391,6 +427,23 @@ gboolean press_find(GtkWidget *widget, gpointer data) {
     return TRUE;
 }
 
+gboolean handle_search_swap (GtkEntry *to_entry, GtkEntryIconPosition icon_pos, GdkEvent *event, gpointer data) {
+    (void) icon_pos;
+    (void) event;
+    
+    auto app = static_cast<ezgl::application *>(data);
+    
+    GtkEntry* search_entry = (GtkEntry *) app->get_object("SearchBar");
+    
+    std::string search_text = gtk_entry_get_text(search_entry);
+    std::string to_text = gtk_entry_get_text(to_entry);
+    
+    gtk_entry_set_text(search_entry, to_text.c_str());
+    gtk_entry_set_text(to_entry, search_text.c_str());
+    
+    return TRUE;
+}
+
 gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
     auto application = static_cast<ezgl::application *>(data);
     
@@ -405,6 +458,7 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
        gtk_entry_set_text(text_entry, MAP.intersection_db[id].name.c_str());
        MAP.route_data.start_intersection = (unsigned)id;    
        MAP.state.is_from_set_right_click = true;
+       
     } else if (suggestion == "Directions To") {
        GtkEntry* text_entry = (GtkEntry *) application->get_object("ToBar");
        int id = MAP.state.directions_intersection_id;
@@ -412,6 +466,7 @@ gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
        MAP.route_data.end_intersection = (unsigned)id;
        MAP.state.is_to_set_right_click = true;
     }
+    
     //clear the current route so it doesn't look funny
     MAP.route_data.route_segments.clear();
     
@@ -457,7 +512,7 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     // Create a scrolled window and attach it to the content area of the dialog
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
     GtkWidget * scroll_window = (GtkWidget *) gtk_scrolled_window_new(NULL, NULL);
-    gtk_widget_set_size_request(scroll_window, 400, 400);
+    gtk_widget_set_size_request(scroll_window, DIALOG_SIZE_X, DIALOG_SIZE_Y);
     gtk_container_add((GtkContainer *)content_area, scroll_window);
     
     //Create a Viewport and attach it to the scrolled window
@@ -512,10 +567,11 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         
         //insert distance/time row
         row++;
+        std::string time_text = "continue for " + MAP.directions_data[i].path_time;
         gtk_grid_new_row_secondary(
                 grid, 
                 row, 
-                MAP.directions_data[i].path_time, 
+                time_text, 
                 MAP.directions_data[i].path_distance
         );
     }  
@@ -569,13 +625,14 @@ void gtk_grid_new_row_primary(GtkGrid* grid, int row, double scale_factor, GtkWi
     gtk_grid_insert_row(grid, row);
     
     //adjust image and attach to grid
-    gtk_widget_set_size_request(image, 50, 50);
+    gtk_widget_set_size_request(image, IMAGE_SIZE, IMAGE_SIZE);
     gtk_grid_attach(grid, image, 0, row, 1, 1);
     
     //create and insert the label
     GtkWidget * label = gtk_label_new(text.c_str());
+    gtk_label_set_max_width_chars((GtkLabel *)label, LABEL_MAX_WIDTH);
     gtk_label_set_line_wrap((GtkLabel *) label, true);
-    gtk_label_set_xalign((GtkLabel *)label, 0);
+    gtk_label_set_xalign((GtkLabel *)label, ALIGN_LEFT);
     gtk_label_set_attributes((GtkLabel *)label, text_attributes);
     gtk_grid_attach(grid, label, 1, row, 2, 1);
     
@@ -587,15 +644,15 @@ void gtk_grid_new_row_primary(GtkGrid* grid, int row, double scale_factor, GtkWi
 void gtk_grid_new_row_secondary(GtkGrid* grid, int row, std::string text_1, std::string text_2) {
     //generate label 1 and set properties
     GtkWidget * label_1 = gtk_label_new(text_1.c_str());
-    gtk_label_set_xalign((GtkLabel *)label_1, 0);
-    gtk_label_set_yalign((GtkLabel *)label_1, 0);
-    gtk_widget_set_size_request((GtkWidget *)label_1, -1, 25);
+    gtk_label_set_xalign((GtkLabel *)label_1, ALIGN_LEFT);
+    gtk_label_set_yalign((GtkLabel *)label_1, ALIGN_TOP);
+    gtk_widget_set_size_request((GtkWidget *)label_1, DEFAULT, SECONDARY_ROW_HEIGHT);
 
     //generate label 2 and set properties
     GtkWidget * label_2 = gtk_label_new(text_2.c_str());
-    gtk_label_set_xalign((GtkLabel *)label_2, 1);
-    gtk_label_set_yalign((GtkLabel *)label_2, 0);
-    gtk_widget_set_size_request((GtkWidget *)label_2, -1, 25);
+    gtk_label_set_xalign((GtkLabel *)label_2, ALIGN_RIGHT);
+    gtk_label_set_yalign((GtkLabel *)label_2, ALIGN_TOP);
+    gtk_widget_set_size_request((GtkWidget *)label_2, DEFAULT, SECONDARY_ROW_HEIGHT);
 
     //insert row and attach both labels
     gtk_grid_insert_row(grid, row);

@@ -218,6 +218,10 @@ void application::register_default_events_callbacks(ezgl::application *applicati
   GObject *search_bar = application->get_object("SearchBar");
   g_signal_connect(search_bar, "search-changed", G_CALLBACK(search_entry_handle_event), application);
   
+  //Connect swap search to callback
+  GObject *swapSearch = application->get_object("ToBar");
+  g_signal_connect(swapSearch, "icon-press", G_CALLBACK(handle_search_swap), application);
+  
   //Connects to to its callback
   GObject *rightClickTo = application->get_object("RightClickTo");
   g_signal_connect(rightClickTo, "activate", G_CALLBACK(handle_to_from), application);

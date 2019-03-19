@@ -20,7 +20,7 @@ ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & s
 
 #define NO_EDGE -1
 
-// A wave element to traverse through all the node
+// A wave element to traverse through all the nodes
 class waveElem {
     public:
     
@@ -35,7 +35,7 @@ class waveElem {
     }
 };
 
-// A custom comparator used for sort min heap base on travel_time
+// A custom comparator used to sort min heap base on travel_time
 class comparator { 
     public: 
     int operator() (const waveElem point1, const waveElem point2) 
@@ -43,6 +43,7 @@ class comparator {
         return point1.travel_time > point2.travel_time; 
     } 
 }; 
+
 // Forward declaration of functions
 bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double left_turn_penalty);
 std::vector<unsigned>& backtrace(std::vector<unsigned>& route, int intersect_id_start, int intersect_id_end);
@@ -131,6 +132,7 @@ double compute_path_travel_time(const std::vector<unsigned>& path,
     return travel_time;
 }
 
+
 std::vector<unsigned> find_path_between_intersections(
 		  const unsigned intersect_id_start, 
                   const unsigned intersect_id_end,
@@ -145,6 +147,7 @@ std::vector<unsigned> find_path_between_intersections(
         return route;
     }
 }
+
 
 bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double left_turn_penalty) {
     // Initialize queue for BFS
