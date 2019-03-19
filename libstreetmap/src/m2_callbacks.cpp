@@ -333,33 +333,42 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
     std::vector<unsigned> results = find_path_between_intersections(MAP.route_data.start_intersection,
                                                                     MAP.route_data.end_intersection, 0, 0);
     MAP.route_data.route_segments = results;
+    
+    //check if path found
+    if(MAP.route_data.route_segments.size() == 0) {
+        ezgl_app->update_message("Unable to find directions for you, sorry for the inconvenience ");
+            ezgl_app->refresh_drawing();
+            return false;
+    }
 
     //generate written directions
     MAP.directions_data.clear();
     double distance_on_path = 0, total_distance = 0;
     double time_on_path = 0, total_time = 0;
-    for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
-        distance_on_path += find_street_segment_length(*it);
-        time_on_path += find_street_segment_travel_time(*it);
-        
-        TurnType turn = find_turn_type(*it, *(it+1));
-        if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
-            DirectionsData to_add;
-            to_add.turn_type = turn;
-            InfoStreetSegment segment = getInfoStreetSegment(*it);
-            to_add.street = getStreetName(segment.streetID);
-            to_add.path_time = get_readable_time(time_on_path);
-            to_add.path_distance = get_readable_distance((int)distance_on_path);
-            
-            //reset/set times/distances
-            total_distance += distance_on_path;
-            distance_on_path = 0;
-            total_time += time_on_path;
-            time_on_path = 0;
-            
-            //avoid unknown streets for aesthetics
-            if(getStreetName(segment.streetID) != "<unknown>") 
-                MAP.directions_data.push_back(to_add);
+    if(MAP.route_data.route_segments.size() > 1) {
+        for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
+            distance_on_path += find_street_segment_length(*it);
+            time_on_path += find_street_segment_travel_time(*it);
+
+            TurnType turn = find_turn_type(*it, *(it+1));
+            if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
+                DirectionsData to_add;
+                to_add.turn_type = turn;
+                InfoStreetSegment segment = getInfoStreetSegment(*it);
+                to_add.street = getStreetName(segment.streetID);
+                to_add.path_time = get_readable_time(time_on_path);
+                to_add.path_distance = get_readable_distance((int)distance_on_path);
+
+                //reset/set times/distances
+                total_distance += distance_on_path;
+                distance_on_path = 0;
+                total_time += time_on_path;
+                time_on_path = 0;
+
+                //avoid unknown streets for aesthetics
+                if(getStreetName(segment.streetID) != "<unknown>") 
+                    MAP.directions_data.push_back(to_add);
+            }
         }
     }
     MAP.travel_time = get_readable_time(total_time);
