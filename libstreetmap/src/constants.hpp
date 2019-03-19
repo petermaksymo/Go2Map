@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <unordered_map>
+#include <map>
 #include <string>
 
 //currently "hard-coded" since menu items are created in glade
 #define MAX_SUGGESTIONS 5
 
-const std::unordered_map<std::string, std::string> valid_map_paths {
+const std::map<std::string, std::string> valid_map_paths {
     std::make_pair("beijing" ,"/cad2/ece297s/public/maps/beijing_china.streets.bin"),
     std::make_pair("cairo"   ,"/cad2/ece297s/public/maps/cairo_egypt.streets.bin"),
     std::make_pair("cape-town", "/cad2/ece297s/public/maps/cape-town_south-africa.streets.bin"),

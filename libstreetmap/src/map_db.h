@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <ezgl/point.hpp>
 #include "m3.h"
+#include "ezgl/application.hpp"
 
 //The definition of the global MAP object
 //used as the main database
