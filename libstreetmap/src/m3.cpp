@@ -110,20 +110,24 @@ double compute_path_travel_time(const std::vector<unsigned>& path,
     double travel_time = 0.0;
     
     //add path time, then check for turn and add turn penalty
-    for(auto it = path.begin(); it != path.end() - 1; ++it) {
-        travel_time += find_street_segment_travel_time(*it);
-        
-        TurnType turn = find_turn_type(*it, *(it+1));
-        switch(turn) {
-            case TurnType::LEFT  : travel_time += left_turn_penalty;  break;
-            case TurnType::RIGHT : travel_time += right_turn_penalty; break;
-            default: break;
-        }
-        
-    }
-    //add last path (not done in for loop))
-    travel_time += find_street_segment_travel_time(path[path.size()-1]);
+    if (path.size() > 1) {
+            for (auto it = path.begin(); it != path.end() - 1; ++it) {
+                travel_time += MAP.LocalStreetSegments[*it].travel_time; //find_street_segment_travel_time(*it);
 
+                TurnType turn = find_turn_type(*it, *(it + 1));
+                switch (turn) {
+                    case TurnType::LEFT: travel_time += left_turn_penalty;
+                        break;
+                    case TurnType::RIGHT: travel_time += right_turn_penalty;
+                        break;
+                    default: break;
+                }
+            }
+            //add last path (not done in for loop))
+            travel_time += MAP.LocalStreetSegments[path[path.size() - 1]].travel_time;
+    } else {
+        if (path.size() ==1) travel_time = MAP.LocalStreetSegments[path[0]].travel_time;
+    }
     return travel_time;
 }
 
