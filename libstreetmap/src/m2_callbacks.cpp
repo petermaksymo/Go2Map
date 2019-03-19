@@ -311,13 +311,20 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
 
     //generate written directions
     MAP.directions_data.clear();
+    double distance_on_path = 0;
+    double time_on_path = 0;
     for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
+        distance_on_path += find_street_segment_length(*it);
+        time_on_path += find_street_segment_travel_time(*it);
+        
         TurnType turn = find_turn_type(*it, *(it+1));
         if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
             DirectionsData to_add;
             to_add.turn_type = turn;
             InfoStreetSegment segment = getInfoStreetSegment(*it);
             to_add.street = getStreetName(segment.streetID);
+            to_add.path_time = get_readable_time(time_on_path);
+            to_add.path_distance = get_readable_distance((int)distance_on_path);
             
             //avoid unknown streets for aesthetics
             if(getStreetName(segment.streetID) != "<unknown>") 

@@ -77,6 +77,8 @@ struct RouteData {
 struct DirectionsData {
     std::string street;
     TurnType turn_type;
+    std::string path_time;
+    std::string path_distance;
 };
 
 //Values that change throughout map navigation

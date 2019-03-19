@@ -464,9 +464,14 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     //create a grid of the directions and place it in the viewport    
     GtkGrid* grid = (GtkGrid* ) gtk_grid_new();
     
+    //set label font attributes used in grid
+    PangoAttrList * text_attributes = pango_attr_list_new();
+    PangoAttribute * text_scale = pango_attr_scale_new(1.2);
+    pango_attr_list_insert(text_attributes, text_scale);
+        
     //add directions
-    for(int i = 0; i < MAP.directions_data.size(); i++) {
-        gtk_grid_insert_row(grid, i);
+    for(unsigned i = 0; i < MAP.directions_data.size(); i++) {
+        gtk_grid_insert_row(grid, i*2);
         std::string directions = "Turn ";
         
         //assign image based on turn type
@@ -483,18 +488,45 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         //default to STRAIGHT
         default: image = gtk_image_new_from_file("./libstreetmap/resources/straight_icon.png");
         }
-        
+        //generate label for directions
         directions += MAP.directions_data[i].street;
         GtkWidget * label = gtk_label_new(directions.c_str());
-        gtk_widget_set_size_request(label, 300, -1);
-        gtk_label_set_line_wrap((GtkLabel *) label, true);
-        gtk_label_set_justify((GtkLabel *)label, GtkJustification::GTK_JUSTIFY_LEFT);
-        gtk_widget_set_halign(label, GtkAlign::GTK_ALIGN_START);
         
-        gtk_grid_attach(grid, image, 0, i, 1, 1);
-        gtk_grid_attach(grid, label, 1, i, 1, 1);
+        //set label properties
+        gtk_label_set_line_wrap((GtkLabel *) label, true);
+        gtk_label_set_xalign((GtkLabel *)label, 0);
+        gtk_label_set_attributes((GtkLabel *)label, text_attributes);
+        
+        //set image properties
+        gtk_widget_set_size_request(image, 50, 50);
+        
+        //attach directions and image
+        gtk_grid_attach(grid, image, 0, i*2, 1, 1);
+        gtk_grid_attach(grid, label, 1, i*2, 2, 1);
+        
+        //generate distance label and set properties
+        GtkWidget * label_distance = gtk_label_new(MAP.directions_data[i].path_distance.c_str());
+        gtk_label_set_xalign((GtkLabel *)label_distance, 1);
+        gtk_label_set_yalign((GtkLabel *)label_distance, 0);
+        gtk_widget_set_size_request((GtkWidget *)label_distance, -1, 25);
+        
+        //generate time label and set properties
+        GtkWidget * label_time = gtk_label_new(MAP.directions_data[i].path_time.c_str());
+        gtk_label_set_xalign((GtkLabel *)label_time, 0);
+        gtk_label_set_yalign((GtkLabel *)label_time, 0);
+        gtk_widget_set_size_request((GtkWidget *)label_time, -1, 25);
+        
+        //insert a row and attach both labels
+        gtk_grid_insert_row(grid, (i*3)+1);
+        
+        gtk_grid_attach(grid, label_distance, 2, (i*2)+1, 1, 1);
+        gtk_grid_attach(grid, label_time, 1, (i*2)+1, 1, 1);
     }
     gtk_container_add ((GtkContainer *) viewport, (GtkWidget *) grid);  
+    
+    //free pango attributes
+    //pango_attribute_destroy(text_scale); //seg faults if we do but we should...
+    pango_attr_list_unref(text_attributes);
     
     //show the dialog
     gtk_widget_show_all ((GtkWidget *)dialog);

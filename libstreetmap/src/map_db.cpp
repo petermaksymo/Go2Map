@@ -277,4 +277,8 @@ void clear_map_data() {
     MAP.OSM_data.node_by_OSMID.clear();
     MAP.OSM_data.subway_routes.clear();
     MAP.OSM_data.way_by_OSMID.clear();
+    
+    MAP.route_data.route_segments.clear();
+    
+    MAP.directions_data.clear();
 }
