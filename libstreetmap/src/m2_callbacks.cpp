@@ -74,7 +74,7 @@ void act_on_key_press(ezgl::application *app, GdkEventKey *event, char *key_name
             default: break;
         }
         
-        //typing so can't trust these... reset
+        //we are typing now so can't trust these; reset them
         MAP.state.is_from_set_right_click = false;
         MAP.state.is_to_set_right_click = false;
         
@@ -290,6 +290,7 @@ void act_on_suggested_clicked(ezgl::application *app, std::string suggestion) {
     else {
         suggestion = suggestion + " " + text.substr(text.find('&'));
     }
+    
     gtk_entry_set_text(text_entry, suggestion.c_str());
 }
 
@@ -322,7 +323,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
             return false;
         }
 
-        // intersection vectors now have size > 1
+        // intersection vectors now have size > 1, use first
         MAP.route_data.start_intersection = intersections_from[0];
         MAP.route_data.end_intersection = intersections_to[0];
         
@@ -364,7 +365,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
     MAP.travel_time = get_readable_time(total_time);
     MAP.travel_distance = get_readable_distance((int)total_distance);
     
-    //reset these so they don't auto search on next from/to... make user do both
+    //reset these so they don't auto search on next from/to; make user do both each time
     MAP.state.is_from_set_right_click = false;
     MAP.state.is_to_set_right_click = false;
     

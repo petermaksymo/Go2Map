@@ -47,7 +47,7 @@ const std::string HELP_TEXT_SEARCH =
 
 const std::string HELP_TEXT_MAPS =
     "Change maps by typing the name of the new map in the search bar and then pressing \"Enter\"."
-    " Again, you can hit \"Enter\" along the way for suggestions. See what maps are available by typing \"map-list\""
+    " Again, you can hit \"Enter\" along the way for suggestions."
 ;
 
 const std::string HELP_TEXT_DIRECTION =
