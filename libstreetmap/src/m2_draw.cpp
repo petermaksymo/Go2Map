@@ -126,11 +126,11 @@ void draw_route (ezgl::renderer &g) {
         
         //set width before drawing
         if (MAP.state.zoom_level > 3) {
-            g.set_line_width(2 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 10);
+            g.set_line_width(1.5 * 120 / 10);
         } else if (MAP.state.zoom_level == 0) {
-            g.set_line_width(2 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 30);
+            g.set_line_width(1.5 * 120 / 30);
         } else {
-            g.set_line_width(2 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 20);
+            g.set_line_width(1.5 * 120 / 20);
         }
         
         draw_curve(g, points);
@@ -154,11 +154,11 @@ void draw_route (ezgl::renderer &g) {
         
         //set width before drawing
         if (MAP.state.zoom_level > 3) {
-            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 10);
+            g.set_line_width(0.75 * 120 / 10);
         } else if (MAP.state.zoom_level == 0) {
-            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 30);
+            g.set_line_width(0.75 * 120 / 30);
         } else {
-            g.set_line_width(1 * MAP.LocalStreetSegments[id].street_segment_speed_limit / 20);
+            g.set_line_width(0.75 * 120 / 20);
         }
         
         draw_curve(g, points);
