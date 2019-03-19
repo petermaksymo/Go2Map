@@ -416,6 +416,18 @@ gboolean press_find(GtkWidget *widget, gpointer data) {
     return TRUE;
 }
 
+gboolean handle_search_swap (GtkEntry *to_entry, GtkEntryIconPosition icon_pos, GdkEvent *event, gpointer data) {
+    (void) icon_pos;
+    (void) event;
+    
+    auto application = static_cast<ezgl::application *>(data);
+    
+    //@Hankle or @Sasha, you can swap here, you already have the to_entry and you
+    //can use application to get the from entry, have fun :)
+    
+    return TRUE;
+}
+
 gboolean handle_to_from (GtkMenuItem *menu_item, gpointer data) {
     auto application = static_cast<ezgl::application *>(data);
     
