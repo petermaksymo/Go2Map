@@ -30,12 +30,9 @@ void act_on_mouse_click(ezgl::application* app, GdkEventButton* event, double x,
 
         LatLon position = LatLon(lat_from_y(y), lon_from_x(x));
         int id = find_closest_intersection(position);
+        
         // Get intersections and street segments
-        std::cout << MAP.intersection_db[id].name << ": " << id << std::endl;
         std::vector<unsigned int> intersects = find_intersection_street_segments(id);
-        for(std::vector<unsigned int>::iterator it = intersects.begin(); it != intersects.end(); it++) {
-            std::cout << "int_id: " << *it << std::endl;
-        }
 
         app->update_message("Closest Intersection: " + MAP.intersection_db[id].name);
         MAP.intersection_db[id].is_selected = true;
@@ -354,7 +351,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
             if(turn == TurnType::LEFT || turn == TurnType::RIGHT) {
                 DirectionsData to_add;
                 to_add.turn_type = turn;
-                InfoStreetSegment segment = getInfoStreetSegment(*it);
+                InfoStreetSegment segment = getInfoStreetSegment(*(it+1) );
                 to_add.street = getStreetName(segment.streetID);
                 to_add.path_time = get_readable_time(time_on_path);
                 to_add.path_distance = get_readable_distance((int)distance_on_path);

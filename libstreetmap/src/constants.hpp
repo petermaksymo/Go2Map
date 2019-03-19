@@ -9,6 +9,7 @@
 
 //currently "hard-coded" since menu items are created in glade
 #define MAX_SUGGESTIONS 5
+#define NO_EDGE -1
 
 const std::map<std::string, std::string> valid_map_paths {
     std::make_pair("beijing" ,"/cad2/ece297s/public/maps/beijing_china.streets.bin"),

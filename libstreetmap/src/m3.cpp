@@ -1,11 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * A implementation of path finding and function that helps with its functionality
  */
 
 #include <m1.h>
 #include <m3.h>
+#include <constants.hpp>
 #include <StreetsDatabaseAPI.h>
 #include <math.h>
 #include "helper_functions.h"
@@ -13,12 +12,9 @@
 #include <stdio.h>
 #include <map_db.h>
 #include <vector>
-//#include <queue>
 #include <bits/stdc++.h>
 
 ezgl::point2d get_other_segment_point(int intersection_id, InfoStreetSegment & segment, StreetSegmentIndex segment_id);
-
-#define NO_EDGE -1
 
 // A wave element to traverse through all the nodes
 class waveElem {
@@ -183,7 +179,7 @@ bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double lef
                     ? MAP.intersection_node[edgeInfo.to]
                     : MAP.intersection_node[edgeInfo.from];
                 // Determine turn penalty base on turn type
-                if (currentNode->edge_in != -1) {
+                if (currentNode->edge_in != NO_EDGE) {
                    if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty;
                    else if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::RIGHT) turn_penalty = right_turn_penalty;
                    else turn_penalty = 0; 

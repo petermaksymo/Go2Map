@@ -5,6 +5,7 @@
  */
 
 #include "map_db.h"
+#include "constants.hpp"
 #include "KD2Tree.h"
 #include "StreetsDatabaseAPI.h"
 #include "OSMDatabaseAPI.h"
@@ -104,7 +105,7 @@ void load_intersections () {
         }         
         MAP.intersection_db[i].position = getIntersectionPosition(i);
         MAP.intersection_db[i].name = getIntersectionName(i);
-        MAP.intersection_node[i] = (new Node(i, -1, 0));
+        MAP.intersection_node[i] = (new Node(i, NO_EDGE, 0));
         
         //Check and update min/max lat/lon in world_values
         MAP.world_values.max_lat = std::max(MAP.world_values.max_lat, MAP.intersection_db[i].position.lat());
@@ -233,7 +234,7 @@ void clear_intersection_node() {
     
     for(int i = 0; i < getNumIntersections(); i++) {
         MAP.intersection_node[i]->best_time = 0;
-        MAP.intersection_node[i]->edge_in = -1;
+        MAP.intersection_node[i]->edge_in = NO_EDGE;
     }        
 }
 
