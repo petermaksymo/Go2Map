@@ -134,6 +134,8 @@ struct MapInfo {
     OSMData OSM_data;
     RouteData   route_data;
     std::vector<DirectionsData> directions_data;
+    std::string travel_time;
+    std::string travel_distance;
 };
 
 //tells compiler that MAP exists (so we can use it in all files)

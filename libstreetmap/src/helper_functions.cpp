@@ -134,7 +134,10 @@ std::string get_readable_time(double time) {
     else if(time < 37*60)       return "about thirty minutes";
     else if(time < 50*60)       return "about forty-five minutes";
     else if(time < 1.1*60*60)   return "about an hour";
+    else if(time < 1.7*60*60)   return "about an hour and a half";
     else if(time < 2.2*60*60)   return "about two hours";
+    else if(time < 3.3*60*60)   return "about three hours";
+    else if(time < 4.4*60*60)   return "about four hours";
     else if(time < 6*60*60)     return "about five hours";
     else if(time < 11*60*60)    return "about ten hours";
     else return "more than ten hours";

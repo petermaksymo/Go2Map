@@ -468,10 +468,37 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     PangoAttrList * text_attributes = pango_attr_list_new();
     PangoAttribute * text_scale = pango_attr_scale_new(1.2);
     pango_attr_list_insert(text_attributes, text_scale);
+    
+    int row = 0;
+    
+    //insert a start row
+    gtk_grid_insert_row(grid, row);
+    
+    //insert starting image
+    GtkWidget * start_image = gtk_image_new_from_file("./libstreetmap/resources/GreenLocationMarkerDouble.png");
+    gtk_widget_set_size_request(start_image, 50, 50);
+    gtk_grid_attach(grid, start_image, 0, row, 1, 1);
+    
+    //set start text based off if the intersection contains <unkown>
+    std::string start_text;
+    std::string start_intersection_name = getIntersectionName(MAP.route_data.start_intersection);
+    if(start_intersection_name.find("<unknown>") == std::string::npos) {
+        start_text = "Start at " + start_intersection_name;
+    } else {
+        start_text = "Starting your journey";
+    }
+    
+    //create and insert the start label
+    GtkWidget * start_label = gtk_label_new(start_text.c_str());
+    gtk_label_set_line_wrap((GtkLabel *) start_label, true);
+    gtk_label_set_xalign((GtkLabel *)start_label, 0);
+    gtk_label_set_attributes((GtkLabel *)start_label, text_attributes);
+    gtk_grid_attach(grid, start_label, 1, row, 2, 1);
         
     //add directions
     for(unsigned i = 0; i < MAP.directions_data.size(); i++) {
-        gtk_grid_insert_row(grid, i*2);
+        row++;
+        gtk_grid_insert_row(grid, row);
         std::string directions = "Turn ";
         
         //assign image based on turn type
@@ -501,8 +528,8 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         gtk_widget_set_size_request(image, 50, 50);
         
         //attach directions and image
-        gtk_grid_attach(grid, image, 0, i*2, 1, 1);
-        gtk_grid_attach(grid, label, 1, i*2, 2, 1);
+        gtk_grid_attach(grid, image, 0, row, 1, 1);
+        gtk_grid_attach(grid, label, 1, row, 2, 1);
         
         //generate distance label and set properties
         GtkWidget * label_distance = gtk_label_new(MAP.directions_data[i].path_distance.c_str());
@@ -517,15 +544,62 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         gtk_widget_set_size_request((GtkWidget *)label_time, -1, 25);
         
         //insert a row and attach both labels
-        gtk_grid_insert_row(grid, (i*3)+1);
+        row++;
+        gtk_grid_insert_row(grid, row);
         
-        gtk_grid_attach(grid, label_distance, 2, (i*2)+1, 1, 1);
-        gtk_grid_attach(grid, label_time, 1, (i*2)+1, 1, 1);
+        gtk_grid_attach(grid, label_distance, 2, row, 1, 1);
+        gtk_grid_attach(grid, label_time, 1, row, 1, 1);
     }
+    
+    //insert the final row
+    row++;
+    gtk_grid_insert_row(grid, row);
+    
+    //insert end image
+    GtkWidget * end_image = gtk_image_new_from_file("./libstreetmap/resources/BlueLocationMarkerDouble.png");
+    gtk_widget_set_size_request(end_image, 50, 50);
+    gtk_grid_attach(grid, end_image, 0, row, 1, 1);
+    
+    //set start text based off if the intersection contains <unkown>
+    std::string end_text;
+    std::string end_intersection_name = getIntersectionName(MAP.route_data.end_intersection);
+    if(end_intersection_name.find("<unknown>") == std::string::npos) {
+        end_text = "You have arrived at " + end_intersection_name;
+    } else {
+        end_text = "You have Arrived!";
+    }
+    
+    //create and insert the start label
+    GtkWidget * end_label = gtk_label_new(end_text.c_str());
+    gtk_label_set_line_wrap((GtkLabel *) end_label, true);
+    gtk_label_set_xalign((GtkLabel *)end_label, 0);
+    gtk_label_set_attributes((GtkLabel *)end_label, text_attributes);
+    gtk_grid_attach(grid, end_label, 1, row, 2, 1);
+    
+    //generate distance label and set properties
+    GtkWidget * label_distance_total = gtk_label_new(MAP.travel_distance.c_str());
+    gtk_label_set_xalign((GtkLabel *)label_distance_total, 1);
+    gtk_label_set_yalign((GtkLabel *)label_distance_total, 0);
+    gtk_widget_set_size_request((GtkWidget *)label_distance_total, -1, 25);
+
+    //generate time label and set properties
+    GtkWidget * label_time_total = gtk_label_new(MAP.travel_time.c_str());
+    gtk_label_set_xalign((GtkLabel *)label_time_total, 0);
+    gtk_label_set_yalign((GtkLabel *)label_time_total, 0);
+    gtk_widget_set_size_request((GtkWidget *)label_time_total, -1, 25);
+
+    //insert a row and attach both labels
+    row++;
+    gtk_grid_insert_row(grid, row);
+
+    gtk_grid_attach(grid, label_distance_total, 2, row, 1, 1);
+    gtk_grid_attach(grid, label_time_total, 1, row, 1, 1);
+        
+    //Add the grid to the viewport
     gtk_container_add ((GtkContainer *) viewport, (GtkWidget *) grid);  
     
     //free pango attributes
-    //pango_attribute_destroy(text_scale); //seg faults if we do but we should...
+    //pango_attribute_destroy(text_scale); //seg faults if we do but told we should...
     pango_attr_list_unref(text_attributes);
     
     //show the dialog
