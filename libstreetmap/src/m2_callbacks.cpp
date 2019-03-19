@@ -344,7 +344,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
     //generate written directions
     MAP.directions_data.clear();
     double distance_on_path = 0, total_distance = 0;
-    double time_on_path = 0, total_time = 0;
+    double time_on_path = 0;
     if(MAP.route_data.route_segments.size() > 1) {
         for(auto it = MAP.route_data.route_segments.begin(); it != MAP.route_data.route_segments.end() - 1; ++it) {
             distance_on_path += find_street_segment_length(*it);
@@ -356,13 +356,12 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
                 to_add.turn_type = turn;
                 InfoStreetSegment segment = getInfoStreetSegment(*it);
                 to_add.street = getStreetName(segment.streetID);
-                to_add.path_time = get_readable_time(time_on_path);
+                to_add.path_time = get_approximate_time(time_on_path);
                 to_add.path_distance = get_readable_distance((int)distance_on_path);
 
                 //reset/set times/distances
                 total_distance += distance_on_path;
                 distance_on_path = 0;
-                total_time += time_on_path;
                 time_on_path = 0;
 
                 //avoid unknown streets for aesthetics
@@ -371,7 +370,7 @@ bool act_on_directions(GtkWidget *widget, gpointer data) {
             }
         }
     }
-    MAP.travel_time = get_readable_time(total_time);
+    MAP.travel_time = get_readable_time((int)compute_path_travel_time(MAP.route_data.route_segments,15.0, 25.0));
     MAP.travel_distance = get_readable_distance((int)total_distance);
     
     //reset these so they don't auto search on next from/to; make user do both each time

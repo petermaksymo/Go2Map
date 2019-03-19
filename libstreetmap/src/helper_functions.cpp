@@ -120,7 +120,7 @@ ezgl::point2d png_draw_bottom_middle(ezgl::renderer &g, ezgl::point2d original, 
 }
 
 //converts time in seconds to readable time
-std::string get_readable_time(double time) {
+std::string get_approximate_time(double time) {
     if(time < 10)               return "less than 10 seconds";
     else if(time < 30)          return "less than 30 seconds";
     else if(time < 60)          return "less than one minute";
@@ -141,6 +141,17 @@ std::string get_readable_time(double time) {
     else if(time < 6*60*60)     return "about five hours";
     else if(time < 11*60*60)    return "about ten hours";
     else return "more than ten hours";
+}
+
+std::string get_readable_time(int time) {
+    if(time < 60) {
+        return std::to_string(time) + " seconds";
+    } else if(time < 60*60) {
+        return std::to_string(time/60) + " minutes";
+    } else {
+        return std::to_string(time/(60*60)) + " hours and " +
+               std::to_string(time%(60*60)/60) + " minutes";
+    }
 }
 
 //converts distance in meters to readable distance
