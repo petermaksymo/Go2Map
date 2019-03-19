@@ -431,10 +431,15 @@ gboolean handle_search_swap (GtkEntry *to_entry, GtkEntryIconPosition icon_pos, 
     (void) icon_pos;
     (void) event;
     
-    auto application = static_cast<ezgl::application *>(data);
+    auto app = static_cast<ezgl::application *>(data);
     
-    //@Hankle or @Sasha, you can swap here, you already have the to_entry and you
-    //can use application to get the from entry, have fun :)
+    GtkEntry* search_entry = (GtkEntry *) app->get_object("SearchBar");
+    
+    std::string search_text = gtk_entry_get_text(search_entry);
+    std::string to_text = gtk_entry_get_text(to_entry);
+    
+    gtk_entry_set_text(search_entry, to_text.c_str());
+    gtk_entry_set_text(to_entry, search_text.c_str());
     
     return TRUE;
 }
