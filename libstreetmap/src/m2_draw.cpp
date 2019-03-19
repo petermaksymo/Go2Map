@@ -462,7 +462,7 @@ void draw_instruction_popup(ezgl::renderer &g) {
     g.set_color(ezgl::WHITE);
     g.set_coordinate_system(ezgl::SCREEN);
     
-    if(MAP.highlighted_direction >= 0 && MAP.highlighted_direction < MAP.directions_data.size()) {
+    if(MAP.highlighted_direction >= 0 && (unsigned)MAP.highlighted_direction < MAP.directions_data.size()) {
         // convert the x and y position to screen coordinates
         
         double current_x_width = MAP.state.current_view_x.second - MAP.state.current_view_x.first;

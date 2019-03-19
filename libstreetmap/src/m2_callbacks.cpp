@@ -19,6 +19,7 @@
 #define RIGHT_MOUSE_BUTTON 3
 
 void act_on_mouse_move(ezgl::application* app, GdkEventButton* event, double x, double y) {
+    (void) event;
     int count = 0;
     
     // Loop over all the intersections checking if the mouse is within 1% of the total screen to it

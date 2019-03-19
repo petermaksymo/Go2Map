@@ -163,7 +163,7 @@ bool bfsPath(Node* sourceNode, int destID, double right_turn_penalty, double lef
         Node* currentNode = currentElem.node;
         
         // Check every node that is connected to the current node
-        for (int i = 0; i < currentNode->edge_out.size(); i++) {
+        for (unsigned i = 0; i < currentNode->edge_out.size(); i++) {
             int currentEdge = currentNode->edge_out[i];
             InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
             double travel_time = MAP.LocalStreetSegments[currentEdge].travel_time;
