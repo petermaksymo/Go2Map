@@ -537,10 +537,11 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         
         //insert distance/time row
         row++;
+        std::string time_text = "continue for " + MAP.directions_data[i].path_time;
         gtk_grid_new_row_secondary(
                 grid, 
                 row, 
-                MAP.directions_data[i].path_time, 
+                time_text, 
                 MAP.directions_data[i].path_distance
         );
     }  
