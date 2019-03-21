@@ -20,7 +20,6 @@
               <object class="GtkDrawingArea" id="MainCanvas">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="events">GDK_STRUCTURE_MASK | GDK_SMOOTH_SCROLL_MASK</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
               </object>

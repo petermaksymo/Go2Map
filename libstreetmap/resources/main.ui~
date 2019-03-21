@@ -531,6 +531,7 @@ Press &lt;enter&gt; to get suggestions, when ready to search, press the Find but
                     <property name="secondary_icon_activatable">False</property>
                     <property name="secondary_icon_sensitive">False</property>
                     <property name="primary_icon_tooltip_markup" translatable="yes">Switch the To and From text bars</property>
+                    <property name="placeholder_text" translatable="yes">To</property>
                     <property name="populate_all">True</property>
                   </object>
                   <packing>
