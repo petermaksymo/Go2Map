@@ -447,7 +447,7 @@ void draw_bike_data(ezgl::renderer &g) {
     g.free_surface(parking_png);
 }
 
-// Draw instruction points
+// Draw instruction points at the intersections where they occur
 void draw_instruction_points(ezgl::renderer &g) {
     g.set_color(ezgl::WHITE);
     ezgl::surface *inst_marker = g.load_png("./libstreetmap/resources/DirectionMarker.png");
@@ -457,7 +457,8 @@ void draw_instruction_points(ezgl::renderer &g) {
     }
 }
 
-// Draw instruction points
+// Draw instruction pop-up on screen coordinates according to location
+// of the direction point
 void draw_instruction_popup(ezgl::renderer &g) {
     g.set_color(ezgl::WHITE);
     g.set_coordinate_system(ezgl::SCREEN);
@@ -470,7 +471,6 @@ void draw_instruction_popup(ezgl::renderer &g) {
         
         double pos_x = x_from_lon(MAP.directions_data[MAP.highlighted_direction].lon);
         double pos_y = y_from_lat(MAP.directions_data[MAP.highlighted_direction].lat);
-        
         
         double diff_x = pos_x - MAP.state.current_view_x.first;
         double diff_y = MAP.state.current_view_y.second - pos_y;
