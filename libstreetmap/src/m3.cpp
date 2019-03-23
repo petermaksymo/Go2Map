@@ -71,11 +71,13 @@ TurnType find_turn_type(unsigned segment1_id, unsigned segment2_id) {
     
     //find angle between the two vectors
     //method/idea from: https://stackoverflow.com/a/21486462
-    double dot = vec1.x * vec2.x + vec1.y * vec2.y; //dot product
+    //double dot = vec1.x * vec2.x + vec1.y * vec2.y; //dot product
     double det = vec1.x * vec2.y - vec1.y * vec2.x; //determinant
-    double angle = atan2(det, dot);
+    //double angle = atan2(det, dot);
     
-    if(angle > 0) return TurnType::LEFT;
+    //optimized to decide turn type based off determinant, left old angle
+    //code commented in case we want the angle in the future
+    if(det > 0) return TurnType::LEFT;
     return TurnType::RIGHT;
 }
 
