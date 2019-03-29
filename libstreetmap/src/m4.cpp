@@ -12,10 +12,10 @@
 
 enum stop_type {PICK_UP, DROP_OFF};
 
-struct RouteStop {
+struct RouteStopSimple {
     //used for the route to accelerate mutations
     
-    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next)
+    RouteStopSimple(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next)
         : intersection_id(_intersection_id), 
           delivery_index(_delivery_index), 
           type(_type),
@@ -34,6 +34,23 @@ struct RouteStop {
     double time_to_next;
 };
 
+struct RouteStop : RouteStopSimple {
+    //advanced class for using non-simple legality checking
+    
+    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next, int _sibling_id, double _weight_to_now)
+        : RouteStopSimple(_intersection_id, _delivery_index, _type, _time_to_next) {
+          sibling_id = _sibling_id;
+          weight_to_now = _weight_to_now;
+    }
+    
+    //the id of the sibling: if its a pickUp, sibling id is location of its dropOff in the
+    //simplified route vector and vice-versa. Can set depot's sibling to other end of route
+    int sibling_id;
+    
+    //the weight of the truck to this stop
+    double weight_to_now;
+};
+
 void multi_dest_dijkistra(
 		  const unsigned intersect_id_start, 
                   const unsigned row_index,
@@ -44,20 +61,32 @@ void multi_dest_dijkistra(
 
 //simple legality checker, operates in O(N), N = route size
 bool check_legal_simple(
-        std::vector<RouteStop> &route, 
+        std::vector<RouteStopSimple> &route, 
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
         double capacity
 );
 
+//initializes required values for fast legality checking
+//(should be implemented in initial path generation later)
+bool initial_check_legal(
+        std::vector<RouteStop> &route,
+        const std::vector<DeliveryInfo>& deliveries, 
+        double capacity
+);
+
+//optimized legality checking for two-opt-swap, runs in O(1)
+bool check_legal(
+);
+
 void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         const std::vector<unsigned>& depots
         
 );
 
 void build_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         std::vector<CourierSubpath> &complete_route,
         const float right_turn_penalty, 
         const float left_turn_penalty 
@@ -65,7 +94,7 @@ void build_route(
 
 
 void add_closest_depots_to_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
         const double left_turn_penalty
@@ -103,12 +132,12 @@ std::vector<CourierSubpath> traveling_courier(
     std::vector<bool> is_in_truck(deliveries.size(), false);
   
     //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
-    std::vector<RouteStop> route;
-    
+    std::vector<RouteStopSimple> route;
+ 
     int delivery_index = 0;
     for(auto &delivery : deliveries) {
-        route.push_back(RouteStop(delivery.pickUp , delivery_index, PICK_UP, 0));
-        route.push_back(RouteStop(delivery.dropOff, delivery_index, DROP_OFF, 0));
+        route.push_back(RouteStopSimple(delivery.pickUp , delivery_index, PICK_UP, 0));
+        route.push_back(RouteStopSimple(delivery.dropOff, delivery_index, DROP_OFF, 0));
         
         delivery_index ++;
     }
@@ -131,7 +160,7 @@ std::vector<CourierSubpath> traveling_courier(
 
 //quickly checks legality operates in O(n)
 bool check_legal_simple(
-        std::vector<RouteStop> &route, 
+        std::vector<RouteStopSimple> &route, 
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
         double capacity
@@ -228,7 +257,7 @@ void multi_dest_dijkistra(
             }
         }
         // Return if all the destinations are covered in the search
-        if (dest_count == dests.size()) { 
+        if ((unsigned)dest_count == dests.size()) { 
             clear_intersection_node();
             return;
         }
@@ -236,7 +265,7 @@ void multi_dest_dijkistra(
         // Remove a destination from the dests vector once the shortest route to it is found
         int i = 0;
         for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {
-            if (currentNode->intersection_id == *it) {
+            if ((unsigned)currentNode->intersection_id == *it) {
                 MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
                 dest_count += 1; 
             }
@@ -251,16 +280,16 @@ void multi_dest_dijkistra(
 
 
 void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         const std::vector<unsigned>& depots
         
 ) {
-    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF, 0));
-    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF, 0));
+    simple_route.insert(simple_route.begin(), RouteStopSimple(depots[0], -1, DROP_OFF, 0));
+    simple_route.push_back(RouteStopSimple(depots[0], -1, DROP_OFF, 0));
 }
 
 void add_closest_depots_to_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
         const double left_turn_penalty
@@ -286,13 +315,13 @@ void add_closest_depots_to_route(
         }
     }
  
-    simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF, 0));
-    simple_route.push_back(RouteStop(end_it, -1, DROP_OFF, 0));
+    simple_route.insert(simple_route.begin(), RouteStopSimple(start_it, -1, DROP_OFF, 0));
+    simple_route.push_back(RouteStopSimple(end_it, -1, DROP_OFF, 0));
 }
 
     
 void build_route(
-        std::vector<RouteStop> &simple_route,
+        std::vector<RouteStopSimple> &simple_route,
         std::vector<CourierSubpath> &complete_route,
         const float right_turn_penalty, 
         const float left_turn_penalty
@@ -320,4 +349,39 @@ void build_route(
         
         complete_route.push_back(path);
     }
+}
+
+//initializes required values for fast legality checking
+//(should be implemented in initial path generation later)
+bool initial_check_legal(
+        std::vector<RouteStop> &route,
+        const std::vector<DeliveryInfo>& deliveries, 
+        double capacity
+) {
+    double current_weight = 0;
+    
+    for(auto &stop : route) {
+        switch(stop.type) {
+            case PICK_UP:
+                
+                //NEED TO DO FOR 2-OPT, THIS IS INTERSECTION SWAP!!!!
+                
+                
+                current_weight += deliveries[stop.delivery_index].itemWeight;
+                break;
+            case DROP_OFF:
+                current_weight -= deliveries[stop.delivery_index].itemWeight;
+                //if(not is_in_truck[stop.delivery_index])
+                //    return false;
+                break;
+            default: 
+                std::cout << "Error, invalid stop type in legality check\n";
+                return false;    
+        }
+        
+        if(current_weight > capacity) return false;
+    }
+    
+    return true;
+    
 }
