@@ -3,12 +3,22 @@
  */
 
 #include "m4.h"
-#include "m3.cpp"
+#include "m3.h"
+#include "constants.hpp"
 #include "map_db.h"
+#include <vector>
 #include <iostream>
+#include <bits/stdc++.h>
 
 #define NOT_DELIVERY -1
 enum stop_type {PICK_UP, DROP_OFF, DEPOT};
+
+void multi_dest_dijkistra(
+		  const unsigned intersect_id_start, 
+                  const unsigned row_index,
+                  std::vector<unsigned> dests,
+                  const double right_turn_penalty, 
+                  const double left_turn_penalty); 
 
 struct RouteStop {
     //used for the route to accelerate mutations
@@ -49,13 +59,24 @@ std::vector<CourierSubpath> traveling_courier(
     
     // Resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
-    /*
-    for (auto it = MAP.courier.time_between_deliveries.begin(); it != MAP.courier.time_between_deliveries.end(); ++it) {
-        MAP.courier.time_between_deliveries[*it].resize(deliveries.size());
-    }
-    */
     
-    //multi_dest_dijkistra();
+    // The destinations alternate between pickup and dropoff;
+    // To access certain pickup: index * 2
+    // To access certain dropoff: index * 2 + 1
+    std::vector<unsigned> destinations;
+    for (auto it = deliveries.begin(); it != deliveries.end(); ++it) {
+        destinations.push_back(it->pickUp);
+        destinations.push_back(it->dropOff);
+    }
+    
+    int i = 0;
+    
+    //multi_dest_dijkistra(destinations[i], i, destinations, 0, 0);
+
+        for (auto it = deliveries.begin(); it != deliveries.end(); ++it, ++i) {
+        multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
+    }
+    
     //initialize for legality checking
     std::vector<bool> is_in_truck(deliveries.size(), false);
   
@@ -140,4 +161,88 @@ bool check_legal_simple(
     }
     
     return true;
+}
+
+// It might be necessary to resize the MAP.courier.time_between_deliveries before calling this function
+void multi_dest_dijkistra(
+		  const unsigned intersect_id_start, 
+                  const unsigned row_index,
+                  std::vector<unsigned> dests,
+                  const double right_turn_penalty, 
+                  const double left_turn_penalty) {
+    int dest_count = 0;
+    //Node& sourceNode = MAP.intersection_node[intersect_id_start];
+    // Initialize queue for BFS
+    std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
+   
+    // Queue the source node 
+    waveElem sourceElem = waveElem(MAP.intersection_node[intersect_id_start],
+    NO_EDGE, 0.0); 
+    
+    //std::cout << (sourceElem.node)->intersection_id << std::endl;
+    wavefront.push(sourceElem); 
+   
+    // Do bfs while the wavefront is not empty
+    while (!wavefront.empty()) {
+        waveElem currentElem = wavefront.top(); // Fetch the first item from the wavefront
+        
+        wavefront.pop(); // Remove the first element
+        Node* currentNode = currentElem.node;
+        
+        // Check every node that is connected to the current node
+        for (unsigned i = 0; i < currentNode->edge_out.size(); i++) {
+            int currentEdge = currentNode->edge_out[i];
+            InfoStreetSegment edgeInfo = getInfoStreetSegment(currentEdge);
+            double travel_time = MAP.LocalStreetSegments[currentEdge].travel_time;
+            Node* nextNode;
+            double turn_penalty = 0;
+            
+            // Assign the next node of the current edge
+            // If state prevents going back to previous node or going through one way street
+            if (currentEdge!= currentNode->edge_in && !(edgeInfo.oneWay && (currentNode->intersection_id == edgeInfo.to))) {
+                
+                // Determine the next node that is connected to the current searching edge
+                nextNode = (edgeInfo.from == currentNode->intersection_id)
+                    ? MAP.intersection_node[edgeInfo.to]
+                    : MAP.intersection_node[edgeInfo.from];
+                // Determine turn penalty base on turn type
+                if (currentNode->edge_in != NO_EDGE) {
+                   if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty;
+                   else if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::RIGHT) turn_penalty = right_turn_penalty;
+                   else turn_penalty = 0; 
+                }
+                
+                    
+            // Only update the node data and wavefront if it is a faster solution or it was never reached before
+            if (nextNode->best_time == 0 || currentNode->best_time + travel_time + turn_penalty < nextNode->best_time) {
+                
+                nextNode->edge_in = currentEdge;          
+                
+                nextNode->best_time = currentNode->best_time + travel_time + turn_penalty;
+                
+                // Queue the new wave element with newly approximated travel_time
+                wavefront.push(waveElem(nextNode, currentEdge, currentNode->best_time 
+                        + travel_time + turn_penalty));
+                }
+            }
+        }
+        // Return if all the destinations are covered in the search
+        if (dest_count == dests.size()) { 
+            clear_intersection_node();
+            return;
+        }
+        
+        // Remove a destination from the dests vector once the shortest route to it is found
+        int i = 0;
+        for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {
+            if (currentNode->intersection_id == *it) {
+                MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
+                dest_count += 1; 
+            }
+          
+        }
+        
+    } 
+    
+    std::cout << "No valid routes are found" << std::endl;
 }

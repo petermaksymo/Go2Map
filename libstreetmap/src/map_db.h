@@ -40,6 +40,30 @@ class Node {
     
 };
 
+// A wave element to traverse through all the nodes
+class waveElem {
+    public:
+    
+    Node* node;
+    int edgeID;
+    double travel_time;
+    
+    waveElem(Node* node1, int edgeID1, double travel_time1) {
+        node = node1;
+        edgeID = edgeID1;
+        travel_time = travel_time1;
+    }
+};
+
+// A custom comparator used to sort min heap base on travel_time
+class comparator { 
+    public: 
+    int operator() (const waveElem point1, const waveElem point2) 
+    { 
+        return point1.travel_time > point2.travel_time; 
+    } 
+}; 
+
 struct InfoIntersections {
     std::vector<unsigned> connected_street_segments;
     LatLon position;
