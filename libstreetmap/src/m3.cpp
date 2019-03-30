@@ -119,6 +119,7 @@ std::vector<unsigned> find_path_between_intersections(
     }
     else {
         clear_intersection_node();
+        std::cout<< "no route found\n";
         return route;
     }
 }

@@ -10,15 +10,7 @@
 #include <iostream>
 #include <bits/stdc++.h>
 
-#define NOT_DELIVERY -1
-enum stop_type {PICK_UP, DROP_OFF, DEPOT};
-
-void multi_dest_dijkistra(
-		  const unsigned intersect_id_start, 
-                  const unsigned row_index,
-                  std::vector<unsigned> dests,
-                  const double right_turn_penalty, 
-                  const double left_turn_penalty); 
+enum stop_type {PICK_UP, DROP_OFF};
 
 struct RouteStop {
     //used for the route to accelerate mutations
@@ -42,6 +34,14 @@ struct RouteStop {
     double time_to_next;
 };
 
+void multi_dest_dijkistra(
+		  const unsigned intersect_id_start, 
+                  const unsigned row_index,
+                  std::vector<unsigned> dests,
+                  const double right_turn_penalty, 
+                  const double left_turn_penalty
+); 
+
 //simple legality checker, operates in O(N), N = route size
 bool check_legal_simple(
         std::vector<RouteStop> &route, 
@@ -50,6 +50,23 @@ bool check_legal_simple(
         double capacity
 );
 
+void add_depots_to_route(
+        std::vector<RouteStop> &simple_route,
+        const std::vector<unsigned>& depots
+        
+);
+
+void build_route(
+        std::vector<RouteStop> &simple_route,
+        std::vector<CourierSubpath> &complete_route,
+        const float right_turn_penalty, 
+        const float left_turn_penalty 
+);
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//Start of functions
 std::vector<CourierSubpath> traveling_courier(
 		const std::vector<DeliveryInfo>& deliveries,
 	       	const std::vector<unsigned>& depots, 
@@ -57,7 +74,8 @@ std::vector<CourierSubpath> traveling_courier(
 		const float left_turn_penalty, 
 		const float truck_capacity) {
     
-    // Resize the 2D matrix to appropriate size
+    //Clean and resize the 2D matrix to appropriate size
+    MAP.courier.time_between_deliveries.clear();
     MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
     
     // The destinations alternate between pickup and dropoff;
@@ -70,20 +88,15 @@ std::vector<CourierSubpath> traveling_courier(
     }
     
     int i = 0;
-    
-    //multi_dest_dijkistra(destinations[i], i, destinations, 0, 0);
-
-        for (auto it = deliveries.begin(); it != deliveries.end(); ++it, ++i) {
+    for (auto it = deliveries.begin(); it != deliveries.end(); ++it, ++i) {
         multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
     }
     
     //initialize for legality checking
     std::vector<bool> is_in_truck(deliveries.size(), false);
   
-    
     //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
     std::vector<RouteStop> route;
-    route.push_back(RouteStop(depots[0], NOT_DELIVERY, DEPOT, 0));
     
     int delivery_index = 0;
     for(auto &delivery : deliveries) {
@@ -93,35 +106,17 @@ std::vector<CourierSubpath> traveling_courier(
         delivery_index ++;
     }
     
-    route.push_back(RouteStop(depots[0], NOT_DELIVERY, DEPOT, 0));
-    
-    
-    //Convert simple path to one we can return:
-    std::vector<CourierSubpath> route_complete, empty;
-    
     //check legality
-    if(not check_legal_simple(route, is_in_truck, deliveries, truck_capacity))
+    if(not check_legal_simple(route, is_in_truck, deliveries, truck_capacity)){
+        std::vector<CourierSubpath> empty;
         return empty;
-    
-    
-    for(auto stop = route.begin(); stop != route.end()-1; ++ stop) {
-        CourierSubpath path;
-        path.start_intersection = (*stop).intersection_id;
-        path.end_intersection = (*(stop+1)).intersection_id;
-        std::vector<unsigned> subpath = find_path_between_intersections(
-            path.start_intersection,
-            path.end_intersection,
-            right_turn_penalty,
-            left_turn_penalty
-        );
-        if(subpath.size() == 0) return empty; //no possible route
-        path.subpath = subpath;
-        std::vector<unsigned> pickUps;
-        if((*stop).type == PICK_UP) pickUps.push_back( (*stop).delivery_index );
-        path.pickUp_indices = pickUps;
-        
-        route_complete.push_back(path);
     }
+       
+    add_depots_to_route(route, depots);
+        
+    //Convert simple path to one we can return:
+    std::vector<CourierSubpath> route_complete;
+    build_route(route, route_complete, right_turn_penalty, left_turn_penalty);    
     
     return route_complete;
 }
@@ -150,8 +145,6 @@ bool check_legal_simple(
                 if(not is_in_truck[stop.delivery_index])
                     return false;
                 break;
-            case DEPOT:
-                break;
             default: 
                 std::cout << "Error, invalid stop type in legality check\n";
                 return false;    
@@ -162,6 +155,7 @@ bool check_legal_simple(
     
     return true;
 }
+
 
 // It might be necessary to resize the MAP.courier.time_between_deliveries before calling this function
 void multi_dest_dijkistra(
@@ -181,7 +175,7 @@ void multi_dest_dijkistra(
     
     //std::cout << (sourceElem.node)->intersection_id << std::endl;
     wavefront.push(sourceElem); 
-   
+    
     // Do bfs while the wavefront is not empty
     while (!wavefront.empty()) {
         waveElem currentElem = wavefront.top(); // Fetch the first item from the wavefront
@@ -244,5 +238,48 @@ void multi_dest_dijkistra(
         
     } 
     
-    std::cout << "No valid routes are found" << std::endl;
+    clear_intersection_node();
+    //std::cout << "No valid routes are found" << std::endl;
+}
+
+
+void add_depots_to_route(
+        std::vector<RouteStop> &simple_route,
+        const std::vector<unsigned>& depots
+        
+) {
+    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF, 0));
+    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF, 0));
+}
+
+    
+void build_route(
+        std::vector<RouteStop> &simple_route,
+        std::vector<CourierSubpath> &complete_route,
+        const float right_turn_penalty, 
+        const float left_turn_penalty
+        
+) {
+    for(auto stop = simple_route.begin(); stop != simple_route.end()-1; ++ stop) {
+        CourierSubpath path;
+        path.start_intersection = (*stop).intersection_id;
+        path.end_intersection = (*(stop+1)).intersection_id;
+        std::vector<unsigned> subpath = find_path_between_intersections(
+            path.start_intersection,
+            path.end_intersection,
+            right_turn_penalty,
+            left_turn_penalty
+        );
+        if(subpath.size() == 0) {
+            //no possible route
+            complete_route.clear();
+            return;
+        }
+        path.subpath = subpath;
+        std::vector<unsigned> pickUps;
+        if((*stop).type == PICK_UP) pickUps.push_back( (*stop).delivery_index );
+        path.pickUp_indices = pickUps;
+        
+        complete_route.push_back(path);
+    }
 }
