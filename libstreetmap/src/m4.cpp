@@ -64,6 +64,13 @@ void build_route(
 );
 
 
+void add_closest_depots_to_route(
+        std::vector<RouteStop> &simple_route,
+        const std::vector<unsigned>& depots,
+        const double right_turn_penalty, 
+        const double left_turn_penalty
+);
+
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -250,6 +257,37 @@ void add_depots_to_route(
 ) {
     simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF, 0));
     simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF, 0));
+}
+
+void add_closest_depots_to_route(
+        std::vector<RouteStop> &simple_route,
+        const std::vector<unsigned>& depots,
+        const double right_turn_penalty, 
+        const double left_turn_penalty
+) {
+    double start_min = -1;
+    double end_min = -1;
+    unsigned int start_it = 0;
+    unsigned int end_it = 0;
+
+    // Loop over the depots, calling the m3 functions to calculate the time to each depot
+    for(auto it = depots.begin(); it != depots.end(); it++) {
+        double start_time = compute_path_travel_time(find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty), right_turn_penalty, left_turn_penalty);
+        double end_time = compute_path_travel_time(find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty), right_turn_penalty, left_turn_penalty);
+        
+        if(start_min == -1 || start_time < start_min) {
+            start_it = *it;
+            start_min = start_time;
+        }
+        
+        if(end_min == -1 || end_time < end_min) {
+            end_it = *it;
+            end_min = end_time;
+        }
+    }
+ 
+    simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF, 0));
+    simple_route.push_back(RouteStop(end_it, -1, DROP_OFF, 0));
 }
 
     
