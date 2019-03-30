@@ -3,7 +3,8 @@
  */
 
 #include "m4.h"
-#include "m3.h"
+#include "m3.cpp"
+#include "map_db.h"
 #include <iostream>
 
 #define NOT_DELIVERY -1
@@ -46,9 +47,18 @@ std::vector<CourierSubpath> traveling_courier(
 		const float left_turn_penalty, 
 		const float truck_capacity) {
     
+    // Resize the 2D matrix to appropriate size
+    MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
+    /*
+    for (auto it = MAP.courier.time_between_deliveries.begin(); it != MAP.courier.time_between_deliveries.end(); ++it) {
+        MAP.courier.time_between_deliveries[*it].resize(deliveries.size());
+    }
+    */
+    
+    //multi_dest_dijkistra();
     //initialize for legality checking
     std::vector<bool> is_in_truck(deliveries.size(), false);
-    
+  
     
     //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
     std::vector<RouteStop> route;

@@ -122,6 +122,10 @@ struct OSMData {
     std::vector<ezgl::point2d> bike_parking;
 };
 
+struct Courier {
+    std::vector<std::vector<unsigned>> time_between_deliveries; // A two dimentional array for time between delivery locations
+}; 
+
 // The main structure for the globally defined MAP
 struct MapInfo {
     std::vector<InfoIntersections> intersection_db;     //all intersections
@@ -137,6 +141,7 @@ struct MapInfo {
     KD2Tree feature_k2tree;
     OSMData OSM_data;
     RouteData   route_data;
+    Courier courier;
     std::vector<DirectionsData> directions_data;
     std::string travel_time;
     std::string travel_distance;
