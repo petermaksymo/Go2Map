@@ -505,7 +505,7 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     dialog = gtk_dialog_new_with_buttons(
         "Directions",
         (GtkWindow*) window,
-        GTK_DIALOG_MODAL,
+        GTK_DIALOG_DESTROY_WITH_PARENT,
         ("GOT IT"),
         GTK_RESPONSE_DELETE_EVENT,
         NULL
@@ -543,12 +543,12 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
     gtk_grid_new_row_primary(grid, row, LARGE_FONT, start_image, start_text);
         
     //add directions
-    for(unsigned i = 0; i < MAP.directions_data.size(); i++) {        
+    for(unsigned i = 1; i < MAP.directions_data.size(); i++) {        
         std::string directions = "Turn ";
         
         //assign image based on turn type
         GtkWidget * image;
-        switch(MAP.directions_data[i].turn_type){
+        switch(MAP.directions_data[i-1].turn_type){
         case TurnType::RIGHT    : 
             directions += "right onto ";
             image = gtk_image_new_from_file("./libstreetmap/resources/right_turn_icon.png");
@@ -561,7 +561,7 @@ gboolean press_directions(GtkWidget *widget, gpointer data) {
         default: image = gtk_image_new_from_file("./libstreetmap/resources/straight_icon.png");
         }
         //generate label for directions
-        directions += MAP.directions_data[i].street;
+        directions += MAP.directions_data[i-1].street;
         
         //insert it
         row++;

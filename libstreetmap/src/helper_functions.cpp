@@ -169,7 +169,7 @@ std::string get_readable_distance(int distance) {
         distance = distance / 100;
         ss << (double)distance/10.0 << "km";
     } else if(distance < 100000) {
-        distance = distance / 1000;
+        distance = distance / 100;
         ss << (double)distance/10.0 << "km";
     } else { 
         ss << distance/1000 << "km";
