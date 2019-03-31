@@ -10,7 +10,10 @@
 #include <iostream>
 #include <bits/stdc++.h>
 #include <algorithm>
+#include <chrono>
 
+
+#define TIME_LIMIT 35 // allow 10 seconds for A*
 #define NO_SIBLING -1
 enum stop_type {PICK_UP, DROP_OFF};
 
@@ -115,6 +118,9 @@ std::vector<CourierSubpath> traveling_courier(
 		const float left_turn_penalty, 
 		const float truck_capacity) {
     
+    auto start_time = std::chrono::high_resolution_clock::now();
+    bool time_out = false;
+    
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
     MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
@@ -167,7 +173,7 @@ std::vector<CourierSubpath> traveling_courier(
      
     bool nothing;
     double time_to_beat = get_route_time(route, nothing);
-    for(int j = 0; j < 1000000; j++) {
+    while(!time_out) {
         int swap_1 = rand() % (route.size());
         int swap_2 = rand() % (route.size());
         bool legal = true;
@@ -181,7 +187,9 @@ std::vector<CourierSubpath> traveling_courier(
             std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);
         }
         
-        
+        auto current_time = std::chrono::high_resolution_clock::now();
+        auto wall_clock = std::chrono::duration_cast<std::chrono::duration<double>> (current_time - start_time);
+        time_out = wall_clock.count() > TIME_LIMIT;    
     }
     
        
