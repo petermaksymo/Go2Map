@@ -142,6 +142,26 @@ std::vector<CourierSubpath> traveling_courier(
         delivery_index ++;
     }
      
+    bool nothing;
+    double time_to_beat = get_route_time(route, nothing);
+    for(int j = 0; j < 100; j++) {
+        int swap_1 = rand() % (route.size()-2) + 1;
+        int swap_2 = rand() % (route.size()-2) + 1;
+        bool legal = true;
+        
+        std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);        
+        double challenge_time = get_route_time(route, legal);
+        
+        if(challenge_time < time_to_beat && legal && check_legal_simple(route, is_in_truck, deliveries, truck_capacity)) {
+            time_to_beat = challenge_time;
+        } else {
+            std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);
+        }
+        
+        
+    }
+    
+    
     //check legality
     if(not check_legal_simple(route, is_in_truck, deliveries, truck_capacity)){
         std::vector<CourierSubpath> empty;
