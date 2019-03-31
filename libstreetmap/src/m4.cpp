@@ -163,7 +163,7 @@ std::vector<CourierSubpath> traveling_courier(
     }
     
        
-    add_depots_to_route(route, depots);
+    add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty);
         
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -284,7 +284,6 @@ void multi_dest_dijkistra(
                 if(MAP.courier.time_between_deliveries[row_index][i] == 0) num_found ++;
             
                 MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
-            
             }
         }
         
@@ -314,20 +313,29 @@ void add_closest_depots_to_route(
     double end_min = -1;
     unsigned int start_it = 0;
     unsigned int end_it = 0;
-
+    
     // Loop over the depots, calling the m3 functions to calculate the time to each depot
     for(auto it = depots.begin(); it != depots.end(); it++) {
-        double start_time = compute_path_travel_time(find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty), right_turn_penalty, left_turn_penalty);
-        double end_time = compute_path_travel_time(find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty), right_turn_penalty, left_turn_penalty);
         
-        if(start_min == -1 || start_time < start_min) {
-            start_it = *it;
-            start_min = start_time;
+        auto start_route = find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if (start_route.size() > 0) {
+            double start_time = compute_path_travel_time(start_route, right_turn_penalty, left_turn_penalty);
+            
+            if(start_min == -1 || start_time < start_min) {
+                start_it = *it;
+                start_min = start_time;
+            }
         }
         
-        if(end_min == -1 || end_time < end_min) {
-            end_it = *it;
-            end_min = end_time;
+        auto end_route = find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if(end_route.size() > 0) {
+            double end_time = compute_path_travel_time(end_route, right_turn_penalty, left_turn_penalty);
+
+
+            if(end_min == -1 || end_time < end_min) {
+                end_it = *it;
+                end_min = end_time;
+            }
         }
     }
  
