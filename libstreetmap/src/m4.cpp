@@ -415,6 +415,7 @@ bool initial_check_legal(
 }
 
 
+
 //returns time of route and has legal flag, can set to false if non-reachable route
 double get_route_time(std::vector<RouteStopSimple> &route, bool &legal){
     double time = 0;
