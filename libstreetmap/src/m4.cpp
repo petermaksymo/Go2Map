@@ -146,8 +146,8 @@ std::vector<CourierSubpath> traveling_courier(
     bool nothing;
     double time_to_beat = get_route_time(route, nothing);
     for(int j = 0; j < 1000000; j++) {
-        int swap_1 = rand() % (route.size()-2) + 1;
-        int swap_2 = rand() % (route.size()-2) + 1;
+        int swap_1 = rand() % (route.size());
+        int swap_2 = rand() % (route.size());
         bool legal = true;
         
         std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);        
