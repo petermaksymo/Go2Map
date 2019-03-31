@@ -37,10 +37,13 @@ struct RouteStop {
 void multi_dest_dijkistra(
 		  const unsigned intersect_id_start, 
                   const unsigned row_index,
+                  std::vector<Node*> &intersection_nodes,
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty
 ); 
+
+void clear_intersection_nodes(std::vector<Node*> &intersection_nodes);
 
 //simple legality checker, operates in O(N), N = route size
 bool check_legal_simple(
@@ -100,9 +103,29 @@ std::vector<CourierSubpath> traveling_courier(
         destinations.push_back(it->dropOff);
     }
     
-    for (unsigned i = 0; i < destinations.size(); ++i) {
-        multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
+    
+    #pragma omp parallel 
+    {
+        //initiallize a node vector for each thread
+        std::vector<Node*> intersection_nodes;
+        intersection_nodes.resize(getNumIntersections());
+        for(int i = 0; i < getNumIntersections(); i++) {
+            intersection_nodes[i] = (new Node(i, NO_EDGE, 0));
+        }
+        
+        //split the load of the for loop for each thread
+        #pragma omp for
+        for (unsigned i = 0; i < destinations.size(); ++i) {
+            multi_dest_dijkistra(destinations[i], i, intersection_nodes, destinations, right_turn_penalty, left_turn_penalty);
+        }
+        
+        //delete the nodes now for each thread
+        for(int i = 0; i < getNumIntersections(); i++) {
+            delete intersection_nodes[i];
+        }
     }
+    
+    
     
     //initialize for legality checking
     std::vector<bool> is_in_truck(deliveries.size(), false);
@@ -173,6 +196,7 @@ bool check_legal_simple(
 void multi_dest_dijkistra(
 		  const unsigned intersect_id_start, 
                   const unsigned row_index,
+                  std::vector<Node*> &intersection_nodes,
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
@@ -182,7 +206,7 @@ void multi_dest_dijkistra(
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
    
     // Queue the source node 
-    waveElem sourceElem = waveElem(MAP.intersection_node[intersect_id_start],
+    waveElem sourceElem = waveElem(intersection_nodes[intersect_id_start],
     NO_EDGE, 0.0); 
     
     //std::cout << (sourceElem.node)->intersection_id << std::endl;
@@ -209,8 +233,8 @@ void multi_dest_dijkistra(
                 
                 // Determine the next node that is connected to the current searching edge
                 nextNode = (edgeInfo.from == currentNode->intersection_id)
-                    ? MAP.intersection_node[edgeInfo.to]
-                    : MAP.intersection_node[edgeInfo.from];
+                    ? intersection_nodes[edgeInfo.to]
+                    : intersection_nodes[edgeInfo.from];
                 // Determine turn penalty base on turn type
                 if (currentNode->edge_in != NO_EDGE) {
                    if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty;
@@ -234,7 +258,7 @@ void multi_dest_dijkistra(
         }
         // Return if all the destinations are covered in the search
         if (num_found == dests.size()) { 
-            clear_intersection_node();
+            clear_intersection_nodes(intersection_nodes);
             return;
         }
         
@@ -250,8 +274,18 @@ void multi_dest_dijkistra(
         
     } 
     
-    clear_intersection_node();
+    clear_intersection_nodes(intersection_nodes);
     //std::cout << "No valid routes are found" << std::endl;
+
+}
+
+
+void clear_intersection_nodes(std::vector<Node*> &intersection_nodes) {
+    
+    for(int i = 0; i < getNumIntersections(); i++) {
+        intersection_nodes[i]->best_time = 0;
+        intersection_nodes[i]->edge_in = NO_EDGE;
+    }        
 }
 
 
