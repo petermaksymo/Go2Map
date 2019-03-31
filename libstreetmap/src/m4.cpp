@@ -145,7 +145,7 @@ std::vector<CourierSubpath> traveling_courier(
      
     bool nothing;
     double time_to_beat = get_route_time(route, nothing);
-    for(int j = 0; j < 100; j++) {
+    for(int j = 0; j < 1000000; j++) {
         int swap_1 = rand() % (route.size()-2) + 1;
         int swap_2 = rand() % (route.size()-2) + 1;
         bool legal = true;
@@ -162,12 +162,6 @@ std::vector<CourierSubpath> traveling_courier(
         
     }
     
-    
-    //check legality
-    if(not check_legal_simple(route, is_in_truck, deliveries, truck_capacity)){
-        std::vector<CourierSubpath> empty;
-        return empty;
-    }
        
     add_depots_to_route(route, depots);
         
@@ -359,7 +353,7 @@ void build_route(
             right_turn_penalty,
             left_turn_penalty
         );
-        if(subpath.size() == 0) {
+        if(subpath.size() == 0 && path.start_intersection != path.end_intersection) {
             //no possible route
             complete_route.clear();
             return;
