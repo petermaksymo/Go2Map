@@ -71,6 +71,9 @@ void add_closest_depots_to_route(
         const double left_turn_penalty
 );
 
+//returns time of route and has legal flag, can set to false if non-reachable route
+double get_route_time(std::vector<RouteStop> &route, bool &legal);
+
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -94,8 +97,7 @@ std::vector<CourierSubpath> traveling_courier(
         destinations.push_back(it->dropOff);
     }
     
-    int i = 0;
-    for (auto it = deliveries.begin(); it != deliveries.end(); ++it, ++i) {
+    for (unsigned i = 0; i < destinations.size(); ++i) {
         multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
     }
     
@@ -171,7 +173,6 @@ void multi_dest_dijkistra(
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
-    int dest_count = 0;
     //Node& sourceNode = MAP.intersection_node[intersect_id_start];
     // Initialize queue for BFS
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
@@ -228,19 +229,18 @@ void multi_dest_dijkistra(
             }
         }
         // Return if all the destinations are covered in the search
-        if (dest_count == dests.size()) { 
+        if (dests.size() == 0) { 
             clear_intersection_node();
             return;
         }
         
         // Remove a destination from the dests vector once the shortest route to it is found
         int i = 0;
-        for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {
-            if (currentNode->intersection_id == *it) {
+        for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {            
+            if ((unsigned)currentNode->intersection_id == *it) {
                 MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
-                dest_count += 1; 
+                dests.erase(it--); //need to decrement after to get what original next would have been
             }
-          
         }
         
     } 
@@ -320,4 +320,20 @@ void build_route(
         
         complete_route.push_back(path);
     }
+}
+
+//returns time of route and has legal flag, can set to false if non-reachable route
+double get_route_time(std::vector<RouteStop> &route, bool &legal){
+    double time = 0;
+    
+    for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
+        int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
+        int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
+        
+        //std::cout << "time = " << MAP.courier.time_between_deliveries[i][j] << "\n";
+        if(MAP.courier.time_between_deliveries[i][j] == 0) legal = false;
+        time += (double)MAP.courier.time_between_deliveries[i][j];
+    }
+    
+    return time;
 }
