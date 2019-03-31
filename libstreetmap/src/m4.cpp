@@ -173,6 +173,7 @@ void multi_dest_dijkistra(
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
+    unsigned num_found = 0;
     //Node& sourceNode = MAP.intersection_node[intersect_id_start];
     // Initialize queue for BFS
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
@@ -229,7 +230,7 @@ void multi_dest_dijkistra(
             }
         }
         // Return if all the destinations are covered in the search
-        if (dests.size() == 0) { 
+        if (num_found == dests.size()) { 
             clear_intersection_node();
             return;
         }
@@ -238,8 +239,9 @@ void multi_dest_dijkistra(
         int i = 0;
         for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {            
             if ((unsigned)currentNode->intersection_id == *it) {
+                if(MAP.courier.time_between_deliveries [row_index][i] == 0) num_found ++;
+                
                 MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
-                dests.erase(it--); //need to decrement after to get what original next would have been
             }
         }
         
