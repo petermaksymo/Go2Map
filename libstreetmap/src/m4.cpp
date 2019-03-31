@@ -99,7 +99,8 @@ void add_closest_depots_to_route(
         const double left_turn_penalty
 );
 
-double get_route_time(std::vector<RouteStopSimple> &simple_route, bool &legal);
+//returns time of route and has legal flag, can set to false if non-reachable route
+double get_route_time(std::vector<RouteStopSimple> &route, bool &legal);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -220,7 +221,7 @@ void multi_dest_dijkistra(
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
-    int dest_count = 0;
+    unsigned num_found = 0;
     //Node& sourceNode = MAP.intersection_node[intersect_id_start];
     // Initialize queue for BFS
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
@@ -277,7 +278,7 @@ void multi_dest_dijkistra(
             }
         }
         // Return if all the destinations are covered in the search
-        if (std::find(MAP.courier.time_between_deliveries[row_index].begin(), MAP.courier.time_between_deliveries[row_index].end(), 0) == MAP.courier.time_between_deliveries[row_index].end()) { 
+        if (num_found == dests.size()) { 
             clear_intersection_node();
             return;
         }
@@ -286,10 +287,11 @@ void multi_dest_dijkistra(
         int i = 0;
         for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {
             if ((unsigned)currentNode->intersection_id == *it) {
+                if(MAP.courier.time_between_deliveries[row_index][i] == 0) num_found ++;
+            
                 MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
-                dest_count += 1; 
+            
             }
-          
         }
         
     } 
@@ -371,6 +373,7 @@ void build_route(
     }
 }
 
+
 //initializes required values for fast legality checking
 //(should be implemented in initial path generation later)
 bool initial_check_legal(
@@ -411,10 +414,12 @@ bool initial_check_legal(
     
 }
 
-double get_route_time(std::vector<RouteStopSimple> &simple_route, bool &legal) {
+
+//returns time of route and has legal flag, can set to false if non-reachable route
+double get_route_time(std::vector<RouteStopSimple> &route, bool &legal){
     double time = 0;
     
-    for(auto stop = simple_route.begin(); stop != simple_route.end()-1; ++stop) {
+    for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
         int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
         int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
         
