@@ -74,9 +74,8 @@ void add_closest_depots_to_route(
 //returns time of route and has legal flag, can set to false if non-reachable route
 double get_route_time(std::vector<RouteStop> &route, bool &legal);
 
-void find_greedy_path(const std::vector<unsigned> destinations,
+std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations,
                       const std::vector<DeliveryInfo>& deliveries,
-                      const unsigned depot,
                       const float truck_capacity);
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,8 +108,8 @@ std::vector<CourierSubpath> traveling_courier(
     std::vector<bool> is_in_truck(deliveries.size(), false);
   
     //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
+    //std::vector<RouteStop> route = find_greedy_path(destinations, deliveries, truck_capacity);
     std::vector<RouteStop> route;
-    
     int delivery_index = 0;
     for(auto &delivery : deliveries) {
         route.push_back(RouteStop(delivery.pickUp , delivery_index, PICK_UP, 0));
@@ -354,23 +353,23 @@ double get_route_time(std::vector<RouteStop> &route, bool &legal){
 }
 
 // Implementation of a greedy algorithm to form an initial route
-void find_greedy_path(const std::vector<unsigned> destinations,
+std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations,
                       const std::vector<DeliveryInfo>& deliveries,
-                      const unsigned depot,
                       const float truck_capacity) {
     
-     std::vector<bool> is_in_truck(destinations.size(), false);
     // Randomly assign a pick up point as a starting point
-    unsigned current = destinations[rand() % (destinations.size() / 2) * 2];
-    is_in_truck[current] = true;
+    unsigned current = 1; //destinations[(rand() % (destinations.size() / 2)) * 2];
     //destinations.erase(std::find(destinations.begin(), destinations.end(), start));
     
     unsigned next = 0;
     int current_capacity_used = 0;
     std::vector<unsigned> current_item_carried;
-    int item_to_deliver = destinations.size();
+    int item_to_deliver = deliveries.size();
     std::vector<RouteStop> route;
     
+    current_item_carried.push_back(current);
+    current_capacity_used += deliveries[current / 2].itemWeight;
+    route.push_back(RouteStop(deliveries[current / 2].pickUp, current / 2, PICK_UP, 0));
     // Continue finding path until all items are delivered
     while (item_to_deliver != 0) {
         // <location, time> for closest_pickup and closet_dropoff
@@ -380,20 +379,23 @@ void find_greedy_path(const std::vector<unsigned> destinations,
         closest_dropoff.first = 0;
         closest_pickup.second = 88888888;
         closest_dropoff.second = 88888888;
+        
         // Go through the time table to find nearest pickup and dropoff
-        for (int i = 0; i < MAP.courier.time_between_deliveries[current].size(); ++i) {
+        for (int i = 0; i < MAP.courier.time_between_deliveries.size(); ++i) {
             int time = MAP.courier.time_between_deliveries[current][i];
-            
+            //std::cout << i << " " << time << std::endl;
             // Different cases for pickup and dropoff
             if ((i % 2 == 0) && (time > 0) && (time < closest_pickup.second)) {
                 closest_pickup.first = i;
                 closest_pickup.second = time;
-            } else if ((i % 2 == 1) && (time > 0) && (time < closest_pickup.second)) {
+            } else if ((i % 2 == 1) && (time > 0) && (time < closest_dropoff.second)) {
                 // Check if the item i is currently carried on the truck
                 auto it = std::find(current_item_carried.begin(), current_item_carried.end(), i);
                 if (current_item_carried.empty()) {
                     closest_dropoff.first = 0;
-                    closest_dropoff.second = -1;
+                    closest_dropoff.second = 88888888;
+                    std::cout << "yeet" << std::endl;
+
                 }
                 else if (it != current_item_carried.end()) {
                     closest_dropoff.first = i;
@@ -403,26 +405,25 @@ void find_greedy_path(const std::vector<unsigned> destinations,
                     closest_dropoff.second = time;
                 }
             }
-            
-            // Now determine the next destination
-            // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
-            // Otherwise go the nearest pickup
-            if (current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
-                closest_dropoff.second < closest_pickup.second) {
-                next = closest_dropoff.first;
-//                current_item_carried.push_back(closest_pickup.first);
-                current_capacity_used -= deliveries[closest_pickup.first / 2].itemWeight;
-                item_to_deliver -= 1;
-                route.push_back(RouteStop(deliveries[closest_dropoff.first / 2].dropOff, closest_dropoff.first / 2, DROP_OFF, 0));
-            } else { 
-                next = closest_pickup.first;
-                current_item_carried.push_back(closest_pickup.first);
-                current_capacity_used += deliveries[closest_pickup.first / 2].itemWeight;
-                route.push_back(RouteStop(deliveries[closest_pickup.first / 2].pickUp, closest_pickup.first / 2, PICK_UP, 0));
-            }
+        }
+        std::cout << item_to_deliver << std::endl;
+        std::cout << current_capacity_used << std::endl;
+        // Now determine the next destination
+        // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
+        // Otherwise go the nearest pickup
+        if (current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
+            closest_dropoff.second < closest_pickup.second) {
+            next = closest_dropoff.first;
+            std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            current_capacity_used -= deliveries[closest_dropoff.first / 2].itemWeight;
+            item_to_deliver -= 1;
+            route.push_back(RouteStop(deliveries[closest_dropoff.first / 2].dropOff, closest_dropoff.first / 2, DROP_OFF, 0));
+        } else { 
+            next = closest_pickup.first;
+            current_item_carried.push_back(closest_pickup.first);
+            current_capacity_used += deliveries[closest_pickup.first / 2].itemWeight;
+            route.push_back(RouteStop(deliveries[closest_pickup.first / 2].pickUp, closest_pickup.first / 2, PICK_UP, 0));
         }
     }
-    
-    
-    return; 
+    return route; 
 }
