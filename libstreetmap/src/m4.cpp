@@ -125,6 +125,7 @@ std::vector<CourierSubpath> traveling_courier(
         destinations.push_back(it->dropOff);
     }
     
+    #pragma omp parallel for
     for (unsigned i = 0; i < destinations.size(); ++i) {
         multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
     }
@@ -215,13 +216,19 @@ void multi_dest_dijkistra(
                   std::vector<unsigned> dests,
                   const double right_turn_penalty, 
                   const double left_turn_penalty) {
+    std::vector<Node*> intersection_nodes;
+    intersection_nodes.resize(getNumIntersections());
+    for(int i = 0; i < getNumIntersections(); i++) {
+        intersection_nodes[i] = (new Node(i, NO_EDGE, 0));
+    }
+    
     unsigned num_found = 0;
     //Node& sourceNode = MAP.intersection_node[intersect_id_start];
     // Initialize queue for BFS
     std::priority_queue <waveElem, std::vector<waveElem>, comparator> wavefront; 
    
     // Queue the source node 
-    waveElem sourceElem = waveElem(MAP.intersection_node[intersect_id_start],
+    waveElem sourceElem = waveElem(intersection_nodes[intersect_id_start],
     NO_EDGE, 0.0); 
     
     //std::cout << (sourceElem.node)->intersection_id << std::endl;
@@ -248,8 +255,8 @@ void multi_dest_dijkistra(
                 
                 // Determine the next node that is connected to the current searching edge
                 nextNode = (edgeInfo.from == currentNode->intersection_id)
-                    ? MAP.intersection_node[edgeInfo.to]
-                    : MAP.intersection_node[edgeInfo.from];
+                    ? intersection_nodes[edgeInfo.to]
+                    : intersection_nodes[edgeInfo.from];
                 // Determine turn penalty base on turn type
                 if (currentNode->edge_in != NO_EDGE) {
                    if (find_turn_type(currentNode->edge_in, currentEdge) == TurnType::LEFT) turn_penalty = left_turn_penalty;
@@ -273,7 +280,9 @@ void multi_dest_dijkistra(
         }
         // Return if all the destinations are covered in the search
         if (num_found == dests.size()) { 
-            clear_intersection_node();
+            for(int i = 0; i < getNumIntersections(); i++) {
+                delete intersection_nodes[i];
+             }
             return;
         }
         
@@ -289,8 +298,13 @@ void multi_dest_dijkistra(
         
     } 
     
-    clear_intersection_node();
+    //clear_intersection_node();
     //std::cout << "No valid routes are found" << std::endl;
+    
+    // Clear every node intersection
+    for(int i = 0; i < getNumIntersections(); i++) {
+        delete intersection_nodes[i];
+    }
 }
 
 
