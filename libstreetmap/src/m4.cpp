@@ -9,7 +9,9 @@
 #include <vector>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <algorithm>
 
+#define NO_SIBLING -1
 enum stop_type {PICK_UP, DROP_OFF};
 
 struct RouteStopSimple {
@@ -37,17 +39,14 @@ struct RouteStopSimple {
 struct RouteStop : RouteStopSimple {
     //advanced class for using non-simple legality checking
     
-    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next, int _sibling_id, double _weight_to_now)
-        : RouteStopSimple(_intersection_id, _delivery_index, _type, _time_to_next) {
-          sibling_id = _sibling_id;
-          weight_to_now = _weight_to_now;
-    }
+    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next)
+        : RouteStopSimple(_intersection_id, _delivery_index, _type, _time_to_next) {}
     
     //the id of the sibling: if its a pickUp, sibling id is location of its dropOff in the
     //simplified route vector and vice-versa. Can set depot's sibling to other end of route
-    int sibling_id;
+    int sibling_id = NO_SIBLING;
     
-    //the weight of the truck to this stop
+    //the weight of the truck just before this stop
     double weight_to_now;
 };
 
@@ -100,6 +99,8 @@ void add_closest_depots_to_route(
         const double left_turn_penalty
 );
 
+double get_route_time(std::vector<RouteStopSimple> &simple_route, bool &legal);
+
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -123,8 +124,7 @@ std::vector<CourierSubpath> traveling_courier(
         destinations.push_back(it->dropOff);
     }
     
-    int i = 0;
-    for (auto it = deliveries.begin(); it != deliveries.end(); ++it, ++i) {
+    for (unsigned i = 0; i < destinations.size(); ++i) {
         multi_dest_dijkistra(destinations[i], i, destinations, right_turn_penalty, left_turn_penalty);
     }
     
@@ -141,7 +141,7 @@ std::vector<CourierSubpath> traveling_courier(
         
         delivery_index ++;
     }
-    
+     
     //check legality
     if(not check_legal_simple(route, is_in_truck, deliveries, truck_capacity)){
         std::vector<CourierSubpath> empty;
@@ -257,7 +257,7 @@ void multi_dest_dijkistra(
             }
         }
         // Return if all the destinations are covered in the search
-        if ((unsigned)dest_count == dests.size()) { 
+        if (std::find(MAP.courier.time_between_deliveries[row_index].begin(), MAP.courier.time_between_deliveries[row_index].end(), 0) == MAP.courier.time_between_deliveries[row_index].end()) { 
             clear_intersection_node();
             return;
         }
@@ -359,20 +359,25 @@ bool initial_check_legal(
         double capacity
 ) {
     double current_weight = 0;
+    std::vector<bool> is_in_truck(route.size(), false); 
     
     for(auto &stop : route) {
         switch(stop.type) {
             case PICK_UP:
-                
-                //NEED TO DO FOR 2-OPT, THIS IS INTERSECTION SWAP!!!!
-                
-                
+                if(stop.sibling_id == NO_SIBLING) {
+                    //add sibling
+                }
+                is_in_truck[stop.delivery_index] = true;
+                stop.weight_to_now = current_weight;
                 current_weight += deliveries[stop.delivery_index].itemWeight;
                 break;
             case DROP_OFF:
+                if(stop.sibling_id == NO_SIBLING) {
+                    //add sibling
+                }
+                if(not is_in_truck[stop.delivery_index])
+                    return false;
                 current_weight -= deliveries[stop.delivery_index].itemWeight;
-                //if(not is_in_truck[stop.delivery_index])
-                //    return false;
                 break;
             default: 
                 std::cout << "Error, invalid stop type in legality check\n";
@@ -384,4 +389,19 @@ bool initial_check_legal(
     
     return true;
     
+}
+
+double get_route_time(std::vector<RouteStopSimple> &simple_route, bool &legal) {
+    double time = 0;
+    
+    for(auto stop = simple_route.begin(); stop != simple_route.end()-1; ++stop) {
+        int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
+        int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
+        
+        //std::cout << "time = " << MAP.courier.time_between_deliveries[i][j] << "\n";
+        if(MAP.courier.time_between_deliveries[i][j] == 0) legal = false;
+        time += (double)MAP.courier.time_between_deliveries[i][j];
+    }
+    
+    return time;
 }
