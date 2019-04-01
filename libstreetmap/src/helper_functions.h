@@ -8,6 +8,7 @@
 #include <vector>
 #include <ezgl/point.hpp>
 #include "ezgl/graphics.hpp"
+#include <stdint.h>
 
 //sorts and removes all duplicates in a vector
 void removeDuplicates(std::vector<unsigned>& vec);
@@ -56,3 +57,9 @@ unsigned find_common_intersection(unsigned street_segment1_id, unsigned street_s
 
 // Checks if one point is within a tolerance of another
 bool check_intersection(double x1, double y1, double tolerance, double x2, double y2);
+
+//fast random number generator
+uint32_t pcg32_fast();
+
+//initialize fast random number generator
+void pcg32_fast_init(uint64_t seed);
