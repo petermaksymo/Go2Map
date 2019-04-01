@@ -185,8 +185,8 @@ std::vector<CourierSubpath> traveling_courier(
         bool nothing;
         double time_to_beat = get_route_time(route, nothing);
         while(!time_out) {
-            int swap_1 = rand() % (route.size());
-            int swap_2 = rand() % (route.size());
+            int swap_1 = pcg32_fast() % (route.size());
+            int swap_2 = pcg32_fast() % (route.size());
             bool legal = true;
 
             auto current_time = std::chrono::high_resolution_clock::now();
@@ -196,7 +196,7 @@ std::vector<CourierSubpath> traveling_courier(
             std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);        
             double challenge_time = get_route_time(route, legal);
 
-            if((challenge_time < time_to_beat || rand()%accept_bad == 0) && legal && check_legal_simple(route, is_in_truck, deliveries, truck_capacity)) {
+            if((challenge_time < time_to_beat || pcg32_fast()%accept_bad == 0) && legal && check_legal_simple(route, is_in_truck, deliveries, truck_capacity)) {
                 time_to_beat = challenge_time;
             } else {
                 std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);
