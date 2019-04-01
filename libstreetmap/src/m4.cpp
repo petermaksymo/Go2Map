@@ -11,11 +11,14 @@
 #include <bits/stdc++.h>
 #include <algorithm>
 #include <chrono>
+#include "helper_functions.h"
 
 
 #define TIME_LIMIT 40 // allow 5 seconds for A*
 #define NO_SIBLING -1
 enum stop_type {PICK_UP, DROP_OFF};
+
+static const uint64_t seed = 0xcafe32596681eca5u;
 
 struct RouteStopSimple {
     //used for the route to accelerate mutations
@@ -120,6 +123,9 @@ std::vector<CourierSubpath> traveling_courier(
     
     auto start_time = std::chrono::high_resolution_clock::now();
     bool time_out = false;
+    
+    //initialize fast random number generator
+    pcg32_fast_init(seed);
     
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
