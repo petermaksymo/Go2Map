@@ -10,6 +10,8 @@
 #include <iostream>
 #include <bits/stdc++.h>
 
+#define NO_ROUTE std::numeric_limits<unsigned>::max()
+
 enum stop_type {PICK_UP, DROP_OFF};
 
 struct RouteStop {
@@ -92,7 +94,7 @@ std::vector<CourierSubpath> traveling_courier(
     
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
-    MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
+    MAP.courier.time_between_deliveries.assign(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
     
     // The destinations alternate between pickup and dropoff;
     // To access certain pickup: index * 2
@@ -356,7 +358,7 @@ void build_route(
             right_turn_penalty,
             left_turn_penalty
         );
-        if(subpath.size() == 0) {
+        if(subpath.size() == 0 && path.start_intersection != path.end_intersection) {
             //no possible route
             complete_route.clear();
             return;
@@ -379,7 +381,7 @@ double get_route_time(std::vector<RouteStop> &route, bool &legal){
         int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
         
         //std::cout << "time = " << MAP.courier.time_between_deliveries[i][j] << "\n";
-        if(MAP.courier.time_between_deliveries[i][j] == 0) legal = false;
+        if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) legal = false;
         time += (double)MAP.courier.time_between_deliveries[i][j];
     }
     
