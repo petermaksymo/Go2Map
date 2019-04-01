@@ -170,14 +170,56 @@ std::vector<CourierSubpath> traveling_courier(
         return empty;
     }
     
-    // Optimize
-    two_opt_swap_annealing_temp(route, 40, is_in_truck, deliveries, truck_capacity, 10);
+    std::vector<RouteStop> routes[8] = {route, route, route, route, route, route, route, route};
+    double results[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    int annealers[8] = {5, 8, 9, 10, 11, 12, 20, 100};
+    std::vector<bool> is_in_trucks[8] = {is_in_truck, is_in_truck, is_in_truck, is_in_truck, is_in_truck, is_in_truck, is_in_truck, is_in_truck};
+
+//    for(int i = 0; i < 1; i++) {
+//        (routes[i]).resize(route.size());
+//        routes[i] = route;
+//        
+//        is_in_trucks[i].resize(is_in_truck.size());
+//        is_in_trucks[i] = is_in_truck;
+//    }
+
+    #pragma omp parallel for
+    for(int i = 0; i<8; i++) {
+
+        two_opt_swap_annealing_temp(routes[i], 40, is_in_trucks[i], deliveries, truck_capacity, annealers[i]);
+
+        bool is_legal = true;
+        results[i] = get_route_time(routes[i], is_legal);
+    }
     
-    add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty);
+    for(int i = 0; i< 8; i++) {
+        add_closest_depots_to_route(routes[i], depots, right_turn_penalty, left_turn_penalty);
+    }
+    
+    double best_time = results[0];
+    int resulting_index = 0;
+    
+    // get max time
+    for(int i = 0; i < 8; i++) {
+        std::cout << annealers[i] << ": "<< results[i] << std::endl;
+        if(results[i] < best_time) {
+            resulting_index = i;
+            best_time = results[i];
+        }
+    }
+    
+    route = routes[resulting_index];
+    
+    std::cout << resulting_index << std::endl;
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
     build_route(route, route_complete, right_turn_penalty, left_turn_penalty);    
+
+    // Clear routes
+    for(int i = 0; i < 8; i++) {
+        routes[i].clear();
+    }
     
     return route_complete;
 }
@@ -399,11 +441,12 @@ void build_route(
 //returns time of route and has legal flag, can set to false if non-reachable route
 double get_route_time(std::vector<RouteStop> &route, bool &legal){
     double time = 0;
-    
+
     for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
+
         int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
         int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
-        
+
         //std::cout << "time = " << MAP.courier.time_between_deliveries[i][j] << "\n";
         if(MAP.courier.time_between_deliveries[i][j] == 0) legal = false;
         time += (double)MAP.courier.time_between_deliveries[i][j];
