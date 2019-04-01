@@ -13,7 +13,7 @@
 #include <chrono>
 
 
-#define TIME_LIMIT 35 // allow 10 seconds for A*
+#define TIME_LIMIT 40 // allow 5 seconds for A*
 #define NO_SIBLING -1
 enum stop_type {PICK_UP, DROP_OFF};
 
@@ -155,49 +155,67 @@ std::vector<CourierSubpath> traveling_courier(
         }
     }
     
+    std::vector<RouteStopSimple> best_route;
+    double best_time = std::numeric_limits<double>::max();
     
-    
-    //initialize for legality checking
-    std::vector<bool> is_in_truck(deliveries.size(), false);
-  
-    //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
-    std::vector<RouteStopSimple> route;
- 
-    int delivery_index = 0;
-    for(auto &delivery : deliveries) {
-        route.push_back(RouteStopSimple(delivery.pickUp , delivery_index, PICK_UP, 0));
-        route.push_back(RouteStopSimple(delivery.dropOff, delivery_index, DROP_OFF, 0));
-        
-        delivery_index ++;
-    }
-     
-    bool nothing;
-    double time_to_beat = get_route_time(route, nothing);
-    while(!time_out) {
-        int swap_1 = rand() % (route.size());
-        int swap_2 = rand() % (route.size());
-        bool legal = true;
-        
-        std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);        
-        double challenge_time = get_route_time(route, legal);
-        
-        if(challenge_time < time_to_beat && legal && check_legal_simple(route, is_in_truck, deliveries, truck_capacity)) {
-            time_to_beat = challenge_time;
-        } else {
-            std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);
+    #pragma omp parallel
+    {
+        //initialize for legality checking
+        std::vector<bool> is_in_truck(deliveries.size(), false);
+
+        //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
+        std::vector<RouteStopSimple> route;
+
+        int delivery_index = 0;
+        for(auto &delivery : deliveries) {
+            route.push_back(RouteStopSimple(delivery.pickUp , delivery_index, PICK_UP, 0));
+            route.push_back(RouteStopSimple(delivery.dropOff, delivery_index, DROP_OFF, 0));
+
+            delivery_index ++;
         }
         
-        auto current_time = std::chrono::high_resolution_clock::now();
-        auto wall_clock = std::chrono::duration_cast<std::chrono::duration<double>> (current_time - start_time);
-        time_out = wall_clock.count() > TIME_LIMIT;    
+        int accept_bad = 10; //"1 in accept_bad" probability to accept worse solution
+
+        bool nothing;
+        double time_to_beat = get_route_time(route, nothing);
+        while(!time_out) {
+            int swap_1 = rand() % (route.size());
+            int swap_2 = rand() % (route.size());
+            bool legal = true;
+
+            auto current_time = std::chrono::high_resolution_clock::now();
+            auto wall_clock = std::chrono::duration_cast<std::chrono::duration<double>> (current_time - start_time);
+            time_out = wall_clock.count() > TIME_LIMIT;    
+
+            std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);        
+            double challenge_time = get_route_time(route, legal);
+
+            if((challenge_time < time_to_beat || rand()%accept_bad == 0) && legal && check_legal_simple(route, is_in_truck, deliveries, truck_capacity)) {
+                time_to_beat = challenge_time;
+            } else {
+                std::iter_swap(route.begin()+swap_1, route.begin()+swap_2);
+            }
+
+            int x = (TIME_LIMIT) / (TIME_LIMIT - wall_clock.count());
+            
+            //taylor expansion of e^x
+            accept_bad = 1 + x + x*x/2 + x*x*x/6;
+        }
+        
+        #pragma omp critical
+        {
+            if(time_to_beat < best_time) {
+                best_route = route;
+            }
+        }
     }
     
        
-    add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty);
+    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
         
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
-    build_route(route, route_complete, right_turn_penalty, left_turn_penalty);    
+    build_route(best_route, route_complete, right_turn_penalty, left_turn_penalty);    
     
     return route_complete;
 }
