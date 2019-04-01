@@ -9,17 +9,24 @@
 #include <vector>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <thread>
 
 enum stop_type {PICK_UP, DROP_OFF};
 
 struct RouteStop {
     //used for the route to accelerate mutations
     
+    RouteStop()
+        : intersection_id(0), 
+          delivery_index(0), 
+          type(PICK_UP),
+          time_to_next(0) {};
+    
     RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next)
         : intersection_id(_intersection_id), 
           delivery_index(_delivery_index), 
           type(_type),
-          time_to_next(_time_to_next) {} 
+          time_to_next(_time_to_next) {};
     
     //the intersection id
     unsigned intersection_id;
@@ -77,6 +84,25 @@ void add_closest_depots_to_route(
 //returns time of route and has legal flag, can set to false if non-reachable route
 double get_route_time(std::vector<RouteStop> &route, bool &legal);
 
+std::pair<unsigned, unsigned> random_swap(std::vector<RouteStop> &route);
+
+void two_opt_swap_annealing(std::vector<RouteStop> &route,
+                         double run_time,
+                         std::vector<bool> &is_in_truck, 
+                         const std::vector<DeliveryInfo>& deliveries, 
+                         double capacity,
+                         int annealing);
+
+void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
+                                double run_time,
+                                std::vector<bool> &is_in_truck, 
+                                const std::vector<DeliveryInfo>& deliveries, 
+                                double capacity,
+                                int annealing);
+
+std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route);
+
+void reverse_vector(std::vector<RouteStop> &route, int &edge1, int &edge2);
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -143,9 +169,12 @@ std::vector<CourierSubpath> traveling_courier(
         std::vector<CourierSubpath> empty;
         return empty;
     }
-       
+    
+    // Optimize
+    two_opt_swap_annealing_temp(route, 40, is_in_truck, deliveries, truck_capacity, 10);
+    
     add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty);
-        
+    
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
     build_route(route, route_complete, right_turn_penalty, left_turn_penalty);    
@@ -382,3 +411,123 @@ double get_route_time(std::vector<RouteStop> &route, bool &legal){
     
     return time;
 }
+
+// Reverses the part of a vector between two positions
+void reverse_vector(std::vector<RouteStop> &route, int &edge1, int &edge2) {
+    std::reverse(route.begin() + edge1, route.begin() + edge1 + edge2);
+    return;
+}
+
+// Randomly selects two edges in the array, ie two positions
+// and reverses the part of the vector between those positions
+std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) {
+    int edge1 = std::rand() % route.size();
+    int edge2 = std::rand() % (route.size() - edge1);
+    
+    reverse_vector(route, edge1, edge2);
+    
+    return std::make_pair(edge1, edge2);
+}
+
+// Continously swaps two edges, keeping the shortest time
+// until it runs out of run_counts
+void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
+                         double run_time,
+                         std::vector<bool> &is_in_truck, 
+                         const std::vector<DeliveryInfo>& deliveries, 
+                         double capacity,
+                         int annealing
+) {
+    
+    bool is_legal = true;
+    double min_time = get_route_time(route, is_legal);
+        
+    // For run_time of algorithm
+    auto startTime = std::chrono::high_resolution_clock::now();
+    bool timeOut = false;
+    
+    double temp = annealing;
+    
+    // Loop over calling random swap until the time runs out
+    while(!timeOut) {
+        
+        // Break and swap two edges randomly
+        std::pair<int, int> indexes = random_edge_swap(route);
+ 
+        // Try to get new time
+        double new_time = get_route_time(route, is_legal);
+        double del_time = new_time - min_time;
+        
+        // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+        // then keep the the new route, otherwise reverse the changes
+        if(is_legal &&
+          (new_time < min_time || (temp > 0 && std::rand() % 2 < exp(- del_time / temp))) && // for simulated annealing
+          check_legal_simple(route, is_in_truck, deliveries, capacity)) {
+            min_time = new_time;
+        } else {
+            reverse_vector(route, indexes.first, indexes.second);
+            is_legal = true;
+        }
+        
+        // Check if the algorithm has timed out
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+
+        
+        timeOut = wallClock.count() >= run_time;
+        temp = annealing * (run_time - wallClock.count()) / (run_time);
+    }
+}
+
+// Continously swaps two edges, keeping the shortest time
+// until it runs out of run_counts
+void two_opt_swap_annealing(std::vector<RouteStop> &route,
+                         double run_time,
+                         std::vector<bool> &is_in_truck, 
+                         const std::vector<DeliveryInfo>& deliveries, 
+                         double capacity,
+                         int annealing
+) {
+    
+    bool is_legal = true;
+    double min_time = get_route_time(route, is_legal);
+        
+    // For run_time of algorithm
+    auto startTime = std::chrono::high_resolution_clock::now();
+    bool timeOut = false;
+    
+    int temp = annealing;
+    
+    // Loop over calling random swap until the time runs out
+    while(!timeOut) {
+        
+        // Break and swap two edges randomly
+        std::pair<int, int> indexes = random_edge_swap(route);
+ 
+        // Try to get new time
+        double new_time = get_route_time(route, is_legal);
+        
+        // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+        // then keep the the new route, otherwise reverse the changes
+        if(is_legal &&
+          (new_time < min_time || (temp > 0 && std::rand() % temp == 0)) && // for simulated annealing
+          check_legal_simple(route, is_in_truck, deliveries, capacity)) {
+            min_time = new_time;
+        } else {
+            reverse_vector(route, indexes.first, indexes.second);
+            is_legal = true;
+        }
+        
+        // Check if the algorithm has timed out
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+
+        
+        timeOut = wallClock.count() >= run_time;
+        temp = (run_time - 5) / (run_time - wallClock.count()) + 1;
+    }
+}
+
+
+
+
