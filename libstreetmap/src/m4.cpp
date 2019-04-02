@@ -19,10 +19,12 @@
 
 enum stop_type {PICK_UP, DROP_OFF};
 
+//for fast random number generator
+static uint64_t mcg_state;
+static uint64_t const multiplier = 6364136223846793005u;
+
 #define TIME_LIMIT 40
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
-
-static const uint64_t seed = 0xcafe32596681eca5u;
 
 struct RouteStop {
     //used for the route to accelerate mutations
@@ -46,6 +48,13 @@ struct RouteStop {
     //whether this stop is a pickUp
     stop_type type;
 };
+
+//fast random number generator and values needed for it, use unused attribute to suppress warnings
+extern uint64_t mcg_state;
+uint32_t pcg32_fast() __attribute__ ((hot));
+
+//initialize fast random number generator
+void pcg32_fast_init(uint64_t seed);
 
 void multi_dest_dijkistra(
 		  const unsigned intersect_id_start, 
@@ -107,11 +116,12 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
                          int annealing);
 
 void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
-                                double run_time,
-                                std::vector<bool> &is_in_truck, 
-                                const std::vector<DeliveryInfo>& deliveries, 
-                                float capacity,
-                                int annealing);
+                         double &min_time,
+                         std::vector<bool> &is_in_truck, 
+                         const std::vector<DeliveryInfo>& deliveries, 
+                         const float &capacity,
+                         float &temp
+)  __attribute__ ((hot, flatten));
 
 std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) __attribute__ ((hot));
 
@@ -133,9 +143,6 @@ std::vector<CourierSubpath> traveling_courier(
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     bool timeOut = false;
-    
-    //initialize fast random number generator
-    pcg32_fast_init(seed);
 
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
@@ -153,8 +160,15 @@ std::vector<CourierSubpath> traveling_courier(
     std::vector<RouteStop> best_route;
     double best_time = std::numeric_limits<double>::max();
     
+    //each thread needs its own mcg_state for random number generation
+    #pragma omp threadprivate(mcg_state)
     #pragma omp parallel 
     {    
+        mcg_state = 0xcafef00dd15ea5e5u; // Must be odd, used for fast random 
+        
+        //initialize fast random number generator
+        pcg32_fast_init(rand());
+        
         //initiallize a node vector for each thread
         std::vector<Node*> intersection_nodes;
         intersection_nodes.resize(getNumIntersections());
@@ -201,25 +215,13 @@ std::vector<CourierSubpath> traveling_courier(
         
         float temp = 10;
 
+        int runs = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
-            // Break and swap two edges randomly
-            std::pair<int, int> indexes = random_edge_swap(route);
-
-            // Try to get new time (in if statement)
-            double new_time;
-            int last_index = indexes.first + indexes.second;
-            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity, last_index);
-
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < fast_exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            ) {
-                min_time = new_time;
-                if(min_time < best_time_to_now) best_route_to_now = route;
-            } else {
-                reverse_vector(route, indexes.first, indexes.second);
-            }
+            runs++;
+            two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
+            
+            if(min_time < best_time_to_now) best_route_to_now = route;
             
             
             // Check if the algorithm has timed out
@@ -228,11 +230,11 @@ std::vector<CourierSubpath> traveling_courier(
 
 
             timeOut = wallClock.count() > TIME_LIMIT;
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/10.0;
             if(x < 0) x = 0;
 
             //adjust annealing temp
-            temp = fast_exp(x) - 1;
+            temp = exp(x) - 1;
             
             
         }
@@ -240,6 +242,7 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
+            std::cout << runs << " runs   " << best_time_to_now << " best time\n";
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
             }
@@ -254,6 +257,24 @@ std::vector<CourierSubpath> traveling_courier(
     build_route(best_route, route_complete, right_turn_penalty, left_turn_penalty);    
     
     return route_complete;
+}
+
+
+//Fast random number generator, the next 2 functions are from:
+//https://en.wikipedia.org/wiki/Permuted_congruential_generator#Example_code
+uint32_t pcg32_fast() {
+    uint64_t x = mcg_state;
+    unsigned count = (unsigned)(x >> 61); // 61 = 64 - 3
+    
+    mcg_state = x * multiplier;
+    x ^= x >> 22;
+    return (uint32_t)(x >> (22 + count)); // 22 = 32 - 3 - 7
+}
+
+
+void pcg32_fast_init(uint64_t seed) {
+    mcg_state = 2*seed +1;
+    (void)pcg32_fast();
 }
 
 
@@ -560,50 +581,28 @@ std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) {
 // Continously swaps two edges, keeping the shortest time
 // until it runs out of run_counts
 void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
-                         double run_time,
+                         double &min_time,
                          std::vector<bool> &is_in_truck, 
                          const std::vector<DeliveryInfo>& deliveries, 
-                         float capacity,
-                         int annealing
+                         const float &capacity,
+                         float &temp
 ) {
     
-    bool is_legal = true;
-    double min_time = get_route_time(route);
-        
-    // For run_time of algorithm
-    auto startTime = std::chrono::high_resolution_clock::now();
-    bool timeOut = false;
-    
-    double temp = annealing;
-    
-    // Loop over calling random swap until the time runs out
-    while(!timeOut) {
-        
-        // Break and swap two edges randomly
-        std::pair<int, int> indexes = random_edge_swap(route);
- 
-        // Try to get new time
-        double new_time = get_route_time(route);
-        double del_time = new_time - min_time;
-        
-        // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-        // then keep the the new route, otherwise reverse the changes
-        if(is_legal &&
-          (new_time < min_time || (temp > 0 && pcg32_fast() % 2 < exp(- del_time / temp))) && // for simulated annealing
-          check_legal_simple(route, is_in_truck, deliveries, capacity)) {
-            min_time = new_time;
-        } else {
-            reverse_vector(route, indexes.first, indexes.second);
-            is_legal = true;
-        }
-        
-        // Check if the algorithm has timed out
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+    // Break and swap two edges randomly
+    std::pair<int, int> indexes = random_edge_swap(route);
 
-        
-        timeOut = wallClock.count() >= run_time;
-        temp = annealing * (run_time - wallClock.count()) / (run_time);
+    // Try to get new time (in if statement)
+    double new_time;
+    int last_index = indexes.first + indexes.second;
+    bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, capacity, last_index);
+
+    // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+    // then keep the the new route, otherwise reverse the changes
+    if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+    ) {
+        min_time = new_time;
+    } else {
+        reverse_vector(route, indexes.first, indexes.second);
     }
 }
 
