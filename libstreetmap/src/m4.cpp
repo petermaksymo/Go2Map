@@ -17,7 +17,7 @@
 
 enum stop_type {PICK_UP, DROP_OFF};
 
-#define TIME_LIMIT 41
+#define TIME_LIMIT 40
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
 
 static const uint64_t seed = 0xcafe32596681eca5u;
@@ -86,7 +86,8 @@ void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
-        const double left_turn_penalty
+        const double left_turn_penalty,
+        double &time
 );
 
 bool validate_route(std::vector<RouteStop> &route, 
@@ -96,8 +97,8 @@ bool validate_route(std::vector<RouteStop> &route,
         double capacity
 );
 
-//returns time of route and has legal flag, can set to false if non-reachable route
-double get_route_time(std::vector<RouteStop> &route, bool &legal);
+//returns time of route
+double get_route_time(std::vector<RouteStop> &route);
 
 std::pair<unsigned, unsigned> random_swap(std::vector<RouteStop> &route);
 
@@ -152,7 +153,7 @@ std::vector<CourierSubpath> traveling_courier(
     double best_time = std::numeric_limits<double>::max();
     
     #pragma omp parallel 
-    {
+    {    
         //initiallize a node vector for each thread
         std::vector<Node*> intersection_nodes;
         intersection_nodes.resize(getNumIntersections());
@@ -170,7 +171,7 @@ std::vector<CourierSubpath> traveling_courier(
         for(int i = 0; i < getNumIntersections(); i++) {
             delete intersection_nodes[i];
         }
-    
+        
         //Start optimizations with simulated annealing
         
         //initialize for legality checking
@@ -195,11 +196,12 @@ std::vector<CourierSubpath> traveling_courier(
         double min_time = 0;
         (void)validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
 
-        int temp = 10;
+        double temp = 10;
 
+        int runs = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
-
+            runs ++;
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
 
@@ -209,7 +211,7 @@ std::vector<CourierSubpath> traveling_courier(
 
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
             // then keep the the new route, otherwise reverse the changes
-            if(is_legal && (new_time < min_time || (temp < TIME_LIMIT && (pcg32_fast() % temp == 0))) // for simulated annealing
+            if(is_legal && (new_time < min_time || ((1.0/(double)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
             ) {
                 min_time = new_time;
             } else {
@@ -221,23 +223,29 @@ std::vector<CourierSubpath> traveling_courier(
             auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
 
 
-            timeOut = wallClock.count() >= TIME_LIMIT;
-            int x = wallClock.count()/10;
+            timeOut = wallClock.count() > TIME_LIMIT;
+            double x = (( TIME_LIMIT - wallClock.count()) -1);
+            if(x < 0) x = 0;
             
-            temp = 1 + x + x*x/2 ;//+ x*x*x/6;
+            temp = exp(x) - 1;
+            //std::cout << temp << std::endl;
            
         }
-        
+                
         #pragma omp critical
         {
+//            double depot_time = 0;
+//            add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty, depot_time);
+//            min_time += depot_time;
+            std::cout << runs << std::endl;
             if(min_time < best_time) {
                 best_route = route;
             }
         }
         
     }   
-    
-    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
+    double depot_time = 0;
+    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty, depot_time);
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -356,9 +364,13 @@ void multi_dest_dijkistra(
         int i = 0;
         for (auto it = dests.begin(); it != dests.end(); ++it, ++i) {            
             if ((unsigned)currentNode->intersection_id == *it) {
-                if(MAP.courier.time_between_deliveries [row_index][i] == 0) num_found ++;
+                if(MAP.courier.time_between_deliveries [row_index][i] == NO_ROUTE) num_found ++;
                 
-                MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
+                if(intersect_id_start == (unsigned)currentNode->intersection_id) {
+                    MAP.courier.time_between_deliveries [row_index][i] = 0;
+                } else {
+                    MAP.courier.time_between_deliveries [row_index][i] = currentNode->best_time;
+                }
             }
         }
         
@@ -392,7 +404,8 @@ void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
-        const double left_turn_penalty
+        const double left_turn_penalty,
+        double &time
 ) {
     double start_min = -1;
     double end_min = -1;
@@ -424,20 +437,19 @@ void add_closest_depots_to_route(
         }
     }
  
+    time = end_min + start_min;
     simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF, 0));
     simple_route.push_back(RouteStop(end_it, -1, DROP_OFF, 0));
 }
 
 //returns time of route and has legal flag, can set to false if non-reachable route
-double get_route_time(std::vector<RouteStop> &route, bool &legal){
+double get_route_time(std::vector<RouteStop> &route){
     double time = 0;
     
     for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
         int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
         int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
         
-        //std::cout << "time = " << MAP.courier.time_between_deliveries[i][j] << "\n";
-        if(MAP.courier.time_between_deliveries[i][j] == 0) legal = false;
         time += (double)MAP.courier.time_between_deliveries[i][j];
     }
     
@@ -545,7 +557,7 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
 ) {
     
     bool is_legal = true;
-    double min_time = get_route_time(route, is_legal);
+    double min_time = get_route_time(route);
         
     // For run_time of algorithm
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -560,7 +572,7 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
         std::pair<int, int> indexes = random_edge_swap(route);
  
         // Try to get new time
-        double new_time = get_route_time(route, is_legal);
+        double new_time = get_route_time(route);
         double del_time = new_time - min_time;
         
         // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
@@ -595,7 +607,7 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
 ) {
     
     bool is_legal = true;
-    double min_time = get_route_time(route, is_legal);
+    double min_time = get_route_time(route);
         
     // For run_time of algorithm
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -610,7 +622,7 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
         std::pair<int, int> indexes = random_edge_swap(route);
  
         // Try to get new time
-        double new_time = get_route_time(route, is_legal);
+        double new_time = get_route_time(route);
         
         // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
         // then keep the the new route, otherwise reverse the changes
