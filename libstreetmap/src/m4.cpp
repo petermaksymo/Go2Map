@@ -133,7 +133,6 @@ std::vector<CourierSubpath> traveling_courier(
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     bool timeOut = false;
-    int thread_number = 0;
     
     //initialize fast random number generator
     pcg32_fast_init(seed);
@@ -176,14 +175,7 @@ std::vector<CourierSubpath> traveling_courier(
         
         //wait for multi_dest_dijkstras to be done
         #pragma omp barrier
-        
-        //set thread number (used for annealing characteristics)
-        float my_thread_number;
-        #pragma omp critical
-        {
-            thread_number ++;
-            my_thread_number = (float)thread_number;
-        }
+
         
         //Start optimizations with simulated annealing
         std::vector<RouteStop> route;
@@ -203,19 +195,14 @@ std::vector<CourierSubpath> traveling_courier(
             initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity, route.size());
         }
         
-        
+        //store absolute best time/route for thread
         std::vector<RouteStop> best_route_to_now = route;
         double best_time_to_now = min_time;
         
-        //multiplier around 20 seemed ideal from testing
-        float temp_multiplier = my_thread_number + 17.0;
         float temp = 10;
 
-        int run_counter = 0;//, runs = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
-            //runs ++;
-            run_counter ++;
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
 
@@ -234,27 +221,25 @@ std::vector<CourierSubpath> traveling_courier(
                 reverse_vector(route, indexes.first, indexes.second);
             }
             
-            if(run_counter > 100) {
-                // Check if the algorithm has timed out, its fast so only do every 1000 runs
-                auto currentTime = std::chrono::high_resolution_clock::now();
-                auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
-
-
-                timeOut = wallClock.count() > TIME_LIMIT;
-                float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/temp_multiplier;
-                if(x < 0) x = 0;
-
-                temp = fast_exp(x) - 1;
-                run_counter = 0;
-            }
             
-            //std::cout << temp << std::endl;
+            // Check if the algorithm has timed out
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+
+
+            timeOut = wallClock.count() > TIME_LIMIT;
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
+            if(x < 0) x = 0;
+
+            //adjust annealing temp
+            temp = fast_exp(x) - 1;
+            
             
         }
                 
+        //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            //std::cout << runs << std::endl;
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
             }
@@ -272,7 +257,7 @@ std::vector<CourierSubpath> traveling_courier(
 }
 
 
-//quickly checks legality operates in O(n)
+//quickly checks legality operates in O(n), currently deprecated 
 bool check_legal_simple(
         std::vector<RouteStop> &route, 
         std::vector<bool> &is_in_truck, 
@@ -457,7 +442,7 @@ void add_closest_depots_to_route(
     simple_route.push_back(RouteStop(end_it, -1, DROP_OFF));
 }
 
-//returns time of route and has legal flag, can set to false if non-reachable route
+//returns time of route and has legal flag, can set to false if non-reachable route, currently deprecated
 double get_route_time(std::vector<RouteStop> &route){
     double time = 0;
     
@@ -512,6 +497,7 @@ bool validate_route(std::vector<RouteStop> &route,
     time = 0;
     
     for(auto stop = route.begin(); stop != route.end()-1 && stop != route.begin() + last_index; ++stop) {
+        //shouldnt need to check legality after index of last cut (I could be wrong))
         if(stop <= route.begin() + last_index) {
             int i;
 
