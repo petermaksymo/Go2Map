@@ -413,7 +413,7 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
     // Continue finding path until all items are delivered
     while (item_to_deliver != 0) {
         // <destination_index, time> for closest_pickup and closet_dropoff
-        std::pair<unsigned, int> closest_pickup, closest_dropoff; 
+        std::pair<int, int> closest_pickup, closest_dropoff; 
         
         // Initialize the pairs
         closest_pickup.first = -1;
@@ -431,10 +431,10 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
             //if (current == i) std::cout << time << std::endl;
             //std::cout << i << " " << time << std::endl;
             // Different cases for pickup and dropoff
-            if ((i % 2 == 0) && (time > 0) && (time < closest_pickup.second) && !visited[i]) {
+            if ((i % 2 == 0) && (time >= 0) && (time < closest_pickup.second) && !visited[i]) {
                 closest_pickup.first = i;
                 closest_pickup.second = time;
-            } else if ((i % 2 == 1) && (time > 0) && (time < closest_dropoff.second) && !visited[i]) {
+            } else if ((i % 2 == 1) && (time >= 0) && (time < closest_dropoff.second) && !visited[i]) {
                 // Check if the item i is currently carried on the truck
                 auto it = std::find(current_item_carried.begin(), current_item_carried.end(), i);
                 if (current_item_carried.empty()) {
