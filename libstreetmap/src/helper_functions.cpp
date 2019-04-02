@@ -212,3 +212,7 @@ void pcg32_fast_init(uint64_t seed) {
     mcg_state = 2*seed +1;
     (void)pcg32_fast();
 }
+
+float fast_exp(float x) {
+    return (1.0 + x + x*x/2.0 + x*x*x/6.0);
+}

@@ -59,7 +59,7 @@ unsigned find_common_intersection(unsigned street_segment1_id, unsigned street_s
 bool check_intersection(double x1, double y1, double tolerance, double x2, double y2);
 
 //fast random number generator
-uint32_t pcg32_fast();
+uint32_t pcg32_fast() __attribute__ ((hot));
 
 //initialize fast random number generator
 void pcg32_fast_init(uint64_t seed);

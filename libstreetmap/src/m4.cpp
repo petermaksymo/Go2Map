@@ -15,6 +15,8 @@
 #include "helper_functions.h"
 
 
+#define NO_ROUTE std::numeric_limits<unsigned>::max()
+
 enum stop_type {PICK_UP, DROP_OFF};
 
 #define TIME_LIMIT 40
@@ -28,14 +30,12 @@ struct RouteStop {
     RouteStop()
         : intersection_id(0), 
           delivery_index(0), 
-          type(PICK_UP),
-          time_to_next(0) {};
+          type(PICK_UP) {};
     
-    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type, double _time_to_next)
+    RouteStop(unsigned _intersection_id, int _delivery_index, stop_type _type)
         : intersection_id(_intersection_id), 
           delivery_index(_delivery_index), 
-          type(_type),
-          time_to_next(_time_to_next) {};
+          type(_type){};
     
     //the intersection id
     unsigned intersection_id;
@@ -45,9 +45,6 @@ struct RouteStop {
     
     //whether this stop is a pickUp
     stop_type type;
-    
-    //time to the next node
-    double time_to_next;
 };
 
 void multi_dest_dijkistra(
@@ -86,8 +83,7 @@ void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
-        const double left_turn_penalty,
-        double &time
+        const double left_turn_penalty
 );
 
 bool validate_route(std::vector<RouteStop> &route, 
@@ -95,7 +91,7 @@ bool validate_route(std::vector<RouteStop> &route,
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
         double capacity
-);
+) __attribute__ ((hot));
 
 //returns time of route
 double get_route_time(std::vector<RouteStop> &route);
@@ -116,9 +112,16 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
                                 double capacity,
                                 int annealing);
 
-std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route);
+std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) __attribute__ ((hot));
 
-void reverse_vector(std::vector<RouteStop> &route, int &edge1, int &edge2);
+void reverse_vector(std::vector<RouteStop> &route, int &edge1, int &edge2) __attribute__ ((hot));
+
+void find_greedy_path(const std::vector<unsigned> &destinations,
+                      const std::vector<DeliveryInfo>& deliveries,
+                      std::vector<RouteStop> &route,
+                      const float truck_capacity);
+
+float fast_exp(float x) __attribute__ ((hot));
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -127,8 +130,8 @@ std::vector<CourierSubpath> traveling_courier(
 	       	const std::vector<unsigned>& depots, 
 		const float right_turn_penalty, 
 		const float left_turn_penalty, 
-		const float truck_capacity) {
-    
+		const float truck_capacity) 
+{
     auto startTime = std::chrono::high_resolution_clock::now();
     bool timeOut = false;
     
@@ -137,7 +140,6 @@ std::vector<CourierSubpath> traveling_courier(
 
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
-    //MAP.courier.time_between_deliveries.resize(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2));
     MAP.courier.time_between_deliveries.assign(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
     
     // The destinations alternate between pickup and dropoff;
@@ -172,31 +174,24 @@ std::vector<CourierSubpath> traveling_courier(
             delete intersection_nodes[i];
         }
         
-        //Start optimizations with simulated annealing
-        
-        //initialize for legality checking
-        std::vector<bool> is_in_truck(deliveries.size(), false);
-
-        //Create a simple path (for this its 0-0, 1-1, 2-2... and first depot)
-        std::vector<RouteStop> route;
-
-        int delivery_index = 0;
-        for(auto &delivery : deliveries) {
-            route.push_back(RouteStop(delivery.pickUp , delivery_index, PICK_UP, 0));
-            route.push_back(RouteStop(delivery.dropOff, delivery_index, DROP_OFF, 0));
-
-            delivery_index ++;
-        }
-        
-
         //wait for multi_dest_dijkstras to be done
         #pragma omp barrier
         
+        //Start optimizations with simulated annealing
+        std::vector<RouteStop> route;
+        find_greedy_path(destinations, deliveries, route, truck_capacity);
+        
+        //initialize for legality checking
+        std::vector<bool> is_in_truck(deliveries.size(), false);        
+        
         //set min time
         double min_time = 0;
-        (void)validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
-
-        double temp = 10;
+        bool test = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
+        if(!test) std::cout << "invalid route\n";
+        std::vector<RouteStop> best_route_to_now = route;
+        double best_time_to_now = min_time;
+        
+        float temp = 10;
 
         int runs = 0;
         // Loop over calling random swap until the time runs out
@@ -211,9 +206,10 @@ std::vector<CourierSubpath> traveling_courier(
 
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
             // then keep the the new route, otherwise reverse the changes
-            if(is_legal && (new_time < min_time || ((1.0/(double)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+            if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < fast_exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
             ) {
                 min_time = new_time;
+                if(min_time < best_time_to_now) best_route_to_now = route;
             } else {
                 reverse_vector(route, indexes.first, indexes.second);
             }
@@ -224,12 +220,12 @@ std::vector<CourierSubpath> traveling_courier(
 
 
             timeOut = wallClock.count() > TIME_LIMIT;
-            double x = (( TIME_LIMIT - wallClock.count()) -1);
+            double x = (( TIME_LIMIT - wallClock.count()) -1.5)/20.0;
             if(x < 0) x = 0;
             
-            temp = exp(x) - 1;
+            temp = fast_exp(x) - 1;
             //std::cout << temp << std::endl;
-           
+            
         }
                 
         #pragma omp critical
@@ -238,14 +234,14 @@ std::vector<CourierSubpath> traveling_courier(
 //            add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty, depot_time);
 //            min_time += depot_time;
             std::cout << runs << std::endl;
-            if(min_time < best_time) {
-                best_route = route;
+            if(best_time_to_now < best_time) {
+                best_route = best_route_to_now;
             }
         }
         
     }   
-    double depot_time = 0;
-    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty, depot_time);
+
+    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -396,16 +392,15 @@ void add_depots_to_route(
         const std::vector<unsigned>& depots
         
 ) {
-    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF, 0));
-    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF, 0));
+    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF));
+    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF));
 }
 
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
         const double right_turn_penalty, 
-        const double left_turn_penalty,
-        double &time
+        const double left_turn_penalty
 ) {
     double start_min = -1;
     double end_min = -1;
@@ -437,9 +432,8 @@ void add_closest_depots_to_route(
         }
     }
  
-    time = end_min + start_min;
-    simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF, 0));
-    simple_route.push_back(RouteStop(end_it, -1, DROP_OFF, 0));
+    simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF));
+    simple_route.push_back(RouteStop(end_it, -1, DROP_OFF));
 }
 
 //returns time of route and has legal flag, can set to false if non-reachable route
@@ -522,7 +516,7 @@ bool validate_route(std::vector<RouteStop> &route,
         int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
         
         if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) return false;
-        
+
         time += (double)MAP.courier.time_between_deliveries[i][j];
     }
     
@@ -545,6 +539,7 @@ std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) {
     
     return std::make_pair(edge1, edge2);
 }
+
 
 // Continously swaps two edges, keeping the shortest time
 // until it runs out of run_counts
@@ -647,4 +642,91 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
 
 
 
+
+// Implementation of a greedy algorithm to form an initial route
+void find_greedy_path(const std::vector<unsigned> &destinations,
+                      const std::vector<DeliveryInfo>& deliveries,
+                      std::vector<RouteStop> &route,
+                      const float truck_capacity) {
+    
+    // Randomly assign a pick up point as a starting point
+    unsigned current = 0;//destinations[(pcg32_fast() % (destinations.size()/2)) * 2];
+    //destinations.erase(std::find(destinations.begin(), destinations.end(), start));
+    
+    unsigned next = 0;
+    double current_capacity_used = 0;
+    std::vector<unsigned> current_item_carried;
+    int item_to_deliver = deliveries.size();
+    std::vector<bool> visited;
+    visited.resize(destinations.size(), false);
+    
+    // Add the first pickup to current truck
+    current_item_carried.push_back(current);
+    current_capacity_used += deliveries[current / 2].itemWeight;
+    route.push_back(RouteStop(destinations[current], current / 2, PICK_UP));
+    
+    // Continue finding path until all items are delivered
+    while (item_to_deliver != 0) {
+        // <location, time> for closest_pickup and closet_dropoff
+        std::pair<unsigned, int> closest_pickup, closest_dropoff; 
+        // Initialize the pairs; magic number for now; needs to be changed 
+        closest_pickup.first = 0;
+        closest_dropoff.first = 0;
+        closest_pickup.second = std::numeric_limits<int>::max();
+        closest_dropoff.second = std::numeric_limits<int>::max();
+        
+        // Flag the visited node so it won't be visited again
+        visited[current] = true;
+        
+        // Go through the time table to find nearest pickup and dropoff
+        for (unsigned i = 0; i < MAP.courier.time_between_deliveries.size(); ++i) {
+            int time = MAP.courier.time_between_deliveries[current][i];
+            //if (current == i) std::cout << time << std::endl;
+            //std::cout << i << " " << time << std::endl;
+            // Different cases for pickup and dropoff
+            if ((i % 2 == 0) && (time > 0) && (time < closest_pickup.second) && !visited[i]) {
+                closest_pickup.first = i;
+                closest_pickup.second = time;
+            } else if ((i % 2 == 1) && (time > 0) && (time < closest_dropoff.second) && !visited[i]) {
+                // Check if the item i is currently carried on the truck
+                auto it = std::find(current_item_carried.begin(), current_item_carried.end(), i);
+                if (current_item_carried.empty()) {
+                    closest_dropoff.first = 0;
+                    closest_dropoff.second = std::numeric_limits<int>::max();
+                    //std::cout << "yeet" << std::endl;
+
+                }
+                else if (it != current_item_carried.end()) {
+                    closest_dropoff.first = i;
+                    closest_dropoff.second = time;
+                } else if ((it == current_item_carried.end()) && (*it == i)) {
+                    closest_dropoff.first = i;
+                    closest_dropoff.second = time;
+                }
+            }
+        }
+        //std::cout << item_to_deliver << " " << current_capacity_used << " " <<  current << " " ;
+
+        // Now determine the next destination
+        // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
+        // Otherwise go the nearest pickup
+        if (current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
+            closest_dropoff.second < closest_pickup.second) {
+            next = closest_dropoff.first;
+            std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            current_capacity_used -= deliveries[closest_dropoff.first / 2].itemWeight;
+            item_to_deliver -= 1;
+            route.push_back(RouteStop(deliveries[closest_dropoff.first / 2].dropOff, closest_dropoff.first / 2, DROP_OFF));
+            //std::cout << "Dropoff " << deliveries[closest_dropoff.first / 2].itemWeight << " ";
+        } else { 
+            next = closest_pickup.first;
+            current_item_carried.push_back(closest_pickup.first + 1); // Push the corresponding dropoff position to the vector
+            current_capacity_used += deliveries[closest_pickup.first / 2].itemWeight;
+            route.push_back(RouteStop(deliveries[closest_pickup.first / 2].pickUp, closest_pickup.first / 2, PICK_UP));
+            //std::cout << "Pickup " << deliveries[closest_pickup.first / 2].itemWeight << " ";
+        }
+       // std::cout << next << std::endl;
+        current = next;
+    } 
+}
 

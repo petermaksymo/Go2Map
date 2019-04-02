@@ -26,6 +26,7 @@
 #include "m1.h"
 #include "m2.h"
 #include "m3.h"
+#include "m4.h"
 #include "KD2Tree.h"
 
 //Program exit codes
@@ -35,7 +36,7 @@ constexpr int BAD_ARGUMENTS_EXIT_CODE = 2;  //Invalid command-line usage
 
 //The default map to load if none is specified
 std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
-
+void unitTest();
 int main(int argc, char** argv) {
 
     std::string map_path;
