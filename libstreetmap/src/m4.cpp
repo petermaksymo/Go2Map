@@ -19,7 +19,7 @@
 
 enum stop_type {PICK_UP, DROP_OFF};
 
-#define TIME_LIMIT 42
+#define TIME_LIMIT 40
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
 
 static const uint64_t seed = 0xcafe32596681eca5u;
@@ -681,6 +681,7 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
     
     // Randomly assign a pick up point as a starting point
     int current = (pcg32_fast() % (deliveries.size()-1)) * 2;
+    if(deliveries.size() < 5) current = 0;
     
     int next = -1;
     double current_capacity_used = 0;
