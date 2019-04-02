@@ -389,15 +389,15 @@ double get_route_time(std::vector<RouteStop> &route, bool &legal){
 }
 
 // Implementation of a greedy algorithm to form an initial route
+// There are three kinds of index: delivery index, destination index, and intersection id
 std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations,
                       const std::vector<DeliveryInfo>& deliveries,
                       const float truck_capacity) {
     
     // Randomly assign a pick up point as a starting point
-    unsigned current = 0; //destinations[(rand() % (destinations.size() / 2)) * 2];
-    //destinations.erase(std::find(destinations.begin(), destinations.end(), start));
+    int current = 0; //(rand() % (destinations.size() / 2 + 1)) * 2;
     
-    unsigned next = 0;
+    int next = -1;
     double current_capacity_used = 0;
     std::vector<unsigned> current_item_carried;
     int item_to_deliver = deliveries.size();
@@ -406,17 +406,18 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
     visited.resize(destinations.size(), false);
     
     // Add the first pickup to current truck
-    current_item_carried.push_back(current);
+    current_item_carried.push_back(current + 1);
     current_capacity_used += deliveries[current / 2].itemWeight;
     route.push_back(RouteStop(destinations[current], current / 2, PICK_UP, 0));
     
     // Continue finding path until all items are delivered
     while (item_to_deliver != 0) {
-        // <location, time> for closest_pickup and closet_dropoff
+        // <destination_index, time> for closest_pickup and closet_dropoff
         std::pair<unsigned, int> closest_pickup, closest_dropoff; 
-        // Initialize the pairs; magic number for now; needs to be changed 
-        closest_pickup.first = 0;
-        closest_dropoff.first = 0;
+        
+        // Initialize the pairs
+        closest_pickup.first = -1;
+        closest_dropoff.first = -1;
         closest_pickup.second = std::numeric_limits<int>::max();
         closest_dropoff.second = std::numeric_limits<int>::max();
         
@@ -424,6 +425,7 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
         visited[current] = true;
         
         // Go through the time table to find nearest pickup and dropoff
+        // i is destination_index
         for (int i = 0; i < MAP.courier.time_between_deliveries.size(); ++i) {
             int time = MAP.courier.time_between_deliveries[current][i];
             //if (current == i) std::cout << time << std::endl;
@@ -436,10 +438,8 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
                 // Check if the item i is currently carried on the truck
                 auto it = std::find(current_item_carried.begin(), current_item_carried.end(), i);
                 if (current_item_carried.empty()) {
-                    closest_dropoff.first = 0;
+                    closest_dropoff.first = -1;
                     closest_dropoff.second = std::numeric_limits<int>::max();
-                    std::cout << "yeet" << std::endl;
-
                 }
                 else if (it != current_item_carried.end()) {
                     closest_dropoff.first = i;
@@ -448,30 +448,46 @@ std::vector<RouteStop> find_greedy_path(const std::vector<unsigned> destinations
                     closest_dropoff.first = i;
                     closest_dropoff.second = time;
                 }
+//                for (auto it = current_item_carried.begin(); it != current_item_carried.end(); ++it) {
+//                    if (*it == closest_dropoff.first) {
+//                        closest_dropoff.first = i;
+//                        closest_dropoff.second = time;
+//                        break;
+//                    }
+//                }
             }
         }
         std::cout << item_to_deliver << " " << current_capacity_used << " " <<  current << " " ;
-
+        if (item_to_deliver == 13) {
+            //std::cout << std::endl;
+        }
         // Now determine the next destination
         // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
         // Otherwise go the nearest pickup
-        if (current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
+        if (closest_pickup.first == -1 || current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
             closest_dropoff.second < closest_pickup.second) {
             next = closest_dropoff.first;
-            std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            //std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            for (auto it = current_item_carried.begin(); it != current_item_carried.end(); ++it) {
+                if (*it == closest_dropoff.first) {
+                    current_item_carried.erase(it);
+                    break;
+                }
+            }
             current_capacity_used -= deliveries[closest_dropoff.first / 2].itemWeight;
             item_to_deliver -= 1;
             route.push_back(RouteStop(deliveries[closest_dropoff.first / 2].dropOff, closest_dropoff.first / 2, DROP_OFF, 0));
-            //std::cout << "Dropoff " << deliveries[closest_dropoff.first / 2].itemWeight << " ";
+            std::cout << "Next Dropoff at ";
         } else { 
             next = closest_pickup.first;
             current_item_carried.push_back(closest_pickup.first + 1); // Push the corresponding dropoff position to the vector
             current_capacity_used += deliveries[closest_pickup.first / 2].itemWeight;
             route.push_back(RouteStop(deliveries[closest_pickup.first / 2].pickUp, closest_pickup.first / 2, PICK_UP, 0));
-            //std::cout << "Pickup " << deliveries[closest_pickup.first / 2].itemWeight << " ";
+            std::cout << "Next Pickup at ";
         }
-        std::cout << next << std::endl;
+        std::cout << next / 2 << std::endl;
         current = next;
     }
+    std::cout << item_to_deliver << std::endl;
     return route; 
 }
