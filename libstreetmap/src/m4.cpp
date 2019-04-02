@@ -19,7 +19,7 @@
 
 enum stop_type {PICK_UP, DROP_OFF};
 
-#define TIME_LIMIT 40
+#define TIME_LIMIT 42
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
 
 static const uint64_t seed = 0xcafe32596681eca5u;
@@ -52,8 +52,8 @@ void multi_dest_dijkistra(
                   const unsigned row_index,
                   std::vector<Node*> &intersection_nodes,
                   std::vector<unsigned> dests,
-                  const double right_turn_penalty, 
-                  const double left_turn_penalty
+                  const float right_turn_penalty, 
+                  const float left_turn_penalty
 ); 
 
 void clear_intersection_nodes(std::vector<Node*> &intersection_nodes);
@@ -62,7 +62,7 @@ bool check_legal_simple(
         std::vector<RouteStop> &route, 
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        double capacity
+        float capacity
 );
 
 void add_depots_to_route(
@@ -82,15 +82,16 @@ void build_route(
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
-        const double right_turn_penalty, 
-        const double left_turn_penalty
+        const float right_turn_penalty, 
+        const float left_turn_penalty
 );
 
 bool validate_route(std::vector<RouteStop> &route, 
         double &time,
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        double capacity
+        const float &capacity,
+        int last_index
 ) __attribute__ ((hot));
 
 //returns time of route
@@ -102,14 +103,14 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
                          double run_time,
                          std::vector<bool> &is_in_truck, 
                          const std::vector<DeliveryInfo>& deliveries, 
-                         double capacity,
+                         float capacity,
                          int annealing);
 
 void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
                                 double run_time,
                                 std::vector<bool> &is_in_truck, 
                                 const std::vector<DeliveryInfo>& deliveries, 
-                                double capacity,
+                                float capacity,
                                 int annealing);
 
 std::pair<int, int> random_edge_swap(std::vector<RouteStop> &route) __attribute__ ((hot));
@@ -120,8 +121,6 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
                       const std::vector<DeliveryInfo>& deliveries,
                       std::vector<RouteStop> &route,
                       const float truck_capacity);
-
-float fast_exp(float x) __attribute__ ((hot));
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -134,6 +133,7 @@ std::vector<CourierSubpath> traveling_courier(
 {
     auto startTime = std::chrono::high_resolution_clock::now();
     bool timeOut = false;
+    int thread_number = 0;
     
     //initialize fast random number generator
     pcg32_fast_init(seed);
@@ -177,6 +177,14 @@ std::vector<CourierSubpath> traveling_courier(
         //wait for multi_dest_dijkstras to be done
         #pragma omp barrier
         
+        //set thread number (used for annealing characteristics)
+        float my_thread_number;
+        #pragma omp critical
+        {
+            thread_number ++;
+            my_thread_number = (float)thread_number;
+        }
+        
         //Start optimizations with simulated annealing
         std::vector<RouteStop> route;
         find_greedy_path(destinations, deliveries, route, truck_capacity);
@@ -186,23 +194,35 @@ std::vector<CourierSubpath> traveling_courier(
         
         //set min time
         double min_time = 0;
-        bool test = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
-        if(!test) std::cout << "invalid route\n";
+        bool initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity, route.size());
+        //if bad route, re-run greedy (greedy is currently bugged)
+        while(!initial_check) {
+            route.clear();
+            min_time = 0;
+            find_greedy_path(destinations, deliveries, route, truck_capacity);
+            initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity, route.size());
+        }
+        
+        
         std::vector<RouteStop> best_route_to_now = route;
         double best_time_to_now = min_time;
         
+        //multiplier around 20 seemed ideal from testing
+        float temp_multiplier = my_thread_number + 17.0;
         float temp = 10;
 
-        int runs = 0;
+        int run_counter = 0;//, runs = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
-            runs ++;
+            //runs ++;
+            run_counter ++;
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
 
             // Try to get new time (in if statement)
             double new_time;
-            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            int last_index = indexes.first + indexes.second;
+            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity, last_index);
 
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
             // then keep the the new route, otherwise reverse the changes
@@ -214,26 +234,27 @@ std::vector<CourierSubpath> traveling_courier(
                 reverse_vector(route, indexes.first, indexes.second);
             }
             
-            // Check if the algorithm has timed out
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+            if(run_counter > 100) {
+                // Check if the algorithm has timed out, its fast so only do every 1000 runs
+                auto currentTime = std::chrono::high_resolution_clock::now();
+                auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
 
 
-            timeOut = wallClock.count() > TIME_LIMIT;
-            double x = (( TIME_LIMIT - wallClock.count()) -1.5)/20.0;
-            if(x < 0) x = 0;
+                timeOut = wallClock.count() > TIME_LIMIT;
+                float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/temp_multiplier;
+                if(x < 0) x = 0;
+
+                temp = fast_exp(x) - 1;
+                run_counter = 0;
+            }
             
-            temp = fast_exp(x) - 1;
             //std::cout << temp << std::endl;
             
         }
                 
         #pragma omp critical
         {
-//            double depot_time = 0;
-//            add_closest_depots_to_route(route, depots, right_turn_penalty, left_turn_penalty, depot_time);
-//            min_time += depot_time;
-            std::cout << runs << std::endl;
+            //std::cout << runs << std::endl;
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
             }
@@ -256,7 +277,7 @@ bool check_legal_simple(
         std::vector<RouteStop> &route, 
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        double capacity
+        float capacity
 ) {
     //set all to false (should be able to delete once fully integrated)
     is_in_truck.assign(is_in_truck.size(), false);
@@ -292,8 +313,8 @@ void multi_dest_dijkistra(
                   const unsigned row_index,
                   std::vector<Node*> &intersection_nodes,
                   std::vector<unsigned> dests,
-                  const double right_turn_penalty, 
-                  const double left_turn_penalty) {
+                  const float right_turn_penalty, 
+                  const float left_turn_penalty) {
     unsigned num_found = 0;
     //Node& sourceNode = MAP.intersection_node[intersect_id_start];
     // Initialize queue for BFS
@@ -399,8 +420,8 @@ void add_depots_to_route(
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots,
-        const double right_turn_penalty, 
-        const double left_turn_penalty
+        const float right_turn_penalty, 
+        const float left_turn_penalty
 ) {
     double start_min = -1;
     double end_min = -1;
@@ -481,43 +502,52 @@ bool validate_route(std::vector<RouteStop> &route,
         double &time,
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        double capacity
+        const float &capacity,
+        int last_index
 ){
     //set all to false (should be able to delete once fully integrated)
     is_in_truck.assign(is_in_truck.size(), false);
     
-    double current_weight = 0;
+    float current_weight = 0;
     time = 0;
     
-    for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
-        int i;
-        
-        //check legality
-        switch((*stop).type) {
-            case PICK_UP:
-                is_in_truck[(*stop).delivery_index] = true; 
-                current_weight += deliveries[(*stop).delivery_index].itemWeight;
-                i = (*stop).delivery_index*2;
-                break;
-            case DROP_OFF:
-                current_weight -= deliveries[(*stop).delivery_index].itemWeight;
-                if(not is_in_truck[(*stop).delivery_index])
-                    return false;
-                i = (*stop).delivery_index*2+1;
-                break;
-            default: 
-                std::cout << "Error, invalid stop type in legality check\n";
-                return false;    
-        }
-        
-        if(current_weight > capacity) return false;
-        
-        //now add time
-        int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
-        
-        if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) return false;
+    for(auto stop = route.begin(); stop != route.end()-1 && stop != route.begin() + last_index; ++stop) {
+        if(stop <= route.begin() + last_index) {
+            int i;
 
-        time += (double)MAP.courier.time_between_deliveries[i][j];
+            //check legality
+            switch((*stop).type) {
+                case PICK_UP:
+                    is_in_truck[(*stop).delivery_index] = true; 
+                    current_weight += deliveries[(*stop).delivery_index].itemWeight;
+                    i = (*stop).delivery_index*2;
+                    break;
+                case DROP_OFF:
+                    current_weight -= deliveries[(*stop).delivery_index].itemWeight;
+                    if(not is_in_truck[(*stop).delivery_index])
+                        return false;
+                    i = (*stop).delivery_index*2+1;
+                    break;
+                default: 
+                    std::cout << "Error, invalid stop type in legality check\n";
+                    return false;    
+            }
+
+            if(current_weight > capacity) return false;
+
+            //now add time
+            int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
+
+            if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) return false;
+
+            time += (float)MAP.courier.time_between_deliveries[i][j];
+        } else {
+            //rest of path is legal so just find time
+            int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
+            int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
+            
+            time += (float)MAP.courier.time_between_deliveries[i][j];
+        }
     }
     
     return true;
@@ -547,7 +577,7 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
                          double run_time,
                          std::vector<bool> &is_in_truck, 
                          const std::vector<DeliveryInfo>& deliveries, 
-                         double capacity,
+                         float capacity,
                          int annealing
 ) {
     
@@ -597,7 +627,7 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
                          double run_time,
                          std::vector<bool> &is_in_truck, 
                          const std::vector<DeliveryInfo>& deliveries, 
-                         double capacity,
+                         float capacity,
                          int annealing
 ) {
     
@@ -643,17 +673,16 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
 
 
 
-// Implementation of a greedy algorithm to form an initial route
+// There are three kinds of index: delivery index, destination index, and intersection id
 void find_greedy_path(const std::vector<unsigned> &destinations,
                       const std::vector<DeliveryInfo>& deliveries,
                       std::vector<RouteStop> &route,
                       const float truck_capacity) {
     
     // Randomly assign a pick up point as a starting point
-    unsigned current = 0;//destinations[(pcg32_fast() % (destinations.size()/2)) * 2];
-    //destinations.erase(std::find(destinations.begin(), destinations.end(), start));
+    int current = (pcg32_fast() % (deliveries.size()-1)) * 2;
     
-    unsigned next = 0;
+    int next = -1;
     double current_capacity_used = 0;
     std::vector<unsigned> current_item_carried;
     int item_to_deliver = deliveries.size();
@@ -661,17 +690,18 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
     visited.resize(destinations.size(), false);
     
     // Add the first pickup to current truck
-    current_item_carried.push_back(current);
+    current_item_carried.push_back(current + 1);
     current_capacity_used += deliveries[current / 2].itemWeight;
     route.push_back(RouteStop(destinations[current], current / 2, PICK_UP));
     
     // Continue finding path until all items are delivered
     while (item_to_deliver != 0) {
-        // <location, time> for closest_pickup and closet_dropoff
-        std::pair<unsigned, int> closest_pickup, closest_dropoff; 
-        // Initialize the pairs; magic number for now; needs to be changed 
-        closest_pickup.first = 0;
-        closest_dropoff.first = 0;
+        // <destination_index, time> for closest_pickup and closet_dropoff
+        std::pair<int, int> closest_pickup, closest_dropoff; 
+        
+        // Initialize the pairs
+        closest_pickup.first = -1;
+        closest_dropoff.first = -1;
         closest_pickup.second = std::numeric_limits<int>::max();
         closest_dropoff.second = std::numeric_limits<int>::max();
         
@@ -684,17 +714,15 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
             //if (current == i) std::cout << time << std::endl;
             //std::cout << i << " " << time << std::endl;
             // Different cases for pickup and dropoff
-            if ((i % 2 == 0) && (time > 0) && (time < closest_pickup.second) && !visited[i]) {
+            if ((i % 2 == 0) && (time >= 0) && (time < closest_pickup.second) && !visited[i]) {
                 closest_pickup.first = i;
                 closest_pickup.second = time;
-            } else if ((i % 2 == 1) && (time > 0) && (time < closest_dropoff.second) && !visited[i]) {
+            } else if ((i % 2 == 1) && (time >= 0) && (time < closest_dropoff.second) && !visited[i]) {
                 // Check if the item i is currently carried on the truck
                 auto it = std::find(current_item_carried.begin(), current_item_carried.end(), i);
                 if (current_item_carried.empty()) {
-                    closest_dropoff.first = 0;
+                    closest_dropoff.first = -1;
                     closest_dropoff.second = std::numeric_limits<int>::max();
-                    //std::cout << "yeet" << std::endl;
-
                 }
                 else if (it != current_item_carried.end()) {
                     closest_dropoff.first = i;
@@ -705,28 +733,29 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
                 }
             }
         }
-        //std::cout << item_to_deliver << " " << current_capacity_used << " " <<  current << " " ;
-
         // Now determine the next destination
         // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
         // Otherwise go the nearest pickup
-        if (current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
+        if (closest_pickup.first == -1 || current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
             closest_dropoff.second < closest_pickup.second) {
             next = closest_dropoff.first;
-            std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            //std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
+            for (auto it = current_item_carried.begin(); it != current_item_carried.end(); ++it) {
+                if ((int)*it == closest_dropoff.first) {
+                    current_item_carried.erase(it);
+                    break;
+                }
+            }
             current_capacity_used -= deliveries[closest_dropoff.first / 2].itemWeight;
             item_to_deliver -= 1;
             route.push_back(RouteStop(deliveries[closest_dropoff.first / 2].dropOff, closest_dropoff.first / 2, DROP_OFF));
-            //std::cout << "Dropoff " << deliveries[closest_dropoff.first / 2].itemWeight << " ";
         } else { 
             next = closest_pickup.first;
             current_item_carried.push_back(closest_pickup.first + 1); // Push the corresponding dropoff position to the vector
             current_capacity_used += deliveries[closest_pickup.first / 2].itemWeight;
             route.push_back(RouteStop(deliveries[closest_pickup.first / 2].pickUp, closest_pickup.first / 2, PICK_UP));
-            //std::cout << "Pickup " << deliveries[closest_pickup.first / 2].itemWeight << " ";
         }
-       // std::cout << next << std::endl;
         current = next;
-    } 
+    }
 }
 

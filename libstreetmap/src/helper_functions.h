@@ -63,3 +63,5 @@ uint32_t pcg32_fast() __attribute__ ((hot));
 
 //initialize fast random number generator
 void pcg32_fast_init(uint64_t seed);
+
+float fast_exp(float x) __attribute__ ((hot));

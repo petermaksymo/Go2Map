@@ -27,7 +27,7 @@
           <in>map_db.h</in>
         </df>
         <df name="tests">
-          <in>example_test.cpp</in>
+          <in>M4_Legality.cpp</in>
           <in>tester_main.cpp</in>
         </df>
       </df>
@@ -221,6 +221,8 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -386,6 +388,8 @@
           </preprocessorList>
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -520,6 +524,8 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -533,8 +539,7 @@
       </toolsSet>
       <flagsDictionary>
         <element flagsID="0" commonFlags="-O3 -std=c++11 -fopenmp"/>
-        <element flagsID="1" commonFlags="-std=c++11 -O3 -fopenmp"/>
-        <element flagsID="2" commonFlags="-std=c++14 -O3 -fopenmp"/>
+        <element flagsID="1" commonFlags="-std=c++14 -O3 -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -544,6 +549,11 @@
           <buildCommand>${MAKE} -f Makefile test_libstreetmap CONF=release</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>test_libstreetmap</executablePath>
+          <ccTool>
+            <incDir>
+              <pElem>libstreetmap/src</pElem>
+            </incDir>
+          </ccTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
@@ -553,25 +563,10 @@
       <folder path="0/libstreetmap">
         <ccTool>
           <incDir>
-            <pElem>/cad2/ece297s/public/include/milestones</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/libstreetmap/src">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/freetype2</pElem>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-      </folder>
-      <folder path="0/libstreetmap/tests">
-        <ccTool>
-          <incDir>
-            <pElem>libstreetmap/src</pElem>
             <pElem>libstreetmap</pElem>
             <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
             <pElem>/usr/include/gtk-3.0</pElem>
             <pElem>/usr/include/at-spi2-atk/2.0</pElem>
             <pElem>/usr/include/at-spi-2.0</pElem>
@@ -596,7 +591,6 @@
       <folder path="0/main">
         <ccTool>
           <incDir>
-            <pElem>libstreetmap/src</pElem>
             <pElem>libstreetsdatabase/src</pElem>
             <pElem>main/src</pElem>
             <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
@@ -606,33 +600,87 @@
           </incDir>
         </ccTool>
       </folder>
-      <item path="libstreetmap/src/helper_functions.cpp"
-            ex="false"
-            tool="1"
-            flavor2="4">
-      </item>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="1">
         </ccTool>
       </item>
-      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="4">
-      </item>
-      <item path="libstreetmap/tests/example_test.cpp"
-            ex="false"
-            tool="1"
-            flavor2="11">
-        <ccTool flags="2">
+      <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
         </ccTool>
       </item>
-      <item path="libstreetmap/tests/tester_main.cpp"
+      <item path="libstreetmap/src/ezgl/application.cpp"
             ex="false"
             tool="1"
             flavor2="11">
-        <ccTool flags="2">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/callback.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/camera.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/canvas.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/control.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/graphics.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m2_callbacks.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m2_draw.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m4.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="1">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Legality.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="1">
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
@@ -700,12 +748,7 @@
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="libstreetmap/tests/example_test.cpp"
-            ex="false"
-            tool="1"
-            flavor2="11">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/tests/tester_main.cpp"
             ex="false"
@@ -768,11 +811,41 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="libstreetmap/src/KD2Tree.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
       <item path="libstreetmap/src/OSMFetchers.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/src/ezgl/application.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
       <item path="libstreetmap/src/ezgl/callback.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/camera.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/canvas.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/control.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/ezgl/graphics.cpp"
             ex="false"
             tool="1"
             flavor2="11">
@@ -814,12 +887,7 @@
         <ccTool flags="0">
         </ccTool>
       </item>
-      <item path="libstreetmap/tests/example_test.cpp"
-            ex="false"
-            tool="1"
-            flavor2="11">
-        <ccTool flags="0">
-        </ccTool>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="libstreetmap/tests/tester_main.cpp"
             ex="false"
@@ -950,6 +1018,8 @@
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Legality.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
