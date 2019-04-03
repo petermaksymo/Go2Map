@@ -226,50 +226,56 @@ std::vector<CourierSubpath> traveling_courier(
         
         float temp = 10;
 
+        double new_time;
+        bool is_legal;
+        double time_since_better = 0;
+        bool is_annealing = false;
+        
         int runs = 0, better = 0, total = 0, legal = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
             runs++;
             //two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
             
+            // Check if the algorithm has timed out
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+
+            timeOut = wallClock.count() > TIME_LIMIT;
+            
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/5.0;            
+            //adjust annealing temp
+            temp = exp(x) - 1;
+            if(is_annealing) temp = 0;
+            
+            is_annealing = wallClock.count() - time_since_better > 0.01 || x < 0 ;           
+            
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
 
             // Try to get new time (in if statement)
-            double new_time;
-            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
             if(is_legal) legal ++;
             
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
             // then keep the the new route, otherwise reverse the changes
             if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
             ) {
-                if(new_time < min_time) better++;
+                if(new_time < min_time) {
+                    better++;
+                    time_since_better = wallClock.count();
+                }
                 total++;
                 min_time = new_time;
+                
+                if(min_time < best_time_to_now) {
+                   best_route_to_now = route;
+                   best_time_to_now = min_time; 
+                }
             } else {
                 reverse_vector(route, indexes.first, indexes.second);
             }
-            
-            if(min_time < best_time_to_now) {
-                best_route_to_now = route;
-                best_time_to_now = min_time; 
-            }
-            
-            
-            // Check if the algorithm has timed out
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
-
-
-            timeOut = wallClock.count() > TIME_LIMIT;
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
-            if(x < 0) x = 0;
-
-            //adjust annealing temp
-            temp = exp(x) - 1;
-            
-            
+                        
         }
                 
         //each thread takes a turn comparing its result to best overall
