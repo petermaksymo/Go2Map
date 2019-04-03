@@ -471,25 +471,24 @@ void add_closest_depots_to_route(
     unsigned int end_it = 0;
     
     // Loop over the depots, calling the m3 functions to calculate the time to each depot
-    for(auto it = depots.begin(); it != depots.end(); it++) {
-        
-        auto start_route = find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty);
-        if (start_route.size() > 0) {
-            double start_time = compute_path_travel_time(start_route, right_turn_penalty, left_turn_penalty);
-            
+    for(unsigned i = 0; i < depots.size(); ++i) {
+        double start_time = MAP.courier.time_between_deliveries[i + MAP.courier.time_between_deliveries[0].size()][simple_route[0].delivery_index * 2];
+        //auto start_route = find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if (start_time < std::numeric_limits<unsigned>::max()) {
+            //double start_time = compute_path_travel_time(start_route, right_turn_penalty, left_turn_penalty);
             if(start_min == -1 || start_time < start_min) {
-                start_it = *it;
+                start_it = depots[i];
                 start_min = start_time;
             }
         }
         
-        auto end_route = find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty);
-        if(end_route.size() > 0) {
-            double end_time = compute_path_travel_time(end_route, right_turn_penalty, left_turn_penalty);
-
-
+        double end_time = MAP.courier.time_between_deliveries[i + MAP.courier.time_between_deliveries[0].size()][simple_route[simple_route.size() - 1].delivery_index * 2];
+        //auto end_route = find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if(end_time < std::numeric_limits<unsigned>::max()) {
+            //double end_time = compute_path_travel_time(end_route, right_turn_penalty, left_turn_penalty);
+            
             if(end_min == -1 || end_time < end_min) {
-                end_it = *it;
+                end_it = depots[i];
                 end_min = end_time;
             }
         }
