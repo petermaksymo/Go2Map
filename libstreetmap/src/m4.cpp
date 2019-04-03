@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <chrono>
 #include "helper_functions.h"
+#include <omp.h>
 
 
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
@@ -242,7 +243,7 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            std::cout << runs << " runs   " << best_time_to_now << " best time\n";
+            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " << omp_get_thread_num() << "\n";
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
             }
