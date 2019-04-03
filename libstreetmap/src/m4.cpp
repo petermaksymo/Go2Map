@@ -75,12 +75,6 @@ bool check_legal_simple(
         float capacity
 );
 
-void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots
-        
-);
-
 void build_route(
         std::vector<RouteStop> &simple_route,
         std::vector<CourierSubpath> &complete_route,
@@ -91,9 +85,7 @@ void build_route(
 
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots,
-        const float right_turn_penalty, 
-        const float left_turn_penalty
+        const std::vector<unsigned>& depots
 );
 
 bool validate_route(std::vector<RouteStop> &route, 
@@ -241,7 +233,7 @@ std::vector<CourierSubpath> traveling_courier(
 
             timeOut = wallClock.count() > TIME_LIMIT;
             
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/17.0;            
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
             //adjust annealing temp
             temp = exp(x) - 1;
             if(x<0) temp = 0;
@@ -276,9 +268,11 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
+            /*std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
                     << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
-                    << "  total swaps : " << total << "  legal options: " << legal << "\n";
+                    << "  total swaps : " << total << "  legal options: " << legal << "\n";*/
+            add_closest_depots_to_route(best_route_to_now, depots);
+            best_time_to_now = get_route_time(route);
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
                 best_time = best_time_to_now;
@@ -287,7 +281,7 @@ std::vector<CourierSubpath> traveling_courier(
         
     }   
 
-    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
+//    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -450,21 +444,9 @@ void clear_intersection_nodes(std::vector<Node*> &intersection_nodes) {
     }        
 }
 
-
-void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots
-        
-) {
-    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF));
-    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF));
-}
-
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots,
-        const float right_turn_penalty, 
-        const float left_turn_penalty
+        const std::vector<unsigned>& depots
 ) {
     double start_min = -1;
     double end_min = -1;
