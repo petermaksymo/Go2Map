@@ -147,7 +147,8 @@ std::vector<CourierSubpath> traveling_courier(
 
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
-    MAP.courier.time_between_deliveries.assign(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
+    MAP.courier.time_between_deliveries.assign(deliveries.size() * 2  + depots.size(), 
+    std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
     
     // The destinations alternate between pickup and dropoff;
     // To access certain pickup: index * 2
@@ -180,8 +181,18 @@ std::vector<CourierSubpath> traveling_courier(
         //split the load of the for loop for each thread
         #pragma omp for
         for (unsigned i = 0; i < destinations.size(); ++i) {
-            multi_dest_dijkistra(destinations[i], i, intersection_nodes, destinations, right_turn_penalty, left_turn_penalty);
+            multi_dest_dijkistra(destinations[i], i, intersection_nodes, 
+                    destinations, right_turn_penalty, left_turn_penalty);
         }
+        
+        
+        #pragma omp for
+        // Add depots to all pickup/dropoff location time to the vector
+        for (unsigned i = 0; i < depots.size(); ++i) {
+            multi_dest_dijkistra(depots[i], i + destinations.size(), intersection_nodes, 
+                    destinations, right_turn_penalty, left_turn_penalty);
+        }
+        
         
         //delete the nodes now for each thread
         for(int i = 0; i < getNumIntersections(); i++) {
@@ -696,7 +707,7 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
         visited[current] = true;
         
         // Go through the time table to find nearest pickup and dropoff
-        for (unsigned i = 0; i < MAP.courier.time_between_deliveries.size(); ++i) {
+        for (unsigned i = 0; i < MAP.courier.time_between_deliveries[0].size(); ++i) {
             int time = MAP.courier.time_between_deliveries[current][i];
             //if (current == i) std::cout << time << std::endl;
             //std::cout << i << " " << time << std::endl;
