@@ -163,7 +163,7 @@ std::vector<CourierSubpath> traveling_courier(
     
     //each thread needs its own mcg_state for random number generation
     #pragma omp threadprivate(mcg_state)
-    #pragma omp parallel 
+    #pragma omp parallel
     {    
         mcg_state = 0xcafef00dd15ea5e5u; // Must be odd, used for fast random 
         
@@ -246,6 +246,7 @@ std::vector<CourierSubpath> traveling_courier(
             std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " << omp_get_thread_num() << "\n";
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
+                best_time = best_time_to_now;
             }
         }
         
@@ -520,9 +521,8 @@ bool validate_route(std::vector<RouteStop> &route,
     
     for(auto stop = route.begin(); stop != route.end()-1 && stop != route.begin() + last_index; ++stop) {
         //shouldnt need to check legality after index of last cut (I could be wrong))
-        if(stop <= route.begin() + last_index) {
+        if (stop <= route.begin() + last_index) {
             int i;
-
             //check legality
             switch((*stop).type) {
                 case PICK_UP:
@@ -553,9 +553,9 @@ bool validate_route(std::vector<RouteStop> &route,
             //rest of path is legal so just find time
             int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
             int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
-            
+
             time += (float)MAP.courier.time_between_deliveries[i][j];
-        }
+        } 
     }
     
     return true;
