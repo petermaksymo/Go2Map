@@ -100,8 +100,7 @@ bool validate_route(std::vector<RouteStop> &route,
         double &time,
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        const float &capacity,
-        int last_index
+        const float &capacity
 ) __attribute__ ((hot));
 
 //returns time of route
@@ -201,13 +200,13 @@ std::vector<CourierSubpath> traveling_courier(
         
         //set min time
         double min_time = 0;
-        bool initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity, route.size());
+        bool initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
         //if bad route, re-run greedy (greedy is currently bugged)
         while(!initial_check) {
             route.clear();
             min_time = 0;
             find_greedy_path(destinations, deliveries, route, truck_capacity);
-            initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity, route.size());
+            initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
         }
         
         //store absolute best time/route for thread
@@ -216,13 +215,35 @@ std::vector<CourierSubpath> traveling_courier(
         
         float temp = 10;
 
-        int runs = 0;
+        int runs = 0, better = 0, total = 0, legal = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
             runs++;
-            two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
+            //two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
             
-            if(min_time < best_time_to_now) best_route_to_now = route;
+            // Break and swap two edges randomly
+            std::pair<int, int> indexes = random_edge_swap(route);
+
+            // Try to get new time (in if statement)
+            double new_time;
+            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            if(is_legal) legal ++;
+            
+            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+            // then keep the the new route, otherwise reverse the changes
+            if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+            ) {
+                if(new_time < min_time) better++;
+                total++;
+                min_time = new_time;
+            } else {
+                reverse_vector(route, indexes.first, indexes.second);
+            }
+            
+            if(min_time < best_time_to_now) {
+                best_route_to_now = route;
+                best_time_to_now = min_time; 
+            }
             
             
             // Check if the algorithm has timed out
@@ -231,7 +252,7 @@ std::vector<CourierSubpath> traveling_courier(
 
 
             timeOut = wallClock.count() > TIME_LIMIT;
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/10.0;
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
             if(x < 0) x = 0;
 
             //adjust annealing temp
@@ -243,7 +264,9 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " << omp_get_thread_num() << "\n";
+            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
+                    << omp_get_thread_num() << "  better swaps: " << better << "  total swaps : " << total 
+                    << "  legal options: " << legal << "\n";
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
                 best_time = best_time_to_now;
@@ -510,8 +533,7 @@ bool validate_route(std::vector<RouteStop> &route,
         double &time,
         std::vector<bool> &is_in_truck, 
         const std::vector<DeliveryInfo>& deliveries, 
-        const float &capacity,
-        int last_index
+        const float &capacity
 ){
     //set all to false (should be able to delete once fully integrated)
     is_in_truck.assign(is_in_truck.size(), false);
@@ -519,43 +541,35 @@ bool validate_route(std::vector<RouteStop> &route,
     float current_weight = 0;
     time = 0;
     
-    for(auto stop = route.begin(); stop != route.end()-1 && stop != route.begin() + last_index; ++stop) {
-        //shouldnt need to check legality after index of last cut (I could be wrong))
-        if (stop <= route.begin() + last_index) {
-            int i;
-            //check legality
-            switch((*stop).type) {
-                case PICK_UP:
-                    is_in_truck[(*stop).delivery_index] = true; 
-                    current_weight += deliveries[(*stop).delivery_index].itemWeight;
-                    i = (*stop).delivery_index*2;
-                    break;
-                case DROP_OFF:
-                    current_weight -= deliveries[(*stop).delivery_index].itemWeight;
-                    if(not is_in_truck[(*stop).delivery_index])
-                        return false;
-                    i = (*stop).delivery_index*2+1;
-                    break;
-                default: 
-                    std::cout << "Error, invalid stop type in legality check\n";
-                    return false;    
-            }
+    for(auto stop = route.begin(); stop != route.end()-1; ++stop) {
+        int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
+        
+        //check legality
+        switch((*stop).type) {
+            case PICK_UP:
+                is_in_truck[(*stop).delivery_index] = true; 
+                current_weight += deliveries[(*stop).delivery_index].itemWeight;
+                break;
+            case DROP_OFF:
+                current_weight -= deliveries[(*stop).delivery_index].itemWeight;
+                if(not is_in_truck[(*stop).delivery_index])
+                    return false;
+                break;
+            default: 
+                std::cout << "Error, invalid stop type in legality check\n";
+                return false;    
+        }
 
-            if(current_weight > capacity) return false;
+        if(current_weight > capacity) return false;
 
-            //now add time
-            int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
+        //now add time
+        int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
 
-            if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) return false;
+        if(MAP.courier.time_between_deliveries[i][j] == NO_ROUTE) return false;
 
-            time += (float)MAP.courier.time_between_deliveries[i][j];
-        } else {
-            //rest of path is legal so just find time
-            int i = (*stop).type == PICK_UP ? (*stop).delivery_index*2 : (*stop).delivery_index*2+1;
-            int j = (*(stop+1)).type == PICK_UP ? (*(stop+1)).delivery_index*2 : (*(stop+1)).delivery_index*2+1;
-
-            time += (float)MAP.courier.time_between_deliveries[i][j];
-        } 
+        time += (float)MAP.courier.time_between_deliveries[i][j];
+        
+        i = j;
     }
     
     return true;
@@ -594,8 +608,7 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
 
     // Try to get new time (in if statement)
     double new_time;
-    int last_index = indexes.first + indexes.second;
-    bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, capacity, last_index);
+    bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, capacity);
 
     // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
     // then keep the the new route, otherwise reverse the changes
