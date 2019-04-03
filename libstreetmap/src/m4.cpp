@@ -228,10 +228,8 @@ std::vector<CourierSubpath> traveling_courier(
 
         double new_time;
         bool is_legal;
-        double time_since_better = 0;
-        bool is_annealing = false;
         
-        int runs = 0, better = 0, total = 0, legal = 0;
+        int runs = 0, better = 0, best = 0, total = 0, legal = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
             runs++;
@@ -243,12 +241,11 @@ std::vector<CourierSubpath> traveling_courier(
 
             timeOut = wallClock.count() > TIME_LIMIT;
             
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/5.0;            
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/17.0;            
             //adjust annealing temp
             temp = exp(x) - 1;
-            if(is_annealing) temp = 0;
-            
-            is_annealing = wallClock.count() - time_since_better > 0.01 || x < 0 ;           
+            if(x<0) temp = 0;
+                     
             
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
@@ -261,14 +258,12 @@ std::vector<CourierSubpath> traveling_courier(
             // then keep the the new route, otherwise reverse the changes
             if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
             ) {
-                if(new_time < min_time) {
-                    better++;
-                    time_since_better = wallClock.count();
-                }
+                if(new_time < min_time) better++;
                 total++;
                 min_time = new_time;
                 
                 if(min_time < best_time_to_now) {
+                   best ++;
                    best_route_to_now = route;
                    best_time_to_now = min_time; 
                 }
@@ -282,8 +277,8 @@ std::vector<CourierSubpath> traveling_courier(
         #pragma omp critical
         {
             std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
-                    << omp_get_thread_num() << "  better swaps: " << better << "  total swaps : " << total 
-                    << "  legal options: " << legal << "\n";
+                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
+                    << "  total swaps : " << total << "  legal options: " << legal << "\n";
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
                 best_time = best_time_to_now;
