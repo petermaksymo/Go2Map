@@ -122,7 +122,9 @@ void reverse_vector(std::vector<RouteStop> &route, int &edge1, int &edge2) __att
 void find_greedy_path(const std::vector<unsigned> &destinations,
                       const std::vector<DeliveryInfo>& deliveries,
                       std::vector<RouteStop> &route,
-                      const float truck_capacity);
+                      const float truck_capacity,
+                      float priority_weight,
+                      int starting_index);
 
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
@@ -196,7 +198,21 @@ std::vector<CourierSubpath> traveling_courier(
         
         //Start optimizations with simulated annealing
         std::vector<RouteStop> route;
-        find_greedy_path(destinations, deliveries, route, truck_capacity);
+        float priority_weight = 1;//((rand() % 10) - 5) / 10;
+        std::pair<int, double> best_greedy;
+        best_greedy.first = -1;
+        best_greedy.second = std::numeric_limits<unsigned>::max();
+        for (int i = 0; i < deliveries.size(); ++i) {
+            find_greedy_path(destinations, deliveries, route, truck_capacity, priority_weight, i);
+            double time = get_route_time(route);
+            if (time < best_greedy.second) {
+                best_greedy.first = i;
+                best_greedy.second = time;
+            } 
+            route.clear();
+        }
+        
+        find_greedy_path(destinations, deliveries, route, truck_capacity, priority_weight, best_greedy.first);
         
         //initialize for legality checking
         std::vector<bool> is_in_truck(deliveries.size(), false);        
@@ -208,7 +224,7 @@ std::vector<CourierSubpath> traveling_courier(
         while(!initial_check) {
             route.clear();
             min_time = 0;
-            find_greedy_path(destinations, deliveries, route, truck_capacity);
+            find_greedy_path(destinations, deliveries, route, truck_capacity, priority_weight, 0);
             initial_check = validate_route(route, min_time, is_in_truck, deliveries, truck_capacity);
         }
         
@@ -670,7 +686,9 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
 void find_greedy_path(const std::vector<unsigned> &destinations,
                       const std::vector<DeliveryInfo>& deliveries,
                       std::vector<RouteStop> &route,
-                      const float truck_capacity) {
+                      const float truck_capacity,
+                      float priority_weight,
+                      int starting_index) {
     
     // Randomly assign a pick up point as a starting point
     int current = (pcg32_fast() % (deliveries.size()-1)) * 2;
@@ -731,7 +749,7 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
         // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
         // Otherwise go the nearest pickup
         if (closest_pickup.first == -1 || current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
-             closest_dropoff.second < 2 * closest_pickup.second) {
+             closest_dropoff.second < priority_weight * closest_pickup.second) {
             next = closest_dropoff.first;
             //std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
             for (auto it = current_item_carried.begin(); it != current_item_carried.end(); ++it) {

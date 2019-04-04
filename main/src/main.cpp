@@ -36,7 +36,8 @@ constexpr int BAD_ARGUMENTS_EXIT_CODE = 2;  //Invalid command-line usage
 
 //The default map to load if none is specified
 std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
-void unitTest();
+
+
 int main(int argc, char** argv) {
 
     std::string map_path;
@@ -70,3 +71,5 @@ int main(int argc, char** argv) {
 
     return SUCCESS_EXIT_CODE;
 }
+
+
