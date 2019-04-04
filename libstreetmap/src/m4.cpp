@@ -152,6 +152,7 @@ std::vector<CourierSubpath> traveling_courier(
     
     std::vector<RouteStop> best_route;
     double best_time = std::numeric_limits<double>::max();
+    double best_time_depot = std::numeric_limits<double>::max();
     
     //each thread needs its own mcg_state for random number generation
     #pragma omp threadprivate(mcg_state)
@@ -233,10 +234,19 @@ std::vector<CourierSubpath> traveling_courier(
             auto currentTime = std::chrono::high_resolution_clock::now();
             auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
             auto timeSinceLastRestart = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - timeAtLastRestart);
-            if(timeSinceLastRestart.count() > 0.01) {
-                timeAtLastRestart = currentTime;
-                route = best_route_to_now;
-                min_time = best_time_to_now;
+            if(timeSinceLastRestart.count() > 0.1) {
+                #pragma omp critical 
+                {
+                    timeAtLastRestart = currentTime;
+                    
+                    if(best_time_to_now < best_time) {
+                        best_route = best_route_to_now;
+                        best_time = best_time_to_now;
+                    }else {
+                        route = best_route;
+                        min_time = best_time;
+                    }
+                }
             }
             
             timeOut = wallClock.count() > TIME_LIMIT;
@@ -282,9 +292,9 @@ std::vector<CourierSubpath> traveling_courier(
             std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
                     << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
                     << "  total swaps : " << total << "  legal options: " << legal << "\n";
-            if(best_time_to_now < best_time) {
+            if(best_time_to_now < best_time_depot) {
                 best_route = best_route_to_now;
-                best_time = best_time_to_now;
+                best_time_depot = best_time_to_now;
             }
         }
         
