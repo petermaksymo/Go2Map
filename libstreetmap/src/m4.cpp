@@ -124,6 +124,12 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
                       std::vector<RouteStop> &route,
                       const float truck_capacity);
 
+void two_opt_swap(std::vector<RouteStop> &route,
+                         double run_time,
+                         std::vector<bool> &is_in_truck, 
+                         const std::vector<DeliveryInfo>& deliveries, 
+                         float capacity);
+
 //////////////////////////////////////////////////////////////////////////
 //Start of functions
 std::vector<CourierSubpath> traveling_courier(
@@ -216,6 +222,18 @@ std::vector<CourierSubpath> traveling_courier(
         std::vector<RouteStop> best_route_to_now = route;
         double best_time_to_now = min_time;
         
+        // Do another 2-opt-swap
+        two_opt_swap(route, 0.5, is_in_truck, deliveries, truck_capacity);
+        
+        double second_min = 0;;
+        bool second_check = validate_route(route, second_min, is_in_truck, deliveries, truck_capacity);
+        
+        if(second_min < best_time_to_now) {
+            // std::cout << "time is better" << std::endl;
+            best_time_to_now = second_min;
+            best_route_to_now = route;
+        }
+        
         float temp = 10;
 
         double new_time;
@@ -268,9 +286,9 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            /*std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
-                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
-                    << "  total swaps : " << total << "  legal options: " << legal << "\n";*/
+//            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
+//                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
+//                    << "  total swaps : " << total << "  legal options: " << legal << " min_time: " << second_min << "\n";
             add_closest_depots_to_route(best_route_to_now, depots);
             best_time_to_now = get_route_time(route);
             if(best_time_to_now < best_time) {
@@ -615,13 +633,12 @@ void two_opt_swap_annealing_temp(std::vector<RouteStop> &route,
 
 // Continously swaps two edges, keeping the shortest time
 // until it runs out of run_counts
-void two_opt_swap_annealing(std::vector<RouteStop> &route,
+void two_opt_swap(std::vector<RouteStop> &route,
                          double run_time,
                          std::vector<bool> &is_in_truck, 
                          const std::vector<DeliveryInfo>& deliveries, 
-                         float capacity,
-                         int annealing
-) {
+                         float capacity)
+{
     
     bool is_legal = true;
     double min_time = get_route_time(route);
@@ -629,8 +646,13 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
     // For run_time of algorithm
     auto startTime = std::chrono::high_resolution_clock::now();
     bool timeOut = false;
-    
-    int temp = annealing;
+//    double time_best_found = 0.0;
+//    int number_of_iterations = 0;
+//    int best_iterations = 0;
+//    int num_equal_after = 0;
+//    int num_equal_before = 0;
+//    double differences[10];
+//    int difference_count = 0;
     
     // Loop over calling random swap until the time runs out
     while(!timeOut) {
@@ -641,25 +663,50 @@ void two_opt_swap_annealing(std::vector<RouteStop> &route,
         // Try to get new time
         double new_time = get_route_time(route);
         
+        // Check if the algorithm has timed out
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+        
         // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
         // then keep the the new route, otherwise reverse the changes
         if(is_legal &&
-          (new_time < min_time || (temp > 0 && pcg32_fast() % temp == 0)) && // for simulated annealing
+          (new_time < min_time) && // for simulated annealing
           check_legal_simple(route, is_in_truck, deliveries, capacity)) {
-            min_time = new_time;
+                        
+//            if(new_time < min_time) {
+                // std::cout << "#" << difference_count << std::endl;
+                // std::cout << "diff at " << number_of_iterations << " is " << new_time << " vs " << min_time << std::endl;
+                // if(min_time - new_time > 1) std::cout << "greater than 10" << std::endl;
+//                differences[difference_count%10] = min_time - new_time;
+//                difference_count++;
+                min_time = new_time;
+                // time_best_found = (double)wallClock.count();
+//                best_iterations = number_of_iterations;
+//                num_equal_before = num_equal_after;
+//                num_equal_after = 0;
+//            }else if(new_time == min_time) {
+//                 std::cout << "equal at " << number_of_iterations << " is " << new_time << std::endl;
+//                num_equal_after++;
+//            }
         } else {
             reverse_vector(route, indexes.first, indexes.second);
             is_legal = true;
         }
-        
-        // Check if the algorithm has timed out
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
 
-        
+        // number_of_iterations++;
         timeOut = wallClock.count() >= run_time;
-        temp = (run_time) / (run_time - wallClock.count()) + 1;
     }
+    
+//    double difference_ave = 0;
+//    for(int i = 0; i<10; i++) {
+//        // std::cout << differences[i] << " : " << omp_get_thread_num() << std::endl;
+//        difference_ave += differences[i];
+//    }
+    
+//    difference_ave = difference_ave / 10;
+    
+    // std::cout << omp_get_thread_num() << "time best was found: " << time_best_found << " num best was found: " << best_iterations << " num total: " << number_of_iterations << std::endl;
+    // std::cout << "average last differences: " << difference_ave << " num equal after: " << num_equal_after << " num equal before: " << num_equal_before << " " << omp_get_thread_num()<< std::endl;
 }
 
 
