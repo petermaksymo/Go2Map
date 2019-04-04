@@ -230,7 +230,7 @@ DEBUG_CHECK_CFLAGS = -g -O0 -D_GLIBCXX_DEBUG -fsanitize=address -fsanitize=leak 
 DEBUG_CHECK_LFLAGS = -fsanitize=address -fsanitize=leak -fsanitize=undefined
 
 #What extra flags to use in a release build?
-RELEASE_CFLAGS = -g -O3
+RELEASE_CFLAGS = -g -Ofast -march=native
 RELEASE_LFLAGS =
 
 #What extra flags to use in release profile build?

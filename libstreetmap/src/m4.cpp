@@ -75,12 +75,6 @@ bool check_legal_simple(
         float capacity
 );
 
-void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots
-        
-);
-
 void build_route(
         std::vector<RouteStop> &simple_route,
         std::vector<CourierSubpath> &complete_route,
@@ -91,9 +85,7 @@ void build_route(
 
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots,
-        const float right_turn_penalty, 
-        const float left_turn_penalty
+        const std::vector<unsigned>& depots
 );
 
 bool validate_route(std::vector<RouteStop> &route, 
@@ -146,7 +138,8 @@ std::vector<CourierSubpath> traveling_courier(
 
     //Clean and resize the 2D matrix to appropriate size
     MAP.courier.time_between_deliveries.clear();
-    MAP.courier.time_between_deliveries.assign(deliveries.size() * 2, std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
+    MAP.courier.time_between_deliveries.assign(deliveries.size() * 2  + depots.size(), 
+    std::vector<unsigned>(deliveries.size() * 2, NO_ROUTE));
     
     // The destinations alternate between pickup and dropoff;
     // To access certain pickup: index * 2
@@ -179,8 +172,18 @@ std::vector<CourierSubpath> traveling_courier(
         //split the load of the for loop for each thread
         #pragma omp for
         for (unsigned i = 0; i < destinations.size(); ++i) {
-            multi_dest_dijkistra(destinations[i], i, intersection_nodes, destinations, right_turn_penalty, left_turn_penalty);
+            multi_dest_dijkistra(destinations[i], i, intersection_nodes, 
+                    destinations, right_turn_penalty, left_turn_penalty);
         }
+        
+        
+        #pragma omp for
+        // Add depots to all pickup/dropoff location time to the vector
+        for (unsigned i = 0; i < depots.size(); ++i) {
+            multi_dest_dijkistra(depots[i], i + destinations.size(), intersection_nodes, 
+                    destinations, right_turn_penalty, left_turn_penalty);
+        }
+        
         
         //delete the nodes now for each thread
         for(int i = 0; i < getNumIntersections(); i++) {
@@ -215,18 +218,34 @@ std::vector<CourierSubpath> traveling_courier(
         
         float temp = 10;
 
-        int runs = 0, better = 0, total = 0, legal = 0;
+
+        double new_time;
+        bool is_legal;
+        
+        int runs = 0, better = 0, best = 0, total = 0, legal = 0;
         // Loop over calling random swap until the time runs out
         while(!timeOut) {
             runs++;
-            //two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
+            
+            
+            // Check if the algorithm has timed out
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+
+            timeOut = wallClock.count() > TIME_LIMIT;
+            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
+            if(x < 0) x = 0;
+
+            //adjust annealing temp
+            temp = exp(x) - 1;
+            if(x<0) temp = 0;
+                     
             
             // Break and swap two edges randomly
             std::pair<int, int> indexes = random_edge_swap(route);
 
             // Try to get new time (in if statement)
-            double new_time;
-            bool is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
             if(is_legal) legal ++;
             
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
@@ -236,37 +255,26 @@ std::vector<CourierSubpath> traveling_courier(
                 if(new_time < min_time) better++;
                 total++;
                 min_time = new_time;
+                
+                if(min_time < best_time_to_now) {
+                   best ++;
+                   best_route_to_now = route;
+                   best_time_to_now = min_time; 
+                }
             } else {
                 reverse_vector(route, indexes.first, indexes.second);
             }
-            
-            if(min_time < best_time_to_now) {
-                best_route_to_now = route;
-                best_time_to_now = min_time; 
-            }
-            
-            
-            // Check if the algorithm has timed out
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
-
-
-            timeOut = wallClock.count() > TIME_LIMIT;
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/20.0;
-            if(x < 0) x = 0;
-
-            //adjust annealing temp
-            temp = exp(x) - 1;
-            
-            
+                        
         }
                 
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
-                    << omp_get_thread_num() << "  better swaps: " << better << "  total swaps : " << total 
-                    << "  legal options: " << legal << "\n";
+            /*std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
+                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
+                    << "  total swaps : " << total << "  legal options: " << legal << "\n";*/
+            add_closest_depots_to_route(best_route_to_now, depots);
+            best_time_to_now = get_route_time(route);
             if(best_time_to_now < best_time) {
                 best_route = best_route_to_now;
                 best_time = best_time_to_now;
@@ -275,7 +283,7 @@ std::vector<CourierSubpath> traveling_courier(
         
     }   
 
-    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
+//    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -438,21 +446,9 @@ void clear_intersection_nodes(std::vector<Node*> &intersection_nodes) {
     }        
 }
 
-
-void add_depots_to_route(
-        std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots
-        
-) {
-    simple_route.insert(simple_route.begin(), RouteStop(depots[0], -1, DROP_OFF));
-    simple_route.push_back(RouteStop(depots[0], -1, DROP_OFF));
-}
-
 void add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
-        const std::vector<unsigned>& depots,
-        const float right_turn_penalty, 
-        const float left_turn_penalty
+        const std::vector<unsigned>& depots
 ) {
     double start_min = -1;
     double end_min = -1;
@@ -460,25 +456,24 @@ void add_closest_depots_to_route(
     unsigned int end_it = 0;
     
     // Loop over the depots, calling the m3 functions to calculate the time to each depot
-    for(auto it = depots.begin(); it != depots.end(); it++) {
-        
-        auto start_route = find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty);
-        if (start_route.size() > 0) {
-            double start_time = compute_path_travel_time(start_route, right_turn_penalty, left_turn_penalty);
-            
+    for(unsigned i = 0; i < depots.size(); ++i) {
+        double start_time = MAP.courier.time_between_deliveries[i + MAP.courier.time_between_deliveries[0].size()][simple_route[0].delivery_index * 2];
+        //auto start_route = find_path_between_intersections(simple_route[0].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if (start_time < std::numeric_limits<unsigned>::max()) {
+            //double start_time = compute_path_travel_time(start_route, right_turn_penalty, left_turn_penalty);
             if(start_min == -1 || start_time < start_min) {
-                start_it = *it;
+                start_it = depots[i];
                 start_min = start_time;
             }
         }
         
-        auto end_route = find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty);
-        if(end_route.size() > 0) {
-            double end_time = compute_path_travel_time(end_route, right_turn_penalty, left_turn_penalty);
-
-
+        double end_time = MAP.courier.time_between_deliveries[i + MAP.courier.time_between_deliveries[0].size()][simple_route[simple_route.size() - 1].delivery_index * 2];
+        //auto end_route = find_path_between_intersections(simple_route[simple_route.size() - 1].intersection_id, *it, right_turn_penalty, left_turn_penalty);
+        if(end_time < std::numeric_limits<unsigned>::max()) {
+            //double end_time = compute_path_travel_time(end_route, right_turn_penalty, left_turn_penalty);
+            
             if(end_min == -1 || end_time < end_min) {
-                end_it = *it;
+                end_it = depots[i];
                 end_min = end_time;
             }
         }
@@ -709,7 +704,7 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
         visited[current] = true;
         
         // Go through the time table to find nearest pickup and dropoff
-        for (unsigned i = 0; i < MAP.courier.time_between_deliveries.size(); ++i) {
+        for (unsigned i = 0; i < MAP.courier.time_between_deliveries[0].size(); ++i) {
             int time = MAP.courier.time_between_deliveries[current][i];
             //if (current == i) std::cout << time << std::endl;
             //std::cout << i << " " << time << std::endl;
