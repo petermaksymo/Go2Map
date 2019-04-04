@@ -218,6 +218,10 @@ std::vector<CourierSubpath> traveling_courier(
         
         float temp = 10;
 
+        int edge1 = 0;
+        int edge2 = 0;
+        int edge3 = 0;
+        
         double new_time;
         bool is_legal;
         
@@ -239,9 +243,13 @@ std::vector<CourierSubpath> traveling_courier(
             if(x<0) temp = 0;
                      
             
-            // Break and swap two edges randomly
-            std::pair<int, int> indexes = random_edge_swap(route);
-
+            // Pick three random edges
+            edge1 = pcg32_fast() % (int)route.size();
+            edge2 = pcg32_fast() % (route.size() - edge1);
+            edge3 = pcg32_fast() % (route.size() - edge1 - edge2);
+            
+            // Swap 1 -----
+            reverse_vector(route, edge1, edge2);
             // Try to get new time (in if statement)
             is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
             if(is_legal) legal ++;
@@ -260,8 +268,60 @@ std::vector<CourierSubpath> traveling_courier(
                    best_time_to_now = min_time; 
                 }
             } else {
-                reverse_vector(route, indexes.first, indexes.second);
+                reverse_vector(route, edge1, edge2);
             }
+            
+            // Swap 2 -------
+            reverse_vector(route, edge2, edge3);
+            // Try to get new time (in if statement)
+            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            if(is_legal) legal ++;
+            
+            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+            // then keep the the new route, otherwise reverse the changes
+            if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+            ) {
+                if(new_time < min_time) better++;
+                total++;
+                min_time = new_time;
+                
+                if(min_time < best_time_to_now) {
+                   best ++;
+                   best_route_to_now = route;
+                   best_time_to_now = min_time; 
+                }
+            } else {
+                reverse_vector(route, edge2, edge3);
+            }
+            
+            // Swap 3 -------
+            reverse_vector(route, edge1, edge2);
+            reverse_vector(route, edge2, edge3);
+            // Try to get new time (in if statement)
+            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+            if(is_legal) legal ++;
+            
+            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+            // then keep the the new route, otherwise reverse the changes
+            if(is_legal && (new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+            ) {
+                if(new_time < min_time) better++;
+                total++;
+                min_time = new_time;
+                
+                if(min_time < best_time_to_now) {
+                   best ++;
+                   best_route_to_now = route;
+                   best_time_to_now = min_time; 
+                }
+            } else {
+                reverse_vector(route, edge2, edge3);
+                reverse_vector(route, edge1, edge2);
+            }
+            
+            // Reverse vector between edges 1 and 3 (Swap 4)
+            // Then do same process as above, reversing vectors between 1 and 2 (Swap 5), and 2 and 3 (Swap 6)
+            // And then both 1 and 2 and 2 and 3 (Swap 7)
                         
         }
                 
