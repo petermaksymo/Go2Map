@@ -747,7 +747,7 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
         // If truck cannot fit next nearest pickup or if dropoff is closer than pickup then go the nearest dropoff
         // Otherwise go the nearest pickup
         if (closest_pickup.first == -1 || current_capacity_used + deliveries[closest_pickup.first / 2].itemWeight > truck_capacity || 
-            closest_dropoff.second < closest_pickup.second) {
+             closest_dropoff.second < 2 * closest_pickup.second) {
             next = closest_dropoff.first;
             //std::remove(current_item_carried.begin(), current_item_carried.end(), closest_dropoff.first); // may be broken
             for (auto it = current_item_carried.begin(); it != current_item_carried.end(); ++it) {
