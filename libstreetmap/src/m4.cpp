@@ -220,9 +220,9 @@ std::vector<CourierSubpath> traveling_courier(
 
         double new_time;
         bool is_legal;
-        double initial_temp = pcg32_fast() % 100; //  64 + 
+        double initial_temp = 64; //pcg32_fast() % 100; //  64 + 
         
-        double curve_width = TIME_LIMIT;
+        double curve_width = TIME_LIMIT * 1.2;
         
         int runs = 0, better = 0, best = 0, total = 0, legal = 0;
         // Loop over calling random swap until the time runs out
@@ -238,7 +238,7 @@ std::vector<CourierSubpath> traveling_courier(
             
             // float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
             //adjust annealing temp
-            temp = initial_temp * 2 *(1-1/(1+exp((-10/curve_width) * wallClock.count())));
+            temp = initial_temp * 2 *(1-1/(1+exp((-20/curve_width) * wallClock.count())));
             // if(x<0) temp = 0;
                      
             
@@ -252,8 +252,8 @@ std::vector<CourierSubpath> traveling_courier(
             // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
             // then keep the the new route, otherwise reverse the changes
             
-            if(is_legal && (new_time < min_time || ((0.01*abs(((int)pcg32_fast())%100) < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            ) {
+            if(is_legal && (new_time < min_time || ((1/(float)pcg32_fast()) < exp(-1*(new_time - min_time)/temp)))) // for simulated annealing 0.01*abs(((int)pcg32_fast())%100)
+            {
                 if(new_time < min_time) better++;
                 total++;
                 min_time = new_time;
@@ -272,9 +272,9 @@ std::vector<CourierSubpath> traveling_courier(
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
-            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
-                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
-                    << "  total swaps : " << total << "  legal options: " << legal << "initial_temp: " << initial_temp << "curve_width " << curve_width << "\n";
+//            std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
+//                    << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
+//                    << "  total swaps : " << total << "  legal options: " << legal << "initial_temp: " << initial_temp << "curve_width " << curve_width << "\n";
             add_closest_depots_to_route(best_route_to_now, depots);
             best_time_to_now = get_route_time(route);
             if(best_time_to_now < best_time) {
