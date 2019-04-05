@@ -27,8 +27,16 @@
           <in>map_db.h</in>
         </df>
         <df name="tests">
+          <in>M4_Hard_London.cpp</in>
+          <in>M4_Hard_New-York.cpp</in>
+          <in>M4_Hard_Toronto.cpp</in>
+          <in>M4_Legality.cpp</in>
+          <in>M4_London.cpp</in>
+          <in>M4_New-York.cpp</in>
+          <in>M4_Toronto.cpp</in>
           <in>example_test.cpp</in>
           <in>tester_main.cpp</in>
+          <in>utils.h</in>
         </df>
       </df>
       <df name="main">
@@ -221,6 +229,29 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -386,6 +417,29 @@
           </preprocessorList>
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -520,6 +574,29 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
@@ -535,6 +612,7 @@
         <element flagsID="0" commonFlags="-O3 -std=c++11 -fopenmp"/>
         <element flagsID="1" commonFlags="-std=c++11 -O3 -fopenmp"/>
         <element flagsID="2" commonFlags="-std=c++14 -O3 -fopenmp"/>
+        <element flagsID="3" commonFlags="-std=c++14 -Ofast -march=native -fopenmp"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -558,17 +636,109 @@
           </incDir>
         </ccTool>
       </folder>
-      <folder path="0/libstreetmap/src">
+      <folder path="0/main">
         <ccTool>
           <incDir>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetsdatabase/src</pElem>
+            <pElem>main/src</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
             <pElem>/usr/include/freetype2</pElem>
             <pElem>.</pElem>
           </incDir>
         </ccTool>
       </folder>
-      <folder path="0/libstreetmap/tests">
+      <item path="libstreetmap/src/helper_functions.cpp"
+            ex="false"
+            tool="1"
+            flavor2="4">
         <ccTool>
           <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool flags="1">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/m4.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="4">
+        <ccTool>
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
             <pElem>libstreetmap/src</pElem>
             <pElem>libstreetmap</pElem>
             <pElem>libstreetmap/src/ezgl</pElem>
@@ -592,47 +762,255 @@
             <pElem>.</pElem>
           </incDir>
         </ccTool>
-      </folder>
-      <folder path="0/main">
-        <ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="3">
           <incDir>
-            <pElem>libstreetmap/src</pElem>
-            <pElem>libstreetsdatabase/src</pElem>
-            <pElem>main/src</pElem>
-            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
             <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
             <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
             <pElem>.</pElem>
           </incDir>
         </ccTool>
-      </folder>
-      <item path="libstreetmap/src/helper_functions.cpp"
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
             ex="false"
             tool="1"
-            flavor2="4">
-      </item>
-      <item path="libstreetmap/src/m1.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="1">
+            flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
         </ccTool>
       </item>
-      <item path="libstreetmap/src/m2.cpp" ex="false" tool="1" flavor2="4">
+      <item path="libstreetmap/tests/M4_Legality.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/m3.cpp" ex="false" tool="1" flavor2="4">
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
       </item>
-      <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="4">
+      <item path="libstreetmap/tests/M4_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="11">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
       </item>
       <item path="libstreetmap/tests/example_test.cpp"
             ex="false"
             tool="1"
             flavor2="11">
         <ccTool flags="2">
+          <incDir>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
         </ccTool>
       </item>
       <item path="libstreetmap/tests/tester_main.cpp"
             ex="false"
             tool="1"
             flavor2="11">
-        <ccTool flags="2">
+        <ccTool flags="3">
+          <incDir>
+            <pElem>libstreetmap/src</pElem>
+            <pElem>libstreetmap</pElem>
+            <pElem>libstreetmap/src/ezgl</pElem>
+            <pElem>/cad2/ece297s/public/include/milestones</pElem>
+            <pElem>/cad2/ece297s/public/include/streetsdatabase</pElem>
+            <pElem>/usr/include/gtk-3.0</pElem>
+            <pElem>/usr/include/at-spi2-atk/2.0</pElem>
+            <pElem>/usr/include/at-spi-2.0</pElem>
+            <pElem>/usr/include/dbus-1.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/dbus-1.0/include</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/cairo</pElem>
+            <pElem>/usr/include/pango-1.0</pElem>
+            <pElem>/usr/include/harfbuzz</pElem>
+            <pElem>/usr/include/atk-1.0</pElem>
+            <pElem>/usr/include/pixman-1</pElem>
+            <pElem>/usr/include/freetype2</pElem>
+            <pElem>/usr/include/libpng16</pElem>
+            <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+            <pElem>/usr/include/x86_64-linux-gnu</pElem>
+            <pElem>.</pElem>
+          </incDir>
         </ccTool>
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="8">
@@ -700,6 +1078,27 @@
       </item>
       <item path="libstreetmap/src/map_db.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/tests/example_test.cpp"
             ex="false"
             tool="1"
@@ -713,6 +1112,8 @@
             flavor2="11">
         <ccTool flags="0">
         </ccTool>
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="UnitTest_DebugCheck" type="0">
@@ -814,6 +1215,27 @@
         <ccTool flags="0">
         </ccTool>
       </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="libstreetmap/tests/example_test.cpp"
             ex="false"
             tool="1"
@@ -827,6 +1249,8 @@
             flavor2="11">
         <ccTool flags="0">
         </ccTool>
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Profile" type="0">
@@ -950,6 +1374,29 @@
       <item path="libstreetmap/src/map_db.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">
         </ccTool>
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_London.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_New-York.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Hard_Toronto.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_London.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_New-York.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/M4_Toronto.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="libstreetmap/tests/utils.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main/src/main.cpp" ex="false" tool="1" flavor2="11">
         <ccTool flags="0">

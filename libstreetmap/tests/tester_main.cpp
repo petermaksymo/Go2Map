@@ -20,14 +20,21 @@
  */
 #include <iostream>
 #include <unittest++/UnitTest++.h>
+#include "m1.h"
+#include "utils.h"
+#include "cmath"
 
+double QOR = 0;
 /*
  * This is the main that drives running
  * unit tests.
  */
-int main(int /*argc*/, char** /*argv*/) {
+int main(int /*argc*/, char** /*argv*/) {    
+    
     //Run the unit tests
     int num_failures = UnitTest::RunAllTests();
+    
+    std::cout << "\nTotal QOR = " << exp(QOR/12.0) << "\n";
 
     return num_failures;
 }

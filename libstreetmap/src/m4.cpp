@@ -24,7 +24,7 @@ enum stop_type {PICK_UP, DROP_OFF};
 static uint64_t mcg_state;
 static uint64_t const multiplier = 6364136223846793005u;
 
-#define TIME_LIMIT 40
+#define TIME_LIMIT 42
 #define NO_ROUTE std::numeric_limits<unsigned>::max()
 
 struct RouteStop {
@@ -83,7 +83,7 @@ void build_route(
 );
 
 
-void add_closest_depots_to_route(
+double add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots
 );
@@ -152,6 +152,7 @@ std::vector<CourierSubpath> traveling_courier(
     
     std::vector<RouteStop> best_route;
     double best_time = std::numeric_limits<double>::max();
+    double best_time_depot = std::numeric_limits<double>::max();
     
     //each thread needs its own mcg_state for random number generation
     #pragma omp threadprivate(mcg_state)
@@ -218,206 +219,223 @@ std::vector<CourierSubpath> traveling_courier(
         double best_time_to_now = min_time;
         double best_3_time_to_now = min_time;
         
+        float init_temp = 1000;
         float temp = 10;
 
         int edge1 = 0;
         int edge2 = 0;
         int edge3 = 0;
         
+        auto timeAtLastRestart = std::chrono::high_resolution_clock::now();
         double new_time;
         bool is_legal;
         
         int runs = 0, better = 0, best = 0, total = 0, legal = 0;
-        // Loop over calling random swap until the time runs out
-        while(!timeOut) {
-            runs++;
-            //two_opt_swap_annealing_temp(route, min_time, is_in_truck, deliveries, truck_capacity, temp);
-            
-            // Check if the algorithm has timed out
-            auto currentTime = std::chrono::high_resolution_clock::now();
-            auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+        if(deliveries.size() > 20) {
+            // Loop over calling random swap until the time runs out
+            while(!timeOut) {
+                runs++;
 
-            timeOut = wallClock.count() > TIME_LIMIT;
-            
-            float x = (( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
-            //adjust annealing temp
-            temp = exp(x) - 1;
-            if(x<0) temp = 0;
-                     
-            
-            // Pick three random edges
-            edge1 = pcg32_fast() % (int)route.size();
-            edge2 = pcg32_fast() % (route.size() - edge1);
-            edge3 = pcg32_fast() % (route.size() - edge1 - edge2);
-            
-            // Swap 1 -----
-            reverse_vector(route, edge1, edge2);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return the vector to original
-            reverse_vector(route, edge1, edge2);
-            
-            
-            // Swap 2 -------
-            reverse_vector(route, edge2, edge3);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return vector to original
-            reverse_vector(route, edge2, edge3);
-            
-            
-            
-            // Swap 3 -------
-            reverse_vector(route, edge1, edge2);
-            reverse_vector(route, edge2, edge3);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return vector to original
-            reverse_vector(route, edge2, edge3);
-            reverse_vector(route, edge1, edge2);
-            
-            
-            
-            
-            // Reverse vector between edges 1 and 3 (Swap 4), and don't return until after swap 7
-            // Then do same process as above, reversing vectors between 1 and 2 (Swap 5), and 2 and 3 (Swap 6)
-            // And then both 1 and 2 and 2 and 3 (Swap 7)
+                // Check if the algorithm has timed out
+                auto currentTime = std::chrono::high_resolution_clock::now();
+                auto wallClock = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - startTime);
+                auto timeSinceLastRestart = std::chrono::duration_cast<std::chrono::duration<double>> (currentTime - timeAtLastRestart);
+                if(timeSinceLastRestart.count() > 5) {
+                    #pragma omp critical 
+                    {
+                        timeAtLastRestart = currentTime;
 
-            reverse_vector(route, edge1, edge3);
-            
-            
-            // Swap 4 -------
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            
-            // Swap 5 ----- reverse between 1 and 2
-            reverse_vector(route, edge1, edge2);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return the vector to swap 4
-            reverse_vector(route, edge1, edge2);
-            
-            
-            // Swap 6 ------- reverse between 2 and e3
-            reverse_vector(route, edge2, edge3);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return vector to swap 4
-            reverse_vector(route, edge2, edge3);
-            
-            
-            
-            // Swap 7 ------- reverse between both 1 and to and 2 and 3
-            reverse_vector(route, edge1, edge2);
-            reverse_vector(route, edge2, edge3);
-            // Try to get new time (in if statement)
-            is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
-            if(is_legal) legal ++;
-            
-            // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
-            // then keep the the new route, otherwise reverse the changes
-            if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
-            {
-                best_3_time_to_now = new_time;
-                best_3_route_to_now = route;
-            }
-            // Return vector to swap 4
-            reverse_vector(route, edge2, edge3);
-            reverse_vector(route, edge1, edge2);
-            
-            
-            // Return the vector to original, pre-swap 4
-            reverse_vector(route, edge1, edge3);
-            
-            
-            if(is_legal && ( best_3_time_to_now < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(best_3_time_to_now - min_time)/temp))) )// for simulated annealing
-            ) {
-                if(best_3_time_to_now < min_time) better++;
-                total++;
-                min_time = best_3_time_to_now;
-                route = best_3_route_to_now;
-                
-                if(min_time < best_time_to_now) {
-                   best ++;
-                   best_route_to_now = route;
-                   best_time_to_now = min_time; 
+                        if(best_time_to_now < best_time) {
+                            best_route = best_route_to_now;
+                            best_time = best_time_to_now;
+                        }else {
+                            route = best_route;
+                            min_time = best_time;
+                        }
+                    }
                 }
+
+                timeOut = wallClock.count() > TIME_LIMIT;
+
+                float x = timeSinceLastRestart.count() * -3.0;//(( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
+                //adjust annealing temp
+                temp = init_temp*exp(x);
+                //if(x<0) temp = 0;
+
+                // Pick three random edges
+                edge1 = pcg32_fast() % (int)route.size();
+                edge2 = pcg32_fast() % (route.size() - edge1);
+                edge3 = pcg32_fast() % (route.size() - edge1 - edge2);
+
+                // Swap 1 -----
+                reverse_vector(route, edge1, edge2);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return the vector to original
+                reverse_vector(route, edge1, edge2);
+
+
+                // Swap 2 -------
+                reverse_vector(route, edge2, edge3);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return vector to original
+                reverse_vector(route, edge2, edge3);
+
+
+
+                // Swap 3 -------
+                reverse_vector(route, edge1, edge2);
+                reverse_vector(route, edge2, edge3);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return vector to original
+                reverse_vector(route, edge2, edge3);
+                reverse_vector(route, edge1, edge2);
+
+
+
+
+                // Reverse vector between edges 1 and 3 (Swap 4), and don't return until after swap 7
+                // Then do same process as above, reversing vectors between 1 and 2 (Swap 5), and 2 and 3 (Swap 6)
+                // And then both 1 and 2 and 2 and 3 (Swap 7)
+
+                reverse_vector(route, edge1, edge3);
+
+
+                // Swap 4 -------
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+
+                // Swap 5 ----- reverse between 1 and 2
+                reverse_vector(route, edge1, edge2);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return the vector to swap 4
+                reverse_vector(route, edge1, edge2);
+
+
+                // Swap 6 ------- reverse between 2 and e3
+                reverse_vector(route, edge2, edge3);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return vector to swap 4
+                reverse_vector(route, edge2, edge3);
+
+
+
+                // Swap 7 ------- reverse between both 1 and to and 2 and 3
+                reverse_vector(route, edge1, edge2);
+                reverse_vector(route, edge2, edge3);
+                // Try to get new time (in if statement)
+                is_legal = validate_route(route, new_time, is_in_truck, deliveries, truck_capacity);
+                if(is_legal) legal ++;
+
+                // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
+                // then keep the the new route, otherwise reverse the changes
+                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                {
+                    best_3_time_to_now = new_time;
+                    best_3_route_to_now = route;
+                }
+                // Return vector to swap 4
+                reverse_vector(route, edge2, edge3);
+                reverse_vector(route, edge1, edge2);
+
+
+                // Return the vector to original, pre-swap 4
+                reverse_vector(route, edge1, edge3);
+
+                temp = exp(-1*(best_3_time_to_now - min_time)/temp);
+               // if(new_time > min_time && omp_get_thread_num()==0 && runs %1000 == 0) std::cout << temp << "       " << (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() << std::endl;
+
+
+                if(is_legal && (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() < temp// for simulated annealing
+                ) {
+                    if(best_3_time_to_now < min_time) better++;
+                    total++;
+                    min_time = best_3_time_to_now;
+                    route = best_3_route_to_now;
+
+                    if(min_time < best_time_to_now) {
+                       best ++;
+                       best_route_to_now = route;
+                       best_time_to_now = min_time; 
+                    }
+                }
+                // Else the vector will remain as it was pre 3opt swap
+
             }
-            // Else the vector will remain as it was pre 3opt swap
-                        
         }
                 
         //each thread takes a turn comparing its result to best overall
         #pragma omp critical
         {
+            best_time_to_now += add_closest_depots_to_route(best_route_to_now, depots);
             /*std::cout << "runs: " << runs << " best time: "<< best_time_to_now << "  thread#: " 
                     << omp_get_thread_num() << "  best swaps: " << best << "  better swaps: " << better 
                     << "  total swaps : " << total << "  legal options: " << legal << "\n";*/
-            add_closest_depots_to_route(best_route_to_now, depots);
-            best_time_to_now = get_route_time(route);
-            if(best_time_to_now < best_time) {
+            if(best_time_to_now < best_time_depot) {
                 best_route = best_route_to_now;
-                best_time = best_time_to_now;
+                best_time_depot = best_time_to_now;
             }
         }
         
     }   
-
-//    add_closest_depots_to_route(best_route, depots, right_turn_penalty, left_turn_penalty);
     
     //Convert simple path to one we can return:
     std::vector<CourierSubpath> route_complete;
@@ -580,7 +598,7 @@ void clear_intersection_nodes(std::vector<Node*> &intersection_nodes) {
     }        
 }
 
-void add_closest_depots_to_route(
+double add_closest_depots_to_route(
         std::vector<RouteStop> &simple_route,
         const std::vector<unsigned>& depots
 ) {
@@ -615,6 +633,8 @@ void add_closest_depots_to_route(
  
     simple_route.insert(simple_route.begin(), RouteStop(start_it, -1, DROP_OFF));
     simple_route.push_back(RouteStop(end_it, -1, DROP_OFF));
+    
+    return start_min + end_min;
 }
 
 //returns time of route and has legal flag, can set to false if non-reachable route, currently deprecated
