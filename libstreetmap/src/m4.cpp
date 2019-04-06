@@ -893,9 +893,6 @@ void find_greedy_path(const std::vector<unsigned> &destinations,
                 else if (it != current_item_carried.end()) {
                     closest_dropoff.first = i;
                     closest_dropoff.second = time;
-                } else if ((it == current_item_carried.end()) && (*it == i)) {
-                    closest_dropoff.first = i;
-                    closest_dropoff.second = time;
                 }
             }
         }
