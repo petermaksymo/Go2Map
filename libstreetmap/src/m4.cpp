@@ -154,6 +154,9 @@ std::vector<CourierSubpath> traveling_courier(
     double best_time = std::numeric_limits<double>::max();
     double best_time_depot = std::numeric_limits<double>::max();
     
+    // Get the number of intersections to know how large the city is
+    int num_intersections = getNumIntersections();
+    
     //each thread needs its own mcg_state for random number generation
     #pragma omp threadprivate(mcg_state)
     #pragma omp parallel
@@ -257,10 +260,18 @@ std::vector<CourierSubpath> traveling_courier(
 
                 timeOut = wallClock.count() > TIME_LIMIT;
 
-                float x = timeSinceLastRestart.count() * -3.0;//(( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
-                //adjust annealing temp
-                temp = init_temp*exp(x);
-                //if(x<0) temp = 0;
+                
+                float x;
+                if(num_intersections > 400000) {
+                    x = (( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
+                    //adjust annealing temp
+                    temp = exp(x) - 1;
+                    if(x<0) temp = 0;
+                } else {
+                    x = timeSinceLastRestart.count() * -3.0;//(( TIME_LIMIT - wallClock.count()) - 1.0)/16.0;       
+                    //adjust annealing temp
+                    temp = init_temp*exp(x);
+                }
 
                 // Pick three random edges
                 edge1 = pcg32_fast() % (int)route.size();
@@ -387,7 +398,7 @@ std::vector<CourierSubpath> traveling_courier(
 
                 // If a route can be found, OR is annealing, it improves travel time and it passes the legal check,
                 // then keep the the new route, otherwise reverse the changes
-                if(is_legal && new_time < best_3_time_to_now)//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
+                if(is_legal && (new_time < best_3_time_to_now || (num_intersections > 400000 && best_3_time_to_now == min_time)))//(new_time < min_time || ((1.0/(float)pcg32_fast() < exp(-1*(new_time - min_time)/temp))) )// for simulated annealing
                 {
                     best_3_time_to_now = new_time;
                     best_3_route_to_now = route;
@@ -399,12 +410,18 @@ std::vector<CourierSubpath> traveling_courier(
 
                 // Return the vector to original, pre-swap 4
                 reverse_vector(route, edge1, edge3);
+                bool take_it;
+                if(num_intersections > 400000) {
+                    take_it = (best_3_time_to_now < min_time || (((((int)pcg32_fast())%1000)/1000 < exp(-1*(best_3_time_to_now - min_time)/temp))));
+                    
+                } else {
+                    temp = exp(-1*(best_3_time_to_now - min_time)/temp);
+                    take_it = (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() < temp;
+                }
+                    // if(new_time > min_time && omp_get_thread_num()==0 && runs %1000 == 0) std::cout << temp << "       " << (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() << std::endl;
 
-                temp = exp(-1*(best_3_time_to_now - min_time)/temp);
-               // if(new_time > min_time && omp_get_thread_num()==0 && runs %1000 == 0) std::cout << temp << "       " << (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() << std::endl;
 
-
-                if(is_legal && (float) pcg32_fast()/std::numeric_limits<uint32_t>::max() < temp// for simulated annealing
+                if(is_legal && take_it// for simulated annealing
                 ) {
                     if(best_3_time_to_now < min_time) better++;
                     total++;
